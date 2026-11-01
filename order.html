@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>অনলাইন অর্ডার ফরম | কার্ড পয়েন্ট বিডি</title>
+  <meta name="description" content="সহজেই আপনার NID, ড্রাইভিং লাইসেন্স বা আইডি কার্ডের ফাইল আপলোড করে অনলাইনে অর্ডার করুন। ক্যাশ অন ডেলিভারি এবং দ্রুত হোম ডেলিভারি সুবিধা।">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="অনলাইন অর্ডার করুন | কার্ড পয়েন্ট বিডি">
+  <meta property="og:description" content="পিভিসি কার্ড প্রিন্টের জন্য ফাইল আপলোড ও অর্ডার কনফার্ম করুন।">
+  <meta property="og:image" content="images/hero-card.svg">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Simple Navigation for Order Page -->
+  <header class="order-header-nav" role="banner">
+    <div class="container order-header-nav__inner">
+      <a href="index.html" class="navbar__brand" aria-label="কার্ড পয়েন্ট বিডি হোমপেজ">
+        <img src="images/logo.svg" alt="কার্ড পয়েন্ট বিডি লোগো" class="navbar__logo" width="200" height="40">
+      </a>
+      <a href="index.html" class="order-header-nav__back">
+        <span>← হোমে ফিরে যান</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <div class="container">
+      <div style="padding-top: var(--space-6); text-align: center; max-width: 600px; margin: 0 auto;">
+        <span class="section-header__tag">সহজ ৩ ধাপে অর্ডার</span>
+        <h1 style="font-size: 1.875rem; font-weight: 800; color: var(--color-text); margin-bottom: 8px;">
+          পিভিসি কার্ড অনলাইন অর্ডার
+        </h1>
+        <p style="color: var(--color-text-muted); font-size: 0.9375rem;">
+          প্রয়োজনীয় কার্ডের পরিমাণ সিলেক্ট করুন, ফাইল বা ছবি আপলোড করুন এবং ডেলিভারি ঠিকানা পূরণ করে অর্ডার সম্পন্ন করুন।
+        </p>
+      </div>
+
+      <!-- Main Order Layout -->
+      <form id="pvcOrderForm" novalidate>
+        <div class="order-layout">
+          
+          <!-- LEFT COLUMN: Product Selector + Customer Form -->
+          <div class="order-main-flow">
+            
+            <!-- Step 1: Card Selection & File Upload -->
+            <div class="order-card">
+              <h2 class="order-card__title">
+                <span>১. কার্ড নির্বাচন ও ফাইল আপলোড</span>
+                <span class="order-card__title-badge">প্রতি পিস ১০০ টাকা</span>
+              </h2>
+
+              <div class="product-option-list">
+                
+                <!-- Option 1: NID -->
+                <div class="product-option-item">
+                  <div class="product-option-item__top">
+                    <div>
+                      <div class="product-option-item__name">NID স্মার্ট কার্ড প্রিন্ট</div>
+                      <div style="font-size: 0.8125rem; color: #64748B;">নির্বাচন কমিশন থেকে ডাউনলোড করা PDF বা উভয় পাশের ছবি</div>
+                    </div>
+                    <div class="product-option-item__price">৳১০০</div>
+                  </div>
+
+                  <div class="product-option-item__controls">
+                    <div class="quantity-stepper" data-card-key="nid">
+                      <button type="button" class="quantity-stepper__btn quantity-stepper__btn--minus" aria-label="NID সংখ্যা কমান">−</button>
+                      <input type="number" class="quantity-stepper__input" value="1" min="0" max="100" aria-label="NID পরিমাণ">
+                      <button type="button" class="quantity-stepper__btn quantity-stepper__btn--plus" aria-label="NID সংখ্যা বাড়ান">+</button>
+                    </div>
+
+                    <div class="file-upload-box">
+                      <label class="file-upload-box__label" for="file_nid">NID ফাইল (PDF / JPG / PNG):</label>
+                      <input type="file" id="file_nid" class="file-upload-box__input" data-card-key="nid" accept=".pdf,image/png,image/jpeg">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Option 2: Driving License -->
+                <div class="product-option-item">
+                  <div class="product-option-item__top">
+                    <div>
+                      <div class="product-option-item__name">ড্রাইভিং লাইসেন্স কার্ড</div>
+                      <div style="font-size: 0.8125rem; color: #64748B;">BRTA ই-লাইসেন্স পেপার বা ক্লিয়ার স্ক্যান কপি</div>
+                    </div>
+                    <div class="product-option-item__price">৳১০০</div>
+                  </div>
+
+                  <div class="product-option-item__controls">
+                    <div class="quantity-stepper" data-card-key="license">
+                      <button type="button" class="quantity-stepper__btn quantity-stepper__btn--minus" aria-label="ড্রাইভিং লাইসেন্স সংখ্যা কমান">−</button>
+                      <input type="number" class="quantity-stepper__input" value="0" min="0" max="100" aria-label="ড্রাইভিং লাইসেন্স পরিমাণ">
+                      <button type="button" class="quantity-stepper__btn quantity-stepper__btn--plus" aria-label="ড্রাইভিং লাইসেন্স সংখ্যা বাড়ান">+</button>
+                    </div>
+
+                    <div class="file-upload-box">
+                      <label class="file-upload-box__label" for="file_license">লাইসেন্স ফাইল (PDF / JPG):</label>
+                      <input type="file" id="file_license" class="file-upload-box__input" data-card-key="license" accept=".pdf,image/png,image/jpeg">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Option 3: Vaccine Card -->
+                <div class="product-option-item">
+                  <div class="product-option-item__top">
+                    <div>
+                      <div class="product-option-item__name">ভ্যাকসিন সার্টিফিকেট কার্ড</div>
+                      <div style="font-size: 0.8125rem; color: #64748B;">সুরক্ষা পোর্টাল থেকে পাওয়া টিকাদান সনদ PDF</div>
+                    </div>
+                    <div class="product-option-item__price">৳১০০</div>
+                  </div>
+
+                  <div class="product-option-item__controls">
+                    <div class="quantity-stepper" data-card-key="vaccine">
+                      <button type="button" class="quantity-stepper__btn quantity-stepper__btn--minus" aria-label="ভ্যাকসিন কার্ড সংখ্যা কমান">−</button>
+                      <input type="number" class="quantity-stepper__input" value="0" min="0" max="100" aria-label="ভ্যাকসিন কার্ড পরিমাণ">
+                      <button type="button" class="quantity-stepper__btn quantity-stepper__btn--plus" aria-label="ভ্যাকসিন কার্ড সংখ্যা বাড়ান">+</button>
+                    </div>
+
+                    <div class="file-upload-box">
+                      <label class="file-upload-box__label" for="file_vaccine">ভ্যাকসিন সনদ ফাইল (PDF / JPG):</label>
+                      <input type="file" id="file_vaccine" class="file-upload-box__input" data-card-key="vaccine" accept=".pdf,image/png,image/jpeg">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Option 4: Student / Office ID -->
+                <div class="product-option-item">
+                  <div class="product-option-item__top">
+                    <div>
+                      <div class="product-option-item__name">অফিস / স্টুডেন্ট আইডি কার্ড</div>
+                      <div style="font-size: 0.8125rem; color: #64748B;">প্রতিষ্ঠানের লোগো, তথ্য ও ছবিযুক্ত ফাইল</div>
+                    </div>
+                    <div class="product-option-item__price">৳১০০</div>
+                  </div>
+
+                  <div class="product-option-item__controls">
+                    <div class="quantity-stepper" data-card-key="student">
+                      <button type="button" class="quantity-stepper__btn quantity-stepper__btn--minus" aria-label="আইডি কার্ড সংখ্যা কমান">−</button>
+                      <input type="number" class="quantity-stepper__input" value="0" min="0" max="100" aria-label="আইডি কার্ড পরিমাণ">
+                      <button type="button" class="quantity-stepper__btn quantity-stepper__btn--plus" aria-label="আইডি কার্ড সংখ্যা বাড়ান">+</button>
+                    </div>
+
+                    <div class="file-upload-box">
+                      <label class="file-upload-box__label" for="file_student">আইডি কার্ড ফাইল (PDF / ZIP / JPG):</label>
+                      <input type="file" id="file_student" class="file-upload-box__input" data-card-key="student" accept=".pdf,image/png,image/jpeg,.zip">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Option 5: Custom Card -->
+                <div class="product-option-item">
+                  <div class="product-option-item__top">
+                    <div>
+                      <div class="product-option-item__name">অন্যান্য কাস্টম ডিজাইন কার্ড</div>
+                      <div style="font-size: 0.8125rem; color: #64748B;">যেকোনো পার্সোনাল বা বিজনেস কার্ড ডিজাইন ফাইল</div>
+                    </div>
+                    <div class="product-option-item__price">৳১০০</div>
+                  </div>
+
+                  <div class="product-option-item__controls">
+                    <div class="quantity-stepper" data-card-key="custom">
+                      <button type="button" class="quantity-stepper__btn quantity-stepper__btn--minus" aria-label="কাস্টম কার্ড সংখ্যা কমান">−</button>
+                      <input type="number" class="quantity-stepper__input" value="0" min="0" max="100" aria-label="কাস্টম কার্ড পরিমাণ">
+                      <button type="button" class="quantity-stepper__btn quantity-stepper__btn--plus" aria-label="কাস্টম কার্ড সংখ্যা বাড়ান">+</button>
+                    </div>
+
+                    <div class="file-upload-box">
+                      <label class="file-upload-box__label" for="file_custom">ডিজাইন ফাইল (PDF / PSD / AI / JPG):</label>
+                      <input type="file" id="file_custom" class="file-upload-box__input" data-card-key="custom" accept=".pdf,image/png,image/jpeg,.zip">
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Step 2: Customer Delivery Information -->
+            <div class="order-card">
+              <h2 class="order-card__title">২. আপনার ডেলিভারি তথ্য</h2>
+
+              <div class="form-group">
+                <label for="customerName" class="form-label">আপনার পূর্ণ নাম <span class="form-label__req">*</span></label>
+                <input type="text" id="customerName" class="form-control" placeholder="যেমন: মোঃ সাব্বির আহমেদ" required>
+              </div>
+
+              <div class="form-group">
+                <label for="customerPhone" class="form-label">মোবাইল নম্বর <span class="form-label__req">*</span></label>
+                <input type="tel" id="customerPhone" class="form-control" placeholder="যেমন: 01712345678" required>
+                <small style="color: #64748B; font-size: 0.8125rem;">ডেলিভারির সময় কুরিয়ার প্রতিনিধি এই নম্বরে যোগাযোগ করবেন।</small>
+              </div>
+
+              <div class="form-group">
+                <label for="customerAddress" class="form-label">সম্পূর্ণ ডেলিভারি ঠিকানা <span class="form-label__req">*</span></label>
+                <textarea id="customerAddress" class="form-control" placeholder="বাসা নং, রোড নং, এলাকা/গ্রাম, থানা/উপজেলা, জেলা" required></textarea>
+              </div>
+
+              <!-- Payment Method Selection -->
+              <div class="form-group">
+                <label class="form-label">পেমেন্ট মেথড বেছে নিন <span class="form-label__req">*</span></label>
+                <div class="form-radio-group">
+                  <label class="form-radio-card">
+                    <input type="radio" name="payment_method" value="cod" checked>
+                    <span class="form-radio-card__label">
+                      <span>💵 ক্যাশ অন ডেলিভারি</span>
+                    </span>
+                  </label>
+
+                  <label class="form-radio-card">
+                    <input type="radio" name="payment_method" value="bkash">
+                    <span class="form-radio-card__label">
+                      <span>📱 বিকাশ (bKash)</span>
+                    </span>
+                  </label>
+
+                  <label class="form-radio-card">
+                    <input type="radio" name="payment_method" value="nagad">
+                    <span class="form-radio-card__label">
+                      <span>🟠 নগদ (Nagad)</span>
+                    </span>
+                  </label>
+                </div>
+
+                <div id="paymentInstructions" class="payment-notice" style="display: none;"></div>
+
+                <div id="trxIdGroup" class="form-group" style="display: none; margin-top: 16px;">
+                  <label for="trxId" class="form-label">Transaction ID (TrxID) <span class="form-label__req">*</span></label>
+                  <input type="text" id="trxId" class="form-control" placeholder="টাকা পাঠানোর TrxID লিখুন (যেমন: 9J28DA10K)">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="customerNotes" class="form-label">অতিরিক্ত কোনো নির্দেশনা বা নোট (যদি থাকে)</label>
+                <input type="text" id="customerNotes" class="form-control" placeholder="যেমন: কার্ডে হোল পাঞ্চ (Lanyard Punch) প্রয়োজন ইত্যাদি">
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: Sticky Order Summary & Submission -->
+          <div class="order-summary-sidebar">
+            <div class="summary-card">
+              <div class="summary-card__header">
+                <h3 class="summary-card__title">অর্ডার সামারি</h3>
+                <span class="summary-card__count-badge" id="summaryTotalCount">১ পিস</span>
+              </div>
+
+              <!-- Selected Items List -->
+              <ul class="summary-item-list" id="summaryItemList">
+                <!-- Populated dynamically by main.js -->
+              </ul>
+
+              <!-- Free Delivery Promo Notification -->
+              <div id="summaryPromoAlert" class="delivery-promo-alert">
+                💡 আর মাত্র ৪ পিস যোগ করলেই সারা বাংলাদেশে <strong>ফ্রি ডেলিভারি</strong> পাবেন!
+              </div>
+
+              <!-- Bill Calculations -->
+              <div class="summary-lines">
+                <div class="summary-line">
+                  <span>সাবটোটাল</span>
+                  <span id="summarySubtotal" style="font-family: var(--font-latin); font-weight: 700;">৳১০০</span>
+                </div>
+                <div class="summary-line">
+                  <span>হোম ডেলিভারি চার্জ</span>
+                  <span id="summaryDelivery">৳৫০</span>
+                </div>
+                <div class="summary-line summary-line--total">
+                  <span>সর্বমোট বিল</span>
+                  <span id="summaryTotal" class="summary-amount">৳১৫০</span>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" id="submitOrderBtn" class="btn btn--accent btn--block btn--lg">
+                অর্ডার সম্পন্ন করুন ➔
+              </button>
+
+              <div style="text-align: center; margin-top: 16px; font-size: 0.8125rem; color: #64748B;">
+                🔒 আপনার আপলোডকৃত ফাইল ও ব্যক্তিগত তথ্য সম্পূর্ণ নিরাপদ ও ডেলিভারির পর স্বয়ংক্রিয়ভাবে মুছে ফেলা হয়।
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- ==================== SHARED FOOTER ==================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <h3 class="footer__brand-title">কার্ড পয়েন্ট বিডি</h3>
+          <p class="footer__tagline">
+            সততা, নিখুঁত মান এবং গ্রাহক সন্তুষ্টিই আমাদের প্রধান মূলধন। আধুনিক টেকনোলজিতে প্রিমিয়াম পিভিসি কার্ড প্রিন্টিংয়ে আমরা দেশের বিশ্বস্ত প্রতিষ্ঠান।
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer__col-title">জরুরি হেল্পলাইন</h4>
+          <ul class="footer__contact-list">
+            <li class="footer__contact-item">
+              <span class="footer__contact-icon">📍</span>
+              <span>দোকান নং ১২ (২য় তলা), নিউ মার্কেট সিটি সেন্টার, ঢাকা - ১২০৫</span>
+            </li>
+            <li class="footer__contact-item">
+              <span class="footer__contact-icon">📞</span>
+              <a href="tel:+8801712345678" class="footer__contact-link">+৮৮০ ১৭১২-৩৪৫৬৭৮</a>
+            </li>
+            <li class="footer__contact-item">
+              <span class="footer__contact-icon">✉️</span>
+              <a href="mailto:info@cardpointbd.com" class="footer__contact-link">info@cardpointbd.com</a>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__col-title">সরাসরি সহায়তা</h4>
+          <p style="font-size: 0.9375rem; color: #94A3B8; margin-bottom: 12px;">
+            অর্ডার করতে কোনো সমস্যা হলে আমাদের হোয়াটসঅ্যাপে মেসেজ দিন:
+          </p>
+          <a href="https://wa.me/8801712345678" target="_blank" rel="noopener noreferrer" class="btn btn--whatsapp">
+            <span>WhatsApp সাপোর্ট</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <div>
+          <p>© ২০২৬ কার্ড পয়েন্ট বিডি। সর্বস্বত্ব সংরক্ষিত।</p>
+        </div>
+        <ul class="footer__links">
+          <li><a href="index.html" class="footer__bottom-link">হোমপেজ</a></li>
+          <li><a href="about.html" class="footer__bottom-link">আমাদের সম্পর্কে</a></li>
+          <li><a href="privacy.html" class="footer__bottom-link">গোপনীয়তা নীতি</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp -->
+  <a href="https://wa.me/8801712345678" target="_blank" rel="noopener noreferrer" class="floating-whatsapp" aria-label="হোয়াটসঅ্যাপে চ্যাট করুন">
+    <span class="floating-whatsapp__tooltip">হোয়াটসঅ্যাপে সাহায্য নিন</span>
+    <img src="images/whatsapp-icon.svg" alt="WhatsApp Icon" width="32" height="32">
+  </a>
+
+  <!-- Script -->
+  <script defer src="js/main.js?v=nid-replacement-6"></script>
+</body>
+</html>

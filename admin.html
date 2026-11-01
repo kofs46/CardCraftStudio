@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>অ্যাডমিন প্যানেল | কার্ড পয়েন্ট বিডি</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css?v=flip-3">
+  <style>
+    /* Admin specific layout styles */
+    .admin-body {
+      background-color: #F1F5F9;
+      min-height: 100vh;
+    }
+    .admin-navbar {
+      background-color: #0F172A;
+      color: #FFFFFF;
+      padding: 14px 0;
+      border-bottom: 2px solid var(--color-primary);
+    }
+    .admin-navbar__inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .stat-card {
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .stat-card__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .stat-card__icon--blue { background: #E0F2FE; color: #0284C7; }
+    .stat-card__icon--amber { background: #FEF3C7; color: #D97706; }
+    .stat-card__icon--teal { background: #CCFBF1; color: #0F766E; }
+    .stat-card__icon--green { background: #DCFCE7; color: #16A34A; }
+    .stat-card__num {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--color-text);
+      font-family: var(--font-latin);
+      line-height: 1.1;
+    }
+    .stat-card__label {
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+      font-weight: 600;
+    }
+    
+    /* Toolbar */
+    .admin-toolbar {
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-search-box {
+      flex: 1;
+      min-width: 250px;
+      max-width: 400px;
+    }
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .filter-pill {
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border);
+      background: #F8FAFC;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .filter-pill.active {
+      background: var(--color-primary);
+      color: #FFFFFF;
+      border-color: var(--color-primary);
+    }
+    
+    /* Orders Table */
+    .table-container {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9375rem;
+    }
+    .admin-table th {
+      background: #F8FAFC;
+      padding: 14px 16px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      border-bottom: 2px solid var(--color-border);
+      white-space: nowrap;
+    }
+    .admin-table td {
+      padding: 16px;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: top;
+    }
+    .admin-table tr:hover td {
+      background-color: #F8FAFC;
+    }
+    
+    /* Status Badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge--pending { background: #FEF3C7; color: #92400E; }
+    .badge--printing { background: #E0E7FF; color: #3730A3; }
+    .badge--shipped { background: #E0F2FE; color: #0369A1; }
+    .badge--delivered { background: #DCFCE7; color: #15803D; }
+    .badge--cancelled { background: #FFE4E6; color: #9F1239; }
+
+    /* Action Buttons in Table */
+    .btn-action {
+      padding: 5px 10px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .btn-action--view { background: #F0FDFA; color: var(--color-primary); border: 1px solid var(--color-primary-light); }
+    .btn-action--wipe { background: #FFF1F2; color: #E11D48; border: 1px solid #FECDD3; }
+    .btn-action--delete { background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1; }
+
+    /* Login gate modal */
+    #adminLoginGate {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .login-card {
+      background: #FFFFFF;
+      max-width: 400px;
+      width: 100%;
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+    }
+    @media print {
+      body * { visibility: hidden; }
+      #printableInvoice, #printableInvoice * { visibility: visible; }
+      #printableInvoice { position: absolute; left: 0; top: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body class="admin-body">
+  <div id="app"><p>Loading admin preview...</p></div>
+  <dialog id="modal">
+    <button class="close" aria-label="Close dialog">Close</button>
+    <div id="modal-content"></div>
+  </dialog>
+  <script defer src="js/main.js?v=nid-replacement-6"></script>
+</body>
+</html>

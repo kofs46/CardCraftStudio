@@ -450,7 +450,7 @@ button {
   padding-top: var(--space-8);
   padding-bottom: var(--space-12);
   background: linear-gradient(180deg, #f0fdfa 0%, var(--color-bg) 100%);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .hero__grid {
@@ -462,22 +462,25 @@ button {
 
 @media (min-width: 992px) {
   .hero__grid {
-    grid-template-columns: 1.15fr 0.85fr;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
     gap: var(--space-12);
-    padding: var(--space-6) 0;
+    padding: var(--space-6) var(--space-4);
   }
 }
 
 .hero__content {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
 .hero__headline {
+  overflow-wrap: anywhere;
+  padding-block: .1em;
   font-size: 2.125rem;
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.4;
   color: var(--color-text);
 }
 
@@ -562,6 +565,7 @@ button {
 }
 
 .hero__media {
+  min-width: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -578,23 +582,24 @@ button {
    -------------------------------------------------------------------------- */
 .samples-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-6);
 }
 
 @media (min-width: 600px) {
   .samples-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1024px) {
   .samples-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 .sample-card {
+  min-width: 0;
   background-color: var(--color-card-bg);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -2154,15 +2159,70 @@ button:disabled {
 }
 body.admin-body{background:var(--color-bg)}.admin-body .admin-navbar{background:var(--color-card-bg);color:var(--color-text);border-bottom:1px solid var(--color-border)}
 
-/* Front/back card preview shared by the homepage and product dialog. */
-.sample-card__flip-preview { padding: 16px; display: grid; gap: 12px; }
-.card-flip { perspective: 1200px; width: 100%; }
-.card-flip__inner { display: grid; transform-style: preserve-3d; transition: transform .65s ease; }
+/* Front/back card preview: all tracks can shrink without clipping artwork. */
+.sample-card__flip-preview {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  min-width: 0;
+}
+.sample-card__body { min-width: 0; }
+.sample-card__body .btn,
+.sample-card__flip-preview .btn {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+.card-flip { perspective: 1200px; width: 100%; min-width: 0; }
+.card-flip__inner {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 85.6 / 54;
+  transform-style: preserve-3d;
+  transition: transform .65s ease;
+}
 .card-flip__inner.is-flipped { transform: rotateY(180deg); }
-.card-flip__face { grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; align-items: center; justify-content: center; min-width: 0; }
+.card-flip__face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .card-flip__face--back { transform: rotateY(180deg); }
-.card-flip__face img { display: block; width: 100%; height: 250px; object-fit: contain; border-radius: 12px; }
-.card-flip__placeholder { min-height: 250px; border: 1px solid #99d3c9; border-radius: 14px; background: linear-gradient(135deg, #effcf8, #d3eee8); color: #134e4a; flex-direction: column; gap: 14px; padding: 24px; text-align: center; box-sizing: border-box; }
-.card-flip__placeholder strong { font-size: 1.25rem; }
-.sample-card__side { display: block; text-align: center; font-size: .875rem; }
-@media (prefers-reduced-motion: reduce) { .card-flip__inner { transition: none; } }
+.card-flip__face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+}
+.card-flip__placeholder {
+  border: 1px solid #99d3c9;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #effcf8, #d3eee8);
+  color: #134e4a;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.card-flip__placeholder strong { font-size: clamp(.85rem, 2vw, 1.25rem); }
+.sample-card__side { text-align: center; font-size: .875rem; }
+.hero__actions .btn { max-width: 100%; white-space: normal; }
+.free-delivery-banner { flex-wrap: wrap; }
+.free-delivery-banner__text { min-width: 0; overflow-wrap: anywhere; }
+@media (prefers-reduced-motion: reduce) {
+  .card-flip__inner { transition: none; }
+}

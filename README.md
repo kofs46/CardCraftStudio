@@ -16,17 +16,21 @@ Open `index.html` in your browser, or open this folder in VS Code and use Live S
 
 On the admin page, select **Enter admin preview**. This is a browser-only demo: products, orders, artwork, and settings are stored in localStorage. It has no protected admin login, shared database, payment processing, or live order service. Use fictional customer details. Browser storage is separate for each browser/origin; clearing site data resets it.
 
-## Included demo images
+## UI / UX screenshots
 
-All images below are AI-generated fictional printing samples. Identity, driving, vaccine, and student samples are visibly marked **DEMO / নমুনা** and **NOT VALID**. They are not issued documents. Upload replacement front/back images from the admin product editor.
+Actual screenshots of the running website interfaces. The admin screenshot shows the clean demo dashboard with no customer data.
 
-| Sample | Front | Back |
-| --- | --- | --- |
-| Identity card | ![Identity card front](images/demo-nid-front-v2.png) | ![Identity card back](images/demo-nid-back-v2.png) |
-| Driving card | ![Driving card front](images/demo-license-front-v2.png) | ![Driving card back](images/demo-license-back-v2.png) |
-| Vaccine card | ![Vaccine card front](images/demo-vaccine-front-v2.png) | ![Vaccine card back](images/demo-vaccine-back-v2.png) |
-| Office/student card | ![Student card front](images/demo-student-front-v2.png) | ![Student card back](images/demo-student-back-v2.png) |
-| Business card | ![Business card front](images/demo-business-front.png) | ![Business card back](images/demo-business-back.png) |
+### Homepage — `index.html`
+
+![Homepage UI with Bangla navigation, hero, service details and order actions](docs/screenshots/homepage.png)
+
+### Admin panel — `admin.html`
+
+![Admin dashboard UI with management navigation, statistics, filters and order table](docs/screenshots/admin-panel.png)
+
+### Demo card assets
+
+The website's product previews still use the included fictional, AI-generated front/back card assets in `images/`. Identity, driving, vaccine, and student samples are marked **DEMO / নমুনা** and **NOT VALID**; they are not issued documents. Replace them through the admin product editor.
 
 ## Repository scope
 

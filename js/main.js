@@ -93,14 +93,14 @@ const previewSeed = [
 
 const previewDefaults = {
   businessName: "",
-  phone: "",
+  phone: "01983469936",
   phone2: "",
-  address: "",
-  email: "",
-  whatsapp: "",
+  address: "সাভার,ঢাকা-১৩৪৭।",
+  email: "cardcraftstuiobd@gmail.com",
+  whatsapp: "01983469936",
   bkash: "",
   nagad: "",
-  facebook: "",
+  facebook: "https://www.facebook.com/CardCraftstudiobd",
   instagram: "",
   youtube: "",
   tiktok: "",
@@ -139,7 +139,14 @@ function normalizePreview(data) {
     ...data,
     products,
     nidDemoReplacementVersion: 1,
-    settings: { ...previewDefaults, ...data.settings },
+    settings: {
+      ...previewDefaults,
+      ...data.settings,
+      ...(data.businessContactsVersion === 1 ? {} : Object.fromEntries(
+        ["phone", "phone2", "address", "email", "whatsapp", "facebook"].map((key) => [key, previewDefaults[key]])
+      )),
+    },
+    businessContactsVersion: 1,
     combos: data.combos || [],
   };
 }
@@ -226,7 +233,7 @@ function previewRead() {
     if (saved) {
       const previous = JSON.parse(saved);
       const normalized = normalizePreview(previous);
-      if (previous.nidDemoReplacementVersion !== 1) {
+      if (previous.nidDemoReplacementVersion !== 1 || previous.businessContactsVersion !== 1) {
         try { localStorage.setItem("pvc_shop_frontend_v1", JSON.stringify(normalized)); } catch {}
       }
       return normalized;
@@ -234,6 +241,7 @@ function previewRead() {
   } catch {}
   return {
     products: structuredClone(previewSeed),
+    businessContactsVersion: 1,
     nidDemoReplacementVersion: 1,
     categories: [...new Set(previewSeed.map((p) => p.category))],
     orders: [],
@@ -1214,7 +1222,19 @@ if (document.body.classList.contains("admin-body")) {
       else if (/প্রতিষ্ঠানের নাম/.test(title)) value = settings.businessName;
       if (value) {
         const p = label.parentElement;
-        p.replaceChildren(label, document.createTextNode(" " + value));
+        if (/ইমেইল/.test(title)) {
+          const link = document.createElement("a");
+          link.href = "mailto:" + value;
+          link.textContent = value;
+          p.replaceChildren(label, document.createTextNode(" "), link);
+        } else if (/হেল্পলাইন|ফোন|মোবাইল/.test(title) && !settings.phone2) {
+          const link = document.createElement("a");
+          link.href = phoneHref(settings.phone);
+          link.textContent = value;
+          p.replaceChildren(label, document.createTextNode(" "), link);
+        } else {
+          p.replaceChildren(label, document.createTextNode(" " + value));
+        }
       }
     });
     if (settings.whatsapp) {

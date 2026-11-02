@@ -2249,3 +2249,16 @@ body.admin-body{background:var(--color-bg)}.admin-body .admin-navbar{background:
 #details-add-cart { margin:12px; }
 @media(max-width:767px) { .cart-layout { grid-template-columns:minmax(0,1fr); } .cart-item { grid-template-columns:72px minmax(0,1fr); padding:12px; gap:12px; } .cart-item>img { width:72px; height:100px; } }
 @media(max-width:480px) { .navbar__logo { height:32px; } .cart-link { font-size:.85rem; padding:8px; } .navbar__inner>div:last-child { gap:8px!important; } .order-header-nav__inner { gap:8px; } .order-header-nav__back { min-width:0; font-size:.8rem; white-space:normal; } }
+
+.navbar__cta.order-list-link,.order-list-link { display:inline-flex!important; flex-shrink:0; white-space:nowrap; }
+@media(max-width:480px) { .navbar__cta.order-list-link,.order-list-link { font-size:.85rem; padding:8px; } }
+
+/* Supplied circular brand artwork: preserve the original image proportions. */
+.navbar__logo.business-logo { width:56px; height:56px; max-width:none; flex-shrink:0; object-fit:contain; }
+.brand-wordmark { font-family:var(--font-latin),sans-serif; font-size:1rem; line-height:1.3; font-weight:700; color:var(--color-primary-dark); max-width:160px; }
+.footer__brand-logo { width:128px; height:128px; object-fit:contain; margin-bottom:16px; border-radius:50%; }
+.original-admin-brand { display:flex; align-items:center; gap:10px; min-width:0; }
+.admin-brand-logo { width:48px; height:48px; flex-shrink:0; object-fit:contain; }
+.login-brand-logo { display:block; width:112px; height:112px; object-fit:contain; margin:0 auto 16px; }
+@media(max-width:991px) { .brand-wordmark { display:none; } }
+@media(max-width:480px) { .navbar__logo.business-logo { width:44px; height:44px; } .admin-brand-logo { width:40px; height:40px; } }

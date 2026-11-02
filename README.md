@@ -1,4 +1,4 @@
-# CardCraft Studio
+# CraftCard Studio BD
 
 A Bangla card-printing website with a storefront, front/back card previews, order form, and admin demo interface.
 
@@ -9,7 +9,7 @@ Open `index.html` in your browser, or open this folder in VS Code and use Live S
 | Page | Interface |
 | --- | --- |
 | `index.html` | Homepage, product catalog, search, and flipping card previews |
-| `cart.html` | Persistent shopping cart, quantities, removal, and checkout |
+| `order-list.html` | Saved order list, quantities, removal, and checkout |
 | `order.html` | Quantities, artwork selection, delivery, and demo order submission |
 | `admin.html` | Product images, prices, orders, customers, and business settings |
 | `about.html` | About the business |
@@ -48,6 +48,11 @@ This repository includes the current static frontend and the assets it uses. Loc
 Replace sample contact details, business information, and policy copy before using this as a live business website. Real authentication, order storage, secure artwork handling, and payment services require backend integration.
 
 
-## Shopping cart
+## Order list
 
-Use **কার্টে যোগ করুন** on products or the details popup. For Bike Key Ring, choose one-side or two-side printing before adding. `cart.html` supports quantity changes, removal, and persistent browser storage. Both print options can be ordered together, with separate bike details and an optional back photo for the two-side option at checkout. Delivery is calculated at checkout. A successful demo order clears the cart; validation failures leave it intact. No real order or payment is sent to the business.
+Use **অর্ডার করুন** on a product to add it to the order list. For Bike Key Ring, choose the print side in its details popup and select **অর্ডারে যোগ করুন**. The header's **অর্ডার করুন** button shows the saved item count and opens `order-list.html`, where quantities can be changed and products removed. Continue to the address/details form to confirm the demo order. Both key-ring variants can be included, with separate personalization and an optional back photo for the two-side option. Storage and successful-order clearing behavior are preserved. The old `cart.html` URL redirects to the order list.
+
+
+## Business logo
+
+The supplied CraftCard Studio BD logo is used in the public header, footer, admin interface and browser icon. Its original artwork is preserved in `images/craftcard-studio-bd-logo.png`.

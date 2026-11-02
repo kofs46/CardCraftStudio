@@ -86,7 +86,7 @@ const previewSeed = [
 ];
 
 const previewDefaults = {
-  businessName: "কার্ডক্রাফট স্টুডিও",
+  businessName: "CraftCard Studio BD",
   phone: "01983469936",
   phone2: "",
   address: "সাভার,ঢাকা-১৩৪৭।",
@@ -150,7 +150,7 @@ function readCart(products) {
 }
 function saveCart(lines) {
   try { localStorage.setItem(cartStorageKey, JSON.stringify(lines)); }
-  catch { throw Error("কার্ট সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ পরীক্ষা করুন।"); }
+  catch { throw Error("অর্ডার তালিকা সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ পরীক্ষা করুন।"); }
 }
 function addCartItem(product, sides = 1, quantity = 1) {
   if (!product?.id || !product.available) throw Error("এই পণ্য এখন পাওয়া যাচ্ছে না।");
@@ -192,11 +192,11 @@ function normalizePreview(data) {
     categories: replaceCatalog ? [...new Set(previewSeed.map(p => p.category))] : (data.categories || []),
     combos,
     settings: { ...previewDefaults, ...data.settings,
-      businessName: data.settings?.businessName || previewDefaults.businessName,
+      businessName: data.brandVersion === 1 ? (data.settings?.businessName || previewDefaults.businessName) : previewDefaults.businessName,
       ...(data.businessContactsVersion === 1 ? {} : Object.fromEntries(
         ["phone", "phone2", "address", "email", "whatsapp", "facebook"].map(key => [key, previewDefaults[key]])
       )),
-    }, businessContactsVersion: 1,
+    }, businessContactsVersion: 1, brandVersion: 1,
   };
 }
 const unitPrice = (p) =>
@@ -282,7 +282,7 @@ function previewRead() {
     if (saved) {
       const previous = JSON.parse(saved);
       const normalized = normalizePreview(previous);
-      if (previous.catalogVersion !== 3 || previous.businessContactsVersion !== 1) {
+      if (previous.catalogVersion !== 3 || previous.businessContactsVersion !== 1 || previous.brandVersion !== 1) {
         try { localStorage.setItem("pvc_shop_frontend_v1", JSON.stringify(normalized)); } catch {}
       }
       return normalized;
@@ -290,6 +290,7 @@ function previewRead() {
   } catch {}
   return {
     products: structuredClone(previewSeed),
+    brandVersion: 1,
     businessContactsVersion: 1,
     catalogVersion: 3,
     categories: [...new Set(previewSeed.map((p) => p.category))],
@@ -744,7 +745,7 @@ if (document.body.classList.contains("admin-body")) {
       customers: "গ্রাহকের তথ্য",
       images: "কার্ডের ছবি",
     };
-    app.innerHTML = `<header class="admin-navbar"><div class="container admin-navbar__inner"><a class="original-admin-brand" href="admin.html?view=dashboard">কার্ড পয়েন্ট বিডি <span>| অ্যাডমিন প্যানেল</span></a><div class="original-header-actions"><a href="index.html">ওয়েবসাইট দেখুন</a><button id="logout" type="button">লগআউট</button></div></div></header><main id="main" class="container live-admin original-admin"><div class="original-admin-heading"><h1>${labels[page] || "অ্যাডমিন প্যানেল"}</h1><p>ফ্রন্টএন্ড ডেমো · তথ্য শুধু এই ব্রাউজারে থাকে</p></div><nav class="admin-toolbar admin-section-tabs" aria-label="অ্যাডমিন অপশন">${Object.entries(
+    app.innerHTML = `<header class="admin-navbar"><div class="container admin-navbar__inner"><a class="original-admin-brand" href="admin.html?view=dashboard"><img src="images/craftcard-studio-bd-logo.png" alt="CraftCard Studio BD লোগো" class="admin-brand-logo" width="48" height="48">${e(data.settings.businessName || previewDefaults.businessName)} <span>| অ্যাডমিন প্যানেল</span></a><div class="original-header-actions"><a href="index.html">ওয়েবসাইট দেখুন</a><button id="logout" type="button">লগআউট</button></div></div></header><main id="main" class="container live-admin original-admin"><div class="original-admin-heading"><h1>${labels[page] || "অ্যাডমিন প্যানেল"}</h1><p>ফ্রন্টএন্ড ডেমো · তথ্য শুধু এই ব্রাউজারে থাকে</p></div><nav class="admin-toolbar admin-section-tabs" aria-label="অ্যাডমিন অপশন">${Object.entries(
       labels,
     )
       .map(
@@ -1211,7 +1212,7 @@ if (document.body.classList.contains("admin-body")) {
   async function start() {
     if (!loginPage) return reload();
     const auth = await api("auth");
-    app.innerHTML = `<div id="adminLoginGate"><main id="main" class="login-card"><h1>অ্যাডমিন প্যানেল</h1><p>কার্ড পয়েন্ট বিডি</p><p id="live-message" role="alert" tabindex="-1"></p><form id="sign-in"><button class="btn btn--primary btn--block">ডেমো প্যানেলে প্রবেশ করুন</button></form><small>এটি ফ্রন্টএন্ড প্রিভিউ। কোনো প্রকৃত পাসওয়ার্ড প্রয়োজন নেই।</small><p><a href="index.html">ওয়েবসাইটে ফিরে যান</a></p></main></div>`;
+    app.innerHTML = `<div id="adminLoginGate"><main id="main" class="login-card"><img src="images/craftcard-studio-bd-logo.png" alt="CraftCard Studio BD লোগো" class="login-brand-logo" width="112" height="112"><h1>অ্যাডমিন প্যানেল</h1><p>${e(previewRead().settings.businessName)}</p><p id="live-message" role="alert" tabindex="-1"></p><form id="sign-in"><button class="btn btn--primary btn--block">ডেমো প্যানেলে প্রবেশ করুন</button></form><small>এটি ফ্রন্টএন্ড প্রিভিউ। কোনো প্রকৃত পাসওয়ার্ড প্রয়োজন নেই।</small><p><a href="index.html">ওয়েবসাইটে ফিরে যান</a></p></main></div>`;
     document.querySelector("#sign-in").onsubmit = async (ev) => {
       ev.preventDefault();
       const button = ev.target.querySelector("button");
@@ -1239,7 +1240,7 @@ if (document.body.classList.contains("admin-body")) {
     const phoneHref = (value) => "tel:" + digits(value).replace(/[^+0-9]/g, "");
     if (settings.businessName)
       document
-        .querySelectorAll(".footer__brand-title")
+        .querySelectorAll(".footer__brand-title, [data-business-name]")
         .forEach((el) => (el.textContent = settings.businessName));
     document.querySelectorAll('a[href^="tel:"]').forEach((a) => {
       if (!a.dataset.contactSlot) {
@@ -1418,7 +1419,7 @@ if (document.body.classList.contains("admin-body")) {
         .join("");
       featured.querySelector("a").href = combo
         ? "order.html?combo=" + encodeURIComponent(combo.id)
-        : "order.html";
+        : "order-list.html";
     }
   }
   function mobileMenu() {
@@ -1493,27 +1494,32 @@ if (document.body.classList.contains("admin-body")) {
   }
   function initCartLinks() {
     const host = document.querySelector(".navbar__inner > div:last-child") || document.querySelector(".order-header-nav__inner");
-    if (host && !document.querySelector(".cart-link")) {
-      const link = document.createElement("a");
-      link.className = "btn btn--outline cart-link";
-      link.href = "cart.html";
-      link.innerHTML = 'কার্ট (<span data-cart-count>০</span>)';
-      host.prepend(link);
-      if (host.classList.contains("order-header-nav__inner")) host.querySelector(".navbar__brand")?.after(link);
+    document.querySelectorAll(".cart-link").forEach(link => link.remove());
+    if (host) {
+      let link = document.querySelector(".navbar__cta") || host.querySelector(".order-list-link");
+      if (!link) {
+        link = document.createElement("a");
+        link.className = "btn btn--primary order-list-link";
+        host.querySelector(".navbar__brand")?.after(link);
+        if (!link.isConnected) host.prepend(link);
+      }
+      link.classList.add("order-list-link");
+      link.href = "order-list.html";
+      link.innerHTML = 'অর্ডার করুন (<span data-cart-count>০</span>)';
     }
     updateCartBadge();
     window.addEventListener("storage", event => {
       if (event.key === cartStorageKey) { updateCartBadge(); if (document.querySelector("#cart-page")) cartPage().catch(err => error(err.message)); }
     });
   }
-  function cartNotice(container, text = "কার্টে যোগ হয়েছে।") {
+  function cartNotice(container, text = "অর্ডার তালিকায় যোগ হয়েছে।") {
     let notice = container.querySelector("[data-cart-notice]");
     if (!notice) {
       notice = document.createElement("p"); notice.dataset.cartNotice = "true";
       notice.className = "shop-notice"; notice.setAttribute("role", "status"); container.append(notice);
     }
     notice.replaceChildren(document.createTextNode(text + " "));
-    const link = document.createElement("a"); link.href = "cart.html"; link.textContent = "কার্ট দেখুন"; notice.append(link);
+    const link = document.createElement("a"); link.href = "order-list.html"; link.textContent = "অর্ডার তালিকা দেখুন"; notice.append(link);
   }
   async function cartPage() {
     const page = document.querySelector("#cart-page");
@@ -1528,7 +1534,7 @@ if (document.body.classList.contains("admin-body")) {
         const key = cartLineKey(line.productId, line.printSides);
         const price = unitPrice({ ...product, price: printPrice(product, line.printSides) });
         return `<article class="cart-item"><img src="${e(imageUrl(product.images[0]))}" alt="${e(product.name)}" width="96" height="96"><div><h2>${e(product.name)}</h2>${isBikeKeyring(product) ? `<p>${line.printSides === 2 ? "দুই পাশে প্রিন্ট" : "এক পাশে প্রিন্ট"}</p>` : ""}<p>প্রতি পিস ${money(price)}</p><div class="cart-item-controls"><button class="btn btn--outline" type="button" data-cart-minus="${e(key)}" aria-label="${e(product.name)} কমান">−</button><label>পরিমাণ<input type="number" min="1" max="1000" value="${line.quantity}" data-cart-quantity="${e(key)}" inputmode="numeric"></label><button class="btn btn--outline" type="button" data-cart-plus="${e(key)}" aria-label="${e(product.name)} বাড়ান">+</button><strong>${money(price * line.quantity)}</strong><button type="button" class="btn btn--outline" data-cart-remove="${e(key)}">সরান</button></div></div></article>`;
-      }).join("") : '<p class="shop-notice">আপনার কার্ট খালি। পণ্য বেছে কার্টে যোগ করুন।</p>';
+      }).join("") : '<p class="shop-notice">আপনার অর্ডার তালিকা খালি। পণ্যের অর্ডার করুন বাটন দিয়ে পণ্য যোগ করুন।</p>';
       page.querySelector("#cart-subtotal").textContent = money(totals.subtotal);
       page.querySelector("#cart-discount").textContent = money(totals.discount);
       page.querySelector("#cart-net").textContent = money(totals.net);
@@ -1574,14 +1580,14 @@ if (document.body.classList.contains("admin-body")) {
       orderLink.before(controls);
       const choose = () => {
         const sides = Number(controls.querySelector('input:checked').value);
-        orderLink.href = `order.html?product=${encodeURIComponent(product.id)}&sides=${sides}`;
+        dialog.dataset.printSides = String(sides);
         controls.querySelector('#keyring-option-price').textContent = money(unitPrice({ ...product, price: printPrice(product, sides) }));
       };
       controls.onchange = choose;
       choose();
     }
     const add = document.createElement("button");
-    add.type = "button"; add.className = "btn btn--outline"; add.textContent = "কার্টে যোগ করুন";
+    add.type = "button"; add.className = "btn btn--primary"; add.textContent = "অর্ডারে যোগ করুন";
     add.id = "details-add-cart";
     add.onclick = () => {
       try {
@@ -1589,7 +1595,7 @@ if (document.body.classList.contains("admin-body")) {
         addCartItem(product, sides); updateCartBadge(); cartNotice(dialog);
       } catch (err) { cartNotice(dialog, err.message); }
     };
-    dialog.querySelector('a[href^="order.html"]').after(add);
+    dialog.querySelector('a[href^="order.html"]').replaceWith(add);
     $("#close-product").onclick = () => dialog.close();
     bindCardFlips(dialog);
     dialog.showModal();
@@ -1645,7 +1651,7 @@ if (document.body.classList.contains("admin-body")) {
         ? products
             .map(
               (p) =>
-                `<article class="sample-card">${cardPreview(p)}<div class="sample-card__body"><div><span>${e(p.category)}</span><h3 class="sample-card__title">${e(p.name)}</h3><p class="sample-card__desc">${e(p.description)}</p><strong>${unitPrice(p) < p.price ? `<del>${money(p.price)}</del> ` : ""}${money(unitPrice(p))}${isBikeKeyring(p) ? " থেকে" : ""} / পিস</strong></div><button class="btn btn--outline" data-details="${e(p.id)}">বিস্তারিত দেখুন</button>${!isBikeKeyring(p) ? `<button class="btn btn--outline" data-add-cart="${e(p.id)}">কার্টে যোগ করুন</button>` : ""}${isBikeKeyring(p) ? `<button class="btn btn--primary" data-details="${e(p.id)}">প্রিন্টের ধরন বেছে নিন</button>` : `<a class="btn btn--primary" href="order.html?product=${encodeURIComponent(p.id)}">অর্ডার করুন</a>`}</div></article>`,
+                `<article class="sample-card">${cardPreview(p)}<div class="sample-card__body"><div><span>${e(p.category)}</span><h3 class="sample-card__title">${e(p.name)}</h3><p class="sample-card__desc">${e(p.description)}</p><strong>${unitPrice(p) < p.price ? `<del>${money(p.price)}</del> ` : ""}${money(unitPrice(p))}${isBikeKeyring(p) ? " থেকে" : ""} / পিস</strong></div><button class="btn btn--outline" data-details="${e(p.id)}">বিস্তারিত দেখুন</button>${isBikeKeyring(p) ? `<button class="btn btn--primary" data-details="${e(p.id)}">অর্ডার করুন</button>` : `<button class="btn btn--primary" data-add-cart="${e(p.id)}">অর্ডার করুন</button>`}</div></article>`,
             )
             .join("")
         : "<p>কোনো পণ্য পাওয়া যায়নি।</p>";
@@ -1673,7 +1679,9 @@ if (document.body.classList.contains("admin-body")) {
     const submit = $("#submitOrderBtn");
     submit.disabled = true;
     const catalogData = await catalog();
-    const cartMode = new URLSearchParams(location.search).get("cart") === "1";
+    const orderParams = new URLSearchParams(location.search);
+    const cartMode = orderParams.get("from") === "order-list" || orderParams.get("cart") === "1" ||
+      (!orderParams.get("product") && !orderParams.get("combo"));
     const cartLines = cartMode ? readCart(catalogData.products) : [];
     const data = { ...catalogData, products: catalogData.products.flatMap(p => {
       const variants = cartMode && isBikeKeyring(p) ? cartLines.filter(line => line.productId === p.id) : [];
@@ -1684,9 +1692,7 @@ if (document.body.classList.contains("admin-body")) {
     const state = new Map(
       data.products.map((p) => [p.id, { ...p, price: printPrice(p, p.checkoutSides || 1), quantity: 0, file: null, printSides: p.checkoutSides || 1, personalization: { bikeBrand: "", bikeNumber: "", ownerName: "", phone: "" }, backPhoto: null }]),
     );
-    const selected =
-      new URLSearchParams(location.search).get("product") ||
-      data.products[0]?.id;
+    const selected = orderParams.get("product");
     if (!cartMode && state.has(selected)) {
       const p = state.get(selected);
       p.quantity = 1;
@@ -1709,6 +1715,13 @@ if (document.body.classList.contains("admin-body")) {
         const p = [...state.values()].find(p => p.sourceProductId === line.productId && (!isBikeKeyring(p) || p.printSides === line.printSides));
         if (p) p.quantity = line.quantity;
       }
+    }
+    // Checkout contains only items explicitly selected for this order.
+    data.products = data.products.filter(p => state.get(p.id)?.quantity > 0);
+    for (const id of state.keys()) if (!state.get(id).quantity) state.delete(id);
+    if (!data.products.length) {
+      form.innerHTML = '<div class="shop-notice" role="status"><p>অর্ডারের জন্য কোনো পণ্য বেছে নেওয়া হয়নি অথবা পণ্যটি এখন পাওয়া যাচ্ছে না।</p><a class="btn btn--primary" href="index.html#services">পণ্য বেছে নিন</a> <a class="btn btn--outline" href="order-list.html">অর্ডার তালিকা দেখুন</a></div>';
+      return;
     }
     const zoneLabel = document.createElement("label");
     zoneLabel.className = "form-group";

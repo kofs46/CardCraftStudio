@@ -20,79 +20,73 @@ const imageSide = (p, i) =>
 const sideLabel = (side) =>
   ({ front: "সামনের দিক", back: "পেছনের দিক", extra: "অন্যান্য ছবি" })[side] ||
   "অন্যান্য ছবি";
-const imageUrl = (src) => (src.startsWith("data:") ? src : src);
+const imageUrl = (src) => src === "images/product-keyring-photo.jpg" ? "images/product-keyring-photo.png" : String(src || "");
 
 // Frontend preview only: no API requests, passwords or server authentication.
 const previewSeed = [
   {
-    id: "nid",
-    name: "NID স্মার্ট কার্ড",
-    category: "পরিচয়পত্র",
-    description: "আপনার সরবরাহ করা বৈধ ডিজাইন থেকে পিভিসি কার্ড প্রিন্ট।",
-    price: 100,
-    images: ["images/demo-nid-front-v2.png", "images/demo-nid-back-v2.png"],
-    imageSides: ["front", "back"],
-    material: "PVC",
-    size: "85.6 × 54 mm",
-    available: true,
-    featured: true,
+    "id": "uv-smart",
+    "name": "ইউভি স্মার্ট কার্ড",
+    "category": "স্মার্ট কার্ড",
+    "description": "নিজের নাম, লোগো বা ব্র্যান্ড ডিজাইনে UV প্রিন্টের স্মার্ট কার্ড। পছন্দের সামনের ও পেছনের ডিজাইন দিয়ে অর্ডার করুন।",
+    "price": 100,
+    "images": [
+      "images/demo-business-front.png",
+      "images/demo-business-back.png"
+    ],
+    "material": "UV প্রিন্টেড PVC",
+    "size": "85.6 × 54 mm",
+    "featured": true,
+    "imageSides": [
+      "front",
+      "back"
+    ],
+    "available": true
   },
   {
-    id: "license",
-    name: "ড্রাইভিং লাইসেন্স কার্ড",
-    category: "পরিচয়পত্র",
-    description: "আপনার সরবরাহ করা ডিজাইন থেকে কার্ড প্রিন্ট।",
-    price: 100,
-    images: ["images/demo-license-front-v2.png", "images/demo-license-back-v2.png"],
-    imageSides: ["front", "back"],
-    material: "PVC",
-    size: "85.6 × 54 mm",
-    available: true,
-    featured: false,
+    "id": "premium-nfc",
+    "name": "প্রিমিয়াম NFC কার্ড",
+    "category": "NFC কার্ড",
+    "description": "ব্যক্তিগত বা ব্যবসায়িক পরিচিতির জন্য প্রিমিয়াম NFC কার্ড। নিজের লোগো ও ডিজাইন ব্যবহার করুন; NFC সেটআপের প্রয়োজন অর্ডারের নোটে জানান।",
+    "price": 350,
+    "images": [
+      "images/product-nfc-front.svg",
+      "images/product-nfc-back.svg"
+    ],
+    "material": "NFC PVC কার্ড",
+    "size": "85.6 × 54 mm",
+    "featured": true,
+    "imageSides": [
+      "front",
+      "back"
+    ],
+    "available": true
   },
   {
-    id: "vaccine",
-    name: "ভ্যাকসিন কার্ড",
-    category: "সার্টিফিকেট",
-    description: "সরবরাহ করা টিকা সনদের ডিজাইন থেকে কার্ড প্রিন্ট।",
-    price: 100,
-    images: ["images/demo-vaccine-front-v2.png", "images/demo-vaccine-back-v2.png"],
-    imageSides: ["front", "back"],
-    material: "PVC",
-    size: "85.6 × 54 mm",
-    available: true,
-    featured: false,
-  },
-  {
-    id: "student",
-    name: "অফিস / স্টুডেন্ট আইডি",
-    category: "অফিস ও শিক্ষা",
-    description: "প্রতিষ্ঠান ও শিক্ষার্থীদের জন্য কাস্টম পরিচয়পত্র।",
-    price: 100,
-    images: ["images/demo-student-front-v2.png", "images/demo-student-back-v2.png"],
-    imageSides: ["front", "back"],
-    material: "PVC",
-    size: "85.6 × 54 mm",
-    available: true,
-    featured: false,
-  },
-  {
-    id: "custom",
-    name: "কাস্টম ডিজাইন কার্ড",
-    category: "কাস্টম কার্ড",
-    description: "নিজস্ব ডিজাইন ও প্রয়োজন অনুযায়ী পিভিসি কার্ড।",
-    price: 100,
-    images: ["images/demo-business-front.png", "images/demo-business-back.png"],
-    imageSides: ["front", "back"],
-    material: "PVC",
-    size: "85.6 × 54 mm",
-    available: true,
-    featured: false,
-  },
+    "id": "bike-keyring",
+    "name": "বাইক কি রিং",
+    "category": "বাইক এক্সেসরিজ",
+    "description": "নিজের বাইকের ব্র্যান্ড, নম্বর, নাম ও ফোন নম্বর দিয়ে কাস্টম কি রিং। এক পাশে প্রিন্ট অথবা দুই পাশে প্রিন্ট বেছে নিন; দুই পাশে নিলে পেছনে নিজের ছবিও দিতে পারবেন।",
+    "price": 250,
+    "doublePrice": 300,
+    "customization": "bike-keyring",
+    "images": [
+      "images/product-keyring-photo.png",
+      "images/product-keyring-photo-back.svg"
+    ],
+    "imageSides": [
+      "front",
+      "back"
+    ],
+    "material": "কাস্টম প্রিন্টেড কি রিং",
+    "size": "ডিজাইন অনুযায়ী",
+    "featured": true,
+    "available": true
+  }
 ];
 
 const previewDefaults = {
-  businessName: "",
+  businessName: "কার্ডক্রাফট স্টুডিও",
   phone: "01983469936",
   phone2: "",
   address: "সাভার,ঢাকা-১৩৪৭।",
@@ -109,45 +103,100 @@ const previewDefaults = {
   outsideFee: 50,
   freeThreshold: 5,
 };
-function normalizePreview(data) {
-  // Replace existing NID artwork once at the owner's request; preserve later uploads.
-  const demoPairs = {
-    nid: { legacy: [["images/sample-nid.svg"]], prefix: "nid", version: "-v2" },
-    license: { legacy: [["images/sample-license.svg"]], prefix: "license", version: "-v2" },
-    vaccine: { legacy: [["images/sample-vaccine.svg"]], prefix: "vaccine", version: "-v2" },
-    student: { legacy: [["images/sample-student.svg"], ["images/demo-office-front.png", "images/demo-office-back.png"]], prefix: "student", version: "-v2" },
-    custom: { legacy: [["images/hero-card.svg"]], prefix: "business", version: "" },
+const isBikeKeyring = (p) => p?.customization === "bike-keyring" || p?.id === "bike-keyring";
+const printPrice = (p, sides = 1) => isBikeKeyring(p) && Number(sides) === 2 ? p.doublePrice : p.price;
+function keyringDetails(item) {
+  const printSides = Number(item.printSides ?? 1);
+  if (![1, 2].includes(printSides)) throw Error("এক পাশে অথবা দুই পাশে প্রিন্ট বেছে নিন।");
+  const raw = item.personalization || {};
+  const personalization = {
+    bikeBrand: String(raw.bikeBrand || "").trim(),
+    bikeNumber: String(raw.bikeNumber || "").trim(),
+    ownerName: String(raw.ownerName || "").trim(),
+    phone: digits(String(raw.phone || "")).replace(/[\s-]/g, ""),
   };
-  const products = (data.products || []).map((product) => {
-    const isNid = product.id === "nid" || /\bNID\b|এনআইডি|জাতীয় পরিচয়পত্র|জাতীয় পরিচয়পত্র/i.test(product.name || "");
-    if (isNid && data.nidDemoReplacementVersion !== 1) {
-      return { ...product,
-        images: ["images/demo-nid-front-v2.png", "images/demo-nid-back-v2.png"],
+  if (!personalization.bikeBrand || personalization.bikeBrand.length > 80) throw Error("বাইকের ব্র্যান্ডের নাম দিন (সর্বোচ্চ ৮০ অক্ষর)।");
+  if (!/^[A-Za-z0-9][A-Za-z0-9 /-]{1,49}$/.test(personalization.bikeNumber)) throw Error("বাইকের নম্বর ইংরেজি অক্ষর ও সংখ্যায় লিখুন।");
+  if (!/^[A-Za-z][A-Za-z .'-]{1,79}$/.test(personalization.ownerName)) throw Error("নিজের নাম ইংরেজিতে লিখুন (সর্বোচ্চ ৮০ অক্ষর)।");
+  if (!/^(?:\+?88)?01[3-9]\d{8}$/.test(personalization.phone)) throw Error("কি রিংয়ে প্রিন্টের জন্য সঠিক ফোন নম্বর দিন।");
+  let backPhoto = null;
+  if (printSides === 2 && item.backPhoto) {
+    const photo = item.backPhoto;
+    if (typeof photo.name !== "string" || !photo.name || photo.name.length > 255 ||
+        typeof photo.data !== "string" || !/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(photo.data) || photo.data.length > 2 * 1024 * 1024 * 4 / 3 + 100)
+      throw Error("পেছনের ছবির জন্য সর্বোচ্চ ২ এমবি PNG, JPEG বা WebP দিন।");
+    backPhoto = { name: photo.name, data: photo.data };
+  }
+  return { printSides, personalization, backPhoto };
+}
+const cartStorageKey = "cardcraft_cart_v1";
+const cartLineKey = (id, sides = 1) => id + "::" + Number(sides);
+function readCart(products) {
+  let raw;
+  try { raw = JSON.parse(localStorage.getItem(cartStorageKey) || "[]"); } catch { return []; }
+  if (!Array.isArray(raw)) return [];
+  const lines = new Map();
+  for (const item of raw) {
+    if (!item || typeof item.productId !== "string" || !item.productId || item.productId.length > 128) continue;
+    const p = products?.find(p => p.id === item.productId && p.available);
+    if (products && !p) continue;
+    const quantity = Math.min(1000, Math.max(0, Math.trunc(Number(item.quantity) || 0)));
+    if (!quantity) continue;
+    const printSides = (p ? isBikeKeyring(p) : item.productId === "bike-keyring") && Number(item.printSides) === 2 ? 2 : 1;
+    const key = cartLineKey(item.productId, printSides);
+    lines.set(key, { productId: item.productId, quantity: Math.min(1000, quantity + (lines.get(key)?.quantity || 0)), printSides });
+  }
+  return [...lines.values()];
+}
+function saveCart(lines) {
+  try { localStorage.setItem(cartStorageKey, JSON.stringify(lines)); }
+  catch { throw Error("কার্ট সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ পরীক্ষা করুন।"); }
+}
+function addCartItem(product, sides = 1, quantity = 1) {
+  if (!product?.id || !product.available) throw Error("এই পণ্য এখন পাওয়া যাচ্ছে না।");
+  const printSides = isBikeKeyring(product) && Number(sides) === 2 ? 2 : 1;
+  const count = Math.min(1000, Math.max(1, Math.trunc(Number(quantity) || 1)));
+  const lines = readCart();
+  const line = lines.find(i => cartLineKey(i.productId, i.printSides) === cartLineKey(product.id, printSides));
+  if (line) line.quantity = Math.min(1000, line.quantity + count);
+  else lines.push({ productId: product.id, quantity: count, printSides });
+  saveCart(lines);
+  return lines;
+}
+
+function normalizePreview(data) {
+  const replaceCatalog = ![2, 3].includes(data.catalogVersion);
+  let products = replaceCatalog ? structuredClone(previewSeed) : (data.products || []);
+  let combos = replaceCatalog ? [] : (data.combos || []);
+  if (data.catalogVersion === 2) {
+    const single = products.find(p => p.id === "bike-keyring-single");
+    const double = products.find(p => p.id === "bike-keyring-double");
+    const defaults = structuredClone(previewSeed.find(p => p.id === "bike-keyring"));
+    if ((single || double) && !products.some(p => p.id === "bike-keyring")) {
+      const keyring = { ...defaults, ...(single || double), id: "bike-keyring", name: defaults.name,
+        description: defaults.description, customization: "bike-keyring",
+        price: single?.price ?? defaults.price, doublePrice: double?.price ?? defaults.doublePrice,
+        images: [single?.images?.[0] && single.images[0] !== "images/product-keyring-front.svg" ? single.images[0] : defaults.images[0],
+          double?.images?.[1] && double.images[1] !== "images/product-keyring-back.svg" ? double.images[1] : defaults.images[1]],
         imageSides: ["front", "back"],
       };
-    }
-    const demo = demoPairs[product.id];
-    if (!demo || !demo.legacy.some((images) =>
-      product.images?.length === images.length && images.every((src, i) => product.images[i] === src)
-    )) return product;
-    return { ...product,
-      images: [`images/demo-${demo.prefix}-front${demo.version}.png`, `images/demo-${demo.prefix}-back${demo.version}.png`],
-      imageSides: ["front", "back"],
-    };
-  });
+      products = products.filter(p => !["bike-keyring-single", "bike-keyring-double"].includes(p.id));
+      products.push(keyring);
+    } else products = products.filter(p => !["bike-keyring-single", "bike-keyring-double"].includes(p.id));
+    combos = combos.filter(c => !c.items?.some(i => ["bike-keyring-single", "bike-keyring-double"].includes(i.productId)));
+  }
+  products = products.map(p => p.images?.includes("images/product-keyring-photo.jpg")
+    ? { ...p, images: p.images.map(src => imageUrl(src)) } : p);
   return {
-    ...data,
-    products,
-    nidDemoReplacementVersion: 1,
-    settings: {
-      ...previewDefaults,
-      ...data.settings,
+    ...data, catalogVersion: 3, products,
+    categories: replaceCatalog ? [...new Set(previewSeed.map(p => p.category))] : (data.categories || []),
+    combos,
+    settings: { ...previewDefaults, ...data.settings,
+      businessName: data.settings?.businessName || previewDefaults.businessName,
       ...(data.businessContactsVersion === 1 ? {} : Object.fromEntries(
-        ["phone", "phone2", "address", "email", "whatsapp", "facebook"].map((key) => [key, previewDefaults[key]])
+        ["phone", "phone2", "address", "email", "whatsapp", "facebook"].map(key => [key, previewDefaults[key]])
       )),
-    },
-    businessContactsVersion: 1,
-    combos: data.combos || [],
+    }, businessContactsVersion: 1,
   };
 }
 const unitPrice = (p) =>
@@ -162,10 +211,10 @@ const unitPrice = (p) =>
     ) / 100,
   );
 function previewTotals(items, data, zone = "dhaka") {
-  const rows = items.map((i) => ({
-    ...i,
-    product: data.products.find((p) => p.id === i.productId) || i,
-  }));
+  const rows = items.map((i) => {
+    const p = data.products.find(p => p.id === i.productId) || i;
+    return { ...i, product: { ...p, price: printPrice(p, i.printSides) } };
+  });
   const quantity = rows.reduce((n, i) => n + i.quantity, 0),
     base = rows.reduce((n, i) => n + i.product.price * i.quantity, 0);
   let net = rows.reduce((n, i) => n + unitPrice(i.product) * i.quantity, 0),
@@ -233,7 +282,7 @@ function previewRead() {
     if (saved) {
       const previous = JSON.parse(saved);
       const normalized = normalizePreview(previous);
-      if (previous.nidDemoReplacementVersion !== 1 || previous.businessContactsVersion !== 1) {
+      if (previous.catalogVersion !== 3 || previous.businessContactsVersion !== 1) {
         try { localStorage.setItem("pvc_shop_frontend_v1", JSON.stringify(normalized)); } catch {}
       }
       return normalized;
@@ -242,7 +291,7 @@ function previewRead() {
   return {
     products: structuredClone(previewSeed),
     businessContactsVersion: 1,
-    nidDemoReplacementVersion: 1,
+    catalogVersion: 3,
     categories: [...new Set(previewSeed.map((p) => p.category))],
     orders: [],
     settings: { ...previewDefaults },
@@ -365,6 +414,12 @@ async function previewFetch(url, options = {}) {
           throw Error(
             "Discount must be within the product price or 0–100 percent.",
           );
+        const existing = data.products.find(p => p.id === body.id);
+        if (isBikeKeyring(existing) || isBikeKeyring(body)) {
+          if (!Number.isFinite(body.doublePrice) || body.doublePrice < 0 || body.doublePrice > 10000000)
+            throw Error("দুই পাশে প্রিন্টের সঠিক মূল্য দিন।");
+          body.customization = "bike-keyring";
+        }
         const product = {
           ...body,
           id: body.id || "preview-" + Date.now().toString(36),
@@ -386,7 +441,7 @@ async function previewFetch(url, options = {}) {
     } else if (route === "order-artwork") {
       data.orders = data.orders.map((o) =>
         o.id === body.id
-          ? { ...o, items: o.items.map((i) => ({ ...i, file: null })) }
+          ? { ...o, items: o.items.map((i) => ({ ...i, file: null, backPhoto: null })) }
           : o,
       );
       previewSave(data);
@@ -396,7 +451,9 @@ async function previewFetch(url, options = {}) {
         const items = body.items.map((i) => {
           const p = data.products.find((p) => p.id === i.productId);
           if (!p) throw Error("Product unavailable");
-          return { ...i, name: p.name, price: p.price };
+          if (!Number.isInteger(i.quantity) || i.quantity < 1 || i.quantity > 1000) throw Error("সঠিক পণ্যের পরিমাণ দিন।");
+          const detail = isBikeKeyring(p) ? keyringDetails(i) : {};
+          return { ...i, ...detail, name: p.name, price: printPrice(p, detail.printSides) };
         });
         const totals = previewTotals(items, data, body.zone);
         const { quantity, subtotal, delivery } = totals;
@@ -735,7 +792,7 @@ if (document.body.classList.contains("admin-body")) {
         .filter((p) => !category || p.category === category)
         .map(
           (p) =>
-            `<tr><td><img width="80" height="55" style="object-fit:contain" alt="${e(p.name)}" src="${e(p.images[0].startsWith("data:") ? p.images[0] : p.images[0])}"></td><td>${e(p.name)}<br><small>${p.images.map((_, i) => sideLabel(imageSide(p, i))).join(" · ")}</small></td><td>${e(p.category)}</td><td>${money(p.price)}${unitPrice(p) < p.price ? `<br><strong>After discount: ${money(unitPrice(p))}</strong>` : ""}</td><td>${p.available ? "Visible" : "Hidden"}</td><td><button data-edit="${e(p.id)}">Edit</button> <button data-delete="${e(p.id)}">Delete</button></td></tr>`,
+            `<tr><td><img width="80" height="55" style="object-fit:contain" alt="${e(p.name)}" src="${e(p.images[0].startsWith("data:") ? p.images[0] : p.images[0])}"></td><td>${e(p.name)}<br><small>${p.images.map((_, i) => sideLabel(imageSide(p, i))).join(" · ")}</small></td><td>${e(p.category)}</td><td>${money(p.price)}${isBikeKeyring(p) ? `<br><small>এক পাশে · দুই পাশে ${money(p.doublePrice)}</small>` : ""}${unitPrice(p) < p.price ? `<br><strong>After discount: ${money(unitPrice(p))}</strong>` : ""}</td><td>${p.available ? "Visible" : "Hidden"}</td><td><button data-edit="${e(p.id)}">Edit</button> <button data-delete="${e(p.id)}">Delete</button></td></tr>`,
         ),
     );
     document
@@ -760,7 +817,7 @@ if (document.body.classList.contains("admin-body")) {
     images = [...p.images];
     imageSides = images.map((_, i) => imageSide(p, i));
     document.querySelector("#product-editor").innerHTML =
-      `<form id="product-form" class="admin-panel"><h2>${p.id ? "Edit" : "Add"} product</h2>${field("Product name", "name", p.name, "text", 'required maxlength="200"')}<label>Category<select name="category" required>${options(data.categories, p.category)}</select></label>${field("Unit price (BDT)", "price", p.price ?? 0, "number", 'required min="0" max="10000000" step="0.01"')}<label>Discount type<select name="discountType">${options(["fixed", "percent"], p.discountType || "fixed")}</select></label>${field("Discount amount (BDT or %)", "discount", p.discount || 0, "number", 'min="0" step="0.01" required')}<label>Details<textarea name="description" maxlength="5000">${e(p.description)}</textarea></label>${field("Material", "material", p.material || "PVC")}${field("Size", "size", p.size)}<label><input name="available" type="checkbox" ${p.available ? "checked" : ""}> Visible in storefront</label><label><input name="featured" type="checkbox" ${p.featured ? "checked" : ""}> Featured product</label><h3>কার্ডের সামনের ও পেছনের ছবি</h3><div class="card-side-uploads"><label>সামনের দিকের ছবি<input id="product-front-image" type="file" accept="image/png,image/jpeg,image/webp"></label><label>পেছনের দিকের ছবি<input id="product-back-image" type="file" accept="image/png,image/jpeg,image/webp"></label></div><label>Multiple images (up to 6; PNG, JPEG, WebP; 2 MB each)<input id="product-images" type="file" accept="image/png,image/jpeg,image/webp" multiple></label><p>The first image is the cover. Remove old images before replacing them.</p><div id="image-previews" class="live-images"></div><p id="image-error" role="alert"></p><button class="btn btn-primary" id="save-product">Save product</button><button class="btn btn-secondary" id="cancel-product" type="button">Cancel</button></form>`;
+      `<form id="product-form" class="admin-panel"><h2>${p.id ? "Edit" : "Add"} product</h2>${field("Product name", "name", p.name, "text", 'required maxlength="200"')}<label>Category<select name="category" required>${options(data.categories, p.category)}</select></label>${field(isBikeKeyring(p) ? "এক পাশে প্রিন্টের মূল্য (টাকা)" : "Unit price (BDT)", "price", p.price ?? 0, "number", 'required min="0" max="10000000" step="0.01"')}${isBikeKeyring(p) ? field("দুই পাশে প্রিন্টের মূল্য (টাকা)", "doublePrice", p.doublePrice ?? 300, "number", 'required min="0" max="10000000" step="0.01"') : ""}<label>Discount type<select name="discountType">${options(["fixed", "percent"], p.discountType || "fixed")}</select></label>${field("Discount amount (BDT or %)", "discount", p.discount || 0, "number", 'min="0" step="0.01" required')}<label>Details<textarea name="description" maxlength="5000">${e(p.description)}</textarea></label>${field("Material", "material", p.material || "PVC")}${field("Size", "size", p.size)}<label><input name="available" type="checkbox" ${p.available ? "checked" : ""}> Visible in storefront</label><label><input name="featured" type="checkbox" ${p.featured ? "checked" : ""}> Featured product</label><h3>পণ্যের সামনের ও পেছনের ছবি</h3><div class="card-side-uploads"><label>সামনের দিকের ছবি<input id="product-front-image" type="file" accept="image/png,image/jpeg,image/webp"></label><label>পেছনের দিকের ছবি<input id="product-back-image" type="file" accept="image/png,image/jpeg,image/webp"></label></div><label>Multiple images (up to 6; PNG, JPEG, WebP; 2 MB each)<input id="product-images" type="file" accept="image/png,image/jpeg,image/webp" multiple></label><p>The first image is the cover. Remove old images before replacing them.</p><div id="image-previews" class="live-images"></div><p id="image-error" role="alert"></p><button class="btn btn-primary" id="save-product">Save product</button><button class="btn btn-secondary" id="cancel-product" type="button">Cancel</button></form>`;
     const previews = () => {
       document.querySelector("#image-previews").innerHTML = images
         .map(
@@ -897,6 +954,7 @@ if (document.body.classList.contains("admin-body")) {
           name: f.get("name"),
           category: f.get("category"),
           price: Number(f.get("price")),
+          ...(isBikeKeyring(p) ? { customization: "bike-keyring", doublePrice: Number(f.get("doublePrice")) } : {}),
           discountType: f.get("discountType"),
           discount: Number(f.get("discount")),
           description: f.get("description"),
@@ -1058,7 +1116,7 @@ if (document.body.classList.contains("admin-body")) {
           ["Product", "Quantity", "Unit price", "Artwork"],
           order.items.map(
             (item) =>
-              `<tr><td>${e(item.name)}</td><td>${item.quantity}</td><td>${money(item.price)}</td><td>${item.file ? `<a download="${e(item.file.name)}" href="${e(item.file.data)}">Download ${e(item.file.name)}</a>` : "No file"}</td></tr>`,
+              `<tr><td>${e(item.name)}${item.personalization ? `<p>${item.printSides === 2 ? "দুই পাশে প্রিন্ট" : "এক পাশে প্রিন্ট"}</p><dl><dt>Bike brand</dt><dd>${e(item.personalization.bikeBrand)}</dd><dt>Bike number</dt><dd>${e(item.personalization.bikeNumber)}</dd><dt>Owner name</dt><dd>${e(item.personalization.ownerName)}</dd><dt>Phone</dt><dd>${e(item.personalization.phone)}</dd></dl>` : ""}</td><td>${item.quantity}</td><td>${money(item.price)}</td><td>${item.file ? `<a download="${e(item.file.name)}" href="${e(item.file.data)}">Download ${e(item.file.name)}</a>` : "No file"}${item.backPhoto ? `<p>পেছনের নিজের ছবি: <a download="${e(item.backPhoto.name)}" href="${e(item.backPhoto.data)}">${e(item.backPhoto.name)}</a></p><img src="${e(item.backPhoto.data)}" alt="অর্ডারের পেছনের ছবি" width="100" height="100" style="object-fit:contain">` : ""}</td></tr>`,
           ),
         )}<p>Subtotal: ${money(order.subtotal)} · Discount: ${money(order.discount || 0)} ${e(order.offer || "")} · Delivery area: ${order.zone === "outside" ? "Outside Dhaka" : "Inside Dhaka"} · Delivery: ${money(order.delivery)} · Total: ${money(order.amount)}</p><p>${e(order.payment)}</p><button id="wipe-artwork">Remove retained artwork</button>`;
       document.querySelector("#wipe-artwork").onclick = () =>
@@ -1413,7 +1471,7 @@ if (document.body.classList.contains("admin-body")) {
     const placeholder = `<div class="card-flip__face card-flip__face--back card-flip__placeholder" aria-hidden="true"><strong>${e(product.name)}</strong><span>পেছনের দিক</span><small>পেছনের ছবি দেওয়া হয়নি</small></div>`;
     const extraImages = extras ? images.map((src, i) => i !== front && i !== back ? `<figure><img src="${e(imageUrl(src))}" alt="${e(product.name)} — অন্যান্য ছবি" loading="lazy"><figcaption>অন্যান্য ছবি</figcaption></figure>` : "").join("") : "";
     if (!images.length) return '<p>ছবি দেওয়া হয়নি।</p>';
-    return `<div class="sample-card__flip-preview"><div class="card-flip"><div class="card-flip__inner">${face(front, "front")}${hasBack ? face(back, "back") : placeholder}</div></div><button type="button" class="btn btn--outline" data-flip-card aria-pressed="false">কার্ড উল্টান — পেছনের দিক দেখুন</button><span class="sample-card__side" role="status">সামনের দিক</span></div>${extraImages}`;
+    return `<div class="sample-card__flip-preview"><div class="card-flip"><div class="card-flip__inner">${face(front, "front")}${hasBack ? face(back, "back") : placeholder}</div></div><button type="button" class="btn btn--outline" data-flip-card aria-pressed="false">উল্টে পেছনের দিক দেখুন</button><span class="sample-card__side" role="status">সামনের দিক</span></div>${extraImages}`;
   }
   function bindCardFlips(container) {
     container.querySelectorAll("[data-flip-card]").forEach((button) => {
@@ -1422,13 +1480,84 @@ if (document.body.classList.contains("admin-body")) {
         const card = preview.querySelector(".card-flip__inner");
         const flipped = card.classList.toggle("is-flipped");
         button.setAttribute("aria-pressed", String(flipped));
-        button.textContent = flipped ? "কার্ড উল্টান — সামনের দিক দেখুন" : "কার্ড উল্টান — পেছনের দিক দেখুন";
+        button.textContent = flipped ? "উল্টে সামনের দিক দেখুন" : "উল্টে পেছনের দিক দেখুন";
         preview.querySelector("[role=status]").textContent = sideLabel(flipped ? "back" : "front");
         card.querySelector(".card-flip__face--front").setAttribute("aria-hidden", String(flipped));
         card.querySelector(".card-flip__face--back").setAttribute("aria-hidden", String(!flipped));
       };
     });
   }
+  function updateCartBadge() {
+    const count = readCart().reduce((sum, line) => sum + line.quantity, 0);
+    document.querySelectorAll("[data-cart-count]").forEach(el => el.textContent = new Intl.NumberFormat("bn-BD").format(count));
+  }
+  function initCartLinks() {
+    const host = document.querySelector(".navbar__inner > div:last-child") || document.querySelector(".order-header-nav__inner");
+    if (host && !document.querySelector(".cart-link")) {
+      const link = document.createElement("a");
+      link.className = "btn btn--outline cart-link";
+      link.href = "cart.html";
+      link.innerHTML = 'কার্ট (<span data-cart-count>০</span>)';
+      host.prepend(link);
+      if (host.classList.contains("order-header-nav__inner")) host.querySelector(".navbar__brand")?.after(link);
+    }
+    updateCartBadge();
+    window.addEventListener("storage", event => {
+      if (event.key === cartStorageKey) { updateCartBadge(); if (document.querySelector("#cart-page")) cartPage().catch(err => error(err.message)); }
+    });
+  }
+  function cartNotice(container, text = "কার্টে যোগ হয়েছে।") {
+    let notice = container.querySelector("[data-cart-notice]");
+    if (!notice) {
+      notice = document.createElement("p"); notice.dataset.cartNotice = "true";
+      notice.className = "shop-notice"; notice.setAttribute("role", "status"); container.append(notice);
+    }
+    notice.replaceChildren(document.createTextNode(text + " "));
+    const link = document.createElement("a"); link.href = "cart.html"; link.textContent = "কার্ট দেখুন"; notice.append(link);
+  }
+  async function cartPage() {
+    const page = document.querySelector("#cart-page");
+    if (!page) return;
+    const data = await catalog();
+    function render() {
+      const lines = readCart(data.products);
+      saveCart(lines); updateCartBadge();
+      const totals = previewTotals(lines, data);
+      page.querySelector("#cart-items").innerHTML = lines.length ? lines.map(line => {
+        const product = data.products.find(p => p.id === line.productId);
+        const key = cartLineKey(line.productId, line.printSides);
+        const price = unitPrice({ ...product, price: printPrice(product, line.printSides) });
+        return `<article class="cart-item"><img src="${e(imageUrl(product.images[0]))}" alt="${e(product.name)}" width="96" height="96"><div><h2>${e(product.name)}</h2>${isBikeKeyring(product) ? `<p>${line.printSides === 2 ? "দুই পাশে প্রিন্ট" : "এক পাশে প্রিন্ট"}</p>` : ""}<p>প্রতি পিস ${money(price)}</p><div class="cart-item-controls"><button class="btn btn--outline" type="button" data-cart-minus="${e(key)}" aria-label="${e(product.name)} কমান">−</button><label>পরিমাণ<input type="number" min="1" max="1000" value="${line.quantity}" data-cart-quantity="${e(key)}" inputmode="numeric"></label><button class="btn btn--outline" type="button" data-cart-plus="${e(key)}" aria-label="${e(product.name)} বাড়ান">+</button><strong>${money(price * line.quantity)}</strong><button type="button" class="btn btn--outline" data-cart-remove="${e(key)}">সরান</button></div></div></article>`;
+      }).join("") : '<p class="shop-notice">আপনার কার্ট খালি। পণ্য বেছে কার্টে যোগ করুন।</p>';
+      page.querySelector("#cart-subtotal").textContent = money(totals.subtotal);
+      page.querySelector("#cart-discount").textContent = money(totals.discount);
+      page.querySelector("#cart-net").textContent = money(totals.net);
+      page.querySelector("#cart-checkout").hidden = !lines.length;
+      page.querySelector("#cart-checkout").setAttribute("aria-disabled", String(!lines.length));
+    }
+    function modify(key, change) {
+      const lines = readCart(data.products);
+      const line = lines.find(i => cartLineKey(i.productId, i.printSides) === key);
+      if (!line) return;
+      change(line);
+      saveCart(lines.filter(i => i.quantity > 0)); render();
+    }
+    page.onclick = ev => {
+      const b = ev.target.closest("button"); if (!b) return;
+      try {
+        if (b.dataset.cartRemove) modify(b.dataset.cartRemove, line => line.quantity = 0);
+        if (b.dataset.cartPlus) modify(b.dataset.cartPlus, line => line.quantity = Math.min(1000, line.quantity + 1));
+        if (b.dataset.cartMinus) modify(b.dataset.cartMinus, line => line.quantity--);
+      } catch (err) { error(err.message); }
+    };
+    page.onchange = ev => {
+      if (!ev.target.dataset.cartQuantity) return;
+      try { modify(ev.target.dataset.cartQuantity, line => line.quantity = Math.min(1000, Math.max(0, Math.trunc(Number(ev.target.value) || 0)))); }
+      catch (err) { error(err.message); }
+    };
+    render();
+  }
+
   function productGallery(product) {
     let dialog = $("#product-dialog");
     if (!dialog) {
@@ -1436,7 +1565,31 @@ if (document.body.classList.contains("admin-body")) {
       dialog.id = "product-dialog";
       document.body.append(dialog);
     }
-    dialog.innerHTML = `<button type="button" class="btn btn--outline" id="close-product">বন্ধ করুন</button><h2>${e(product.name)}</h2><p>${e(product.category)} · ${money(unitPrice(product))}</p><p style="white-space:pre-wrap">${e(product.description)}</p><p>${e(product.material)} · ${e(product.size)}</p><div class="product-gallery">${cardPreview(product, true)}</div><a class="btn btn--primary" href="order.html?product=${encodeURIComponent(product.id)}">অর্ডার করুন</a>`;
+    dialog.innerHTML = `<button type="button" class="btn btn--outline" id="close-product">বন্ধ করুন</button><h2>${e(product.name)}</h2><p>${e(product.category)} · ${money(unitPrice(product))}${isBikeKeyring(product) ? " থেকে" : ""}</p><p style="white-space:pre-wrap">${e(product.description)}</p><p>${e(product.material)} · ${e(product.size)}</p><div class="product-gallery">${cardPreview(product, true)}</div><a class="btn btn--primary" href="order.html?product=${encodeURIComponent(product.id)}">অর্ডার করুন</a>`;
+    if (isBikeKeyring(product)) {
+      const orderLink = dialog.querySelector('a[href^="order.html"]');
+      const controls = document.createElement("fieldset");
+      controls.className = "keyring-print-options";
+      controls.innerHTML = `<legend>প্রিন্টের ধরন বেছে নিন</legend><label><input type="radio" name="keyring-sides" value="1" checked> এক পাশে প্রিন্ট — ${money(product.price)}</label><label><input type="radio" name="keyring-sides" value="2"> দুই পাশে প্রিন্ট — ${money(product.doublePrice)}</label><p>দুই পাশে প্রিন্টে পেছনে নিজের ছবি দেওয়ার সুযোগ আছে। অর্ডারের সময় বাইকের তথ্য দিন।</p><strong id="keyring-option-price" role="status">${money(unitPrice(product))}</strong>`;
+      orderLink.before(controls);
+      const choose = () => {
+        const sides = Number(controls.querySelector('input:checked').value);
+        orderLink.href = `order.html?product=${encodeURIComponent(product.id)}&sides=${sides}`;
+        controls.querySelector('#keyring-option-price').textContent = money(unitPrice({ ...product, price: printPrice(product, sides) }));
+      };
+      controls.onchange = choose;
+      choose();
+    }
+    const add = document.createElement("button");
+    add.type = "button"; add.className = "btn btn--outline"; add.textContent = "কার্টে যোগ করুন";
+    add.id = "details-add-cart";
+    add.onclick = () => {
+      try {
+        const sides = Number(dialog.querySelector('input[name="keyring-sides"]:checked')?.value || 1);
+        addCartItem(product, sides); updateCartBadge(); cartNotice(dialog);
+      } catch (err) { cartNotice(dialog, err.message); }
+    };
+    dialog.querySelector('a[href^="order.html"]').after(add);
     $("#close-product").onclick = () => dialog.close();
     bindCardFlips(dialog);
     dialog.showModal();
@@ -1478,7 +1631,7 @@ if (document.body.classList.contains("admin-body")) {
     grid.before(offers);
     const filters = document.createElement("div");
     filters.className = "shop-filters";
-    filters.innerHTML = `<label>কার্ডের ধরন<select id="public-category" class="form-control"><option value="">সব ক্যাটাগরি</option>${data.categories.map((c) => `<option>${e(c)}</option>`).join("")}</select></label><label>খুঁজুন<input id="product-search" class="form-control" type="search" placeholder="পণ্যের নাম"></label>`;
+    filters.innerHTML = `<label>পণ্যের ধরন<select id="public-category" class="form-control"><option value="">সব ক্যাটাগরি</option>${data.categories.map((c) => `<option>${e(c)}</option>`).join("")}</select></label><label>খুঁজুন<input id="product-search" class="form-control" type="search" placeholder="পণ্যের নাম"></label>`;
     grid.before(filters);
     function render() {
       const category = $("#public-category").value,
@@ -1492,11 +1645,15 @@ if (document.body.classList.contains("admin-body")) {
         ? products
             .map(
               (p) =>
-                `<article class="sample-card">${cardPreview(p)}<div class="sample-card__body"><div><span>${e(p.category)}</span><h3 class="sample-card__title">${e(p.name)}</h3><p class="sample-card__desc">${e(p.description)}</p><strong>${unitPrice(p) < p.price ? `<del>${money(p.price)}</del> ` : ""}${money(unitPrice(p))} / পিস</strong></div><button class="btn btn--outline" data-details="${e(p.id)}">বিস্তারিত দেখুন</button><a class="btn btn--primary" href="order.html?product=${encodeURIComponent(p.id)}">অর্ডার করুন</a></div></article>`,
+                `<article class="sample-card">${cardPreview(p)}<div class="sample-card__body"><div><span>${e(p.category)}</span><h3 class="sample-card__title">${e(p.name)}</h3><p class="sample-card__desc">${e(p.description)}</p><strong>${unitPrice(p) < p.price ? `<del>${money(p.price)}</del> ` : ""}${money(unitPrice(p))}${isBikeKeyring(p) ? " থেকে" : ""} / পিস</strong></div><button class="btn btn--outline" data-details="${e(p.id)}">বিস্তারিত দেখুন</button>${!isBikeKeyring(p) ? `<button class="btn btn--outline" data-add-cart="${e(p.id)}">কার্টে যোগ করুন</button>` : ""}${isBikeKeyring(p) ? `<button class="btn btn--primary" data-details="${e(p.id)}">প্রিন্টের ধরন বেছে নিন</button>` : `<a class="btn btn--primary" href="order.html?product=${encodeURIComponent(p.id)}">অর্ডার করুন</a>`}</div></article>`,
             )
             .join("")
         : "<p>কোনো পণ্য পাওয়া যায়নি।</p>";
       bindCardFlips(grid);
+      grid.querySelectorAll("[data-add-cart]").forEach(button => button.onclick = () => {
+        try { addCartItem(data.products.find(p => p.id === button.dataset.addCart)); updateCartBadge(); cartNotice(grid.parentElement); }
+        catch (err) { error(err.message); }
+      });
       grid
         .querySelectorAll("[data-details]")
         .forEach(
@@ -1515,22 +1672,43 @@ if (document.body.classList.contains("admin-body")) {
     if (!form) return;
     const submit = $("#submitOrderBtn");
     submit.disabled = true;
-    const data = await catalog();
+    const catalogData = await catalog();
+    const cartMode = new URLSearchParams(location.search).get("cart") === "1";
+    const cartLines = cartMode ? readCart(catalogData.products) : [];
+    const data = { ...catalogData, products: catalogData.products.flatMap(p => {
+      const variants = cartMode && isBikeKeyring(p) ? cartLines.filter(line => line.productId === p.id) : [];
+      if (!variants.length) return [{ ...p, sourceProductId: p.id }];
+      return variants.map((line, index) => ({ ...p, id: index ? p.id + "--cart-" + line.printSides : p.id,
+        sourceProductId: p.id, checkoutSides: line.printSides }));
+    }) };
     const state = new Map(
-      data.products.map((p) => [p.id, { ...p, quantity: 0, file: null }]),
+      data.products.map((p) => [p.id, { ...p, price: printPrice(p, p.checkoutSides || 1), quantity: 0, file: null, printSides: p.checkoutSides || 1, personalization: { bikeBrand: "", bikeNumber: "", ownerName: "", phone: "" }, backPhoto: null }]),
     );
     const selected =
       new URLSearchParams(location.search).get("product") ||
       data.products[0]?.id;
-    if (state.has(selected)) state.get(selected).quantity = 1;
+    if (!cartMode && state.has(selected)) {
+      const p = state.get(selected);
+      p.quantity = 1;
+      if (isBikeKeyring(p)) {
+        p.printSides = new URLSearchParams(location.search).get("sides") === "2" ? 2 : 1;
+        p.price = printPrice(data.products.find(item => item.id === p.id), p.printSides);
+      }
+    }
     const comboId = new URLSearchParams(location.search).get("combo"),
       selectedCombo = data.combos.find((c) => c.id === comboId && c.enabled);
-    if (selectedCombo) {
+    if (selectedCombo && !cartMode) {
       state.forEach((p) => (p.quantity = 0));
       selectedCombo.items.forEach((i) => {
         if (state.has(i.productId))
           state.get(i.productId).quantity = i.quantity;
       });
+    }
+    if (cartMode) {
+      for (const line of cartLines) {
+        const p = [...state.values()].find(p => p.sourceProductId === line.productId && (!isBikeKeyring(p) || p.printSides === line.printSides));
+        if (p) p.quantity = line.quantity;
+      }
     }
     const zoneLabel = document.createElement("label");
     zoneLabel.className = "form-group";
@@ -1552,12 +1730,16 @@ if (document.body.classList.contains("admin-body")) {
       (data.settings.nagad || "নির্ধারিত হয়নি") +
       "। শুধু তথ্যের প্রিভিউ; টাকা পাঠাবেন না।";
     form.append(paymentNote);
+    function keyringFields(p) {
+      const selected = state.get(p.id);
+      return `<div class="keyring-customization"><label>প্রিন্টের ধরন<select data-print-sides="${e(p.id)}" class="form-control"><option value="1" ${selected.printSides === 1 ? "selected" : ""}>এক পাশে — ${money(p.price)}</option><option value="2" ${selected.printSides === 2 ? "selected" : ""}>দুই পাশে — ${money(p.doublePrice)}</option></select></label><fieldset data-keyring-fields="${e(p.id)}"><legend>কি রিংয়ে প্রিন্টের তথ্য</legend><label>বাইকের ব্র্যান্ডের নাম *<input class="form-control" data-keyring-field="bikeBrand" data-product-id="${e(p.id)}" maxlength="80" placeholder="যেমন: Royal Enfield" required></label><label>বাইকের নম্বর (ইংরেজিতে) *<input class="form-control" data-keyring-field="bikeNumber" data-product-id="${e(p.id)}" lang="en" maxlength="50" placeholder="DHAKA METRO HA 12-3456" required></label><label>নিজের নাম (ইংরেজিতে) *<input class="form-control" data-keyring-field="ownerName" data-product-id="${e(p.id)}" lang="en" maxlength="80" placeholder="YOUR NAME" required></label><label>কি রিংয়ে প্রিন্টের ফোন নম্বর *<input class="form-control" type="tel" inputmode="tel" data-keyring-field="phone" data-product-id="${e(p.id)}" maxlength="16" placeholder="01XXXXXXXXX" required></label><div data-back-photo-panel="${e(p.id)}" ${selected.printSides === 2 ? "" : "hidden"}><label>পেছনে নিজের ছবি (ঐচ্ছিক, সর্বোচ্চ ২ এমবি)<input type="file" data-back-photo="${e(p.id)}" accept="image/png,image/jpeg,image/webp"></label><p>ছবি দিলে দুই পাশে প্রিন্টের পেছনে ব্যবহার করা হবে।</p><span data-back-photo-name="${e(p.id)}" role="status"></span><img data-back-photo-preview="${e(p.id)}" alt="পেছনের ছবির প্রিভিউ" width="120" height="120" hidden><button type="button" class="btn btn--outline" data-remove-back-photo="${e(p.id)}">পেছনের ছবি সরান</button></div></fieldset></div>`;
+    }
     const list = $(".product-option-list");
     list.innerHTML = data.products.length
       ? data.products
           .map(
             (p) =>
-              `<section class="product-option-item"><div class="product-option-item__top"><div><small>${e(p.category)}</small><h3 class="product-option-item__name">${e(p.name)}</h3><p>${e(p.description)}</p></div><strong>${money(p.price)}</strong></div><div class="product-option-item__controls"><div class="quantity-stepper"><button type="button" class="quantity-stepper__btn" data-minus="${e(p.id)}" aria-label="${e(p.name)} কমান">−</button><input class="quantity-stepper__input" data-quantity="${e(p.id)}" type="number" min="0" max="1000" value="${state.get(p.id).quantity}" aria-label="${e(p.name)} পরিমাণ"><button type="button" class="quantity-stepper__btn" data-plus="${e(p.id)}" aria-label="${e(p.name)} বাড়ান">+</button></div><label>ডিজাইনের ফাইল (PDF / PNG / JPEG / WebP, সর্বোচ্চ ২ এমবি)<input type="file" data-artwork="${e(p.id)}" accept="application/pdf,image/png,image/jpeg,image/webp"><span data-filename="${e(p.id)}"></span></label><button class="btn btn--outline" type="button" data-remove-file="${e(p.id)}">ফাইল সরান</button></div></section>`,
+              `<section class="product-option-item"><div class="product-option-item__top"><div><small>${e(p.category)}</small><h3 class="product-option-item__name">${e(p.name)}</h3><p>${e(p.description)}</p></div><strong data-unit-price="${e(p.id)}">${money(state.get(p.id).price)}</strong></div><div class="product-option-item__controls"><div class="quantity-stepper"><button type="button" class="quantity-stepper__btn" data-minus="${e(p.id)}" aria-label="${e(p.name)} কমান">−</button><input class="quantity-stepper__input" data-quantity="${e(p.id)}" type="number" min="0" max="1000" value="${state.get(p.id).quantity}" aria-label="${e(p.name)} পরিমাণ"><button type="button" class="quantity-stepper__btn" data-plus="${e(p.id)}" aria-label="${e(p.name)} বাড়ান">+</button></div>${isBikeKeyring(p) ? keyringFields(p) : `<label>ডিজাইনের ফাইল (PDF / PNG / JPEG / WebP, সর্বোচ্চ ২ এমবি)<input type="file" data-artwork="${e(p.id)}" accept="application/pdf,image/png,image/jpeg,image/webp"><span data-filename="${e(p.id)}"></span></label><button class="btn btn--outline" type="button" data-remove-file="${e(p.id)}">ফাইল সরান</button>`}</div></section>`,
           )
           .join("")
       : "<p>এখন কোনো পণ্য পাওয়া যাচ্ছে না।</p>";
@@ -1571,7 +1753,7 @@ if (document.body.classList.contains("admin-body")) {
     const notice = document.createElement("p");
     notice.className = "shop-notice";
     notice.textContent =
-      "এটি ফ্রন্টএন্ড ডেমো। তথ্য ও ফাইল শুধু এই ব্রাউজারে রাখা হবে। প্রকৃত ব্যক্তিগত তথ্য বা পরিচয়পত্র দেবেন না। কোনো অর্ডার স্টুডিওতে পাঠানো হবে না।";
+      "এটি ফ্রন্টএন্ড ডেমো। তথ্য ও ফাইল শুধু এই ব্রাউজারে রাখা হবে। প্রকৃত ব্যক্তিগত তথ্য দেবেন না। কোনো অর্ডার স্টুডিওতে পাঠানো হবে না।";
     form.prepend(notice);
     const message = document.createElement("p");
     message.id = "order-message";
@@ -1592,7 +1774,7 @@ if (document.body.classList.contains("admin-body")) {
       const totals = previewTotals(
           [...state.values()]
             .filter((p) => p.quantity > 0)
-            .map((p) => ({ productId: p.id, quantity: p.quantity })),
+            .map((p) => ({ productId: p.id, quantity: p.quantity, printSides: p.printSides })),
           data,
           $("#delivery-zone").value,
         ),
@@ -1605,9 +1787,9 @@ if (document.body.classList.contains("admin-body")) {
         items
           .map(
             (p) =>
-              `<li class="summary-item"><div><strong>${e(p.name)}</strong><div>${p.quantity} × ${money(p.price)} ${p.file ? "· ফাইল সংযুক্ত" : ""}</div></div><span>${money(p.price * p.quantity)}</span></li>`,
+              `<li class="summary-item"><div><strong>${e(p.name)}${isBikeKeyring(p) ? (p.printSides === 2 ? " · দুই পাশে প্রিন্ট" : " · এক পাশে প্রিন্ট") : ""}</strong><div>${p.quantity} × ${money(p.price)} ${p.file ? "· ফাইল সংযুক্ত" : ""}</div></div><span>${money(p.price * p.quantity)}</span></li>`,
           )
-          .join("") || "<li>অন্তত একটি কার্ড বেছে নিন।</li>";
+          .join("") || "<li>অন্তত একটি পণ্য বেছে নিন।</li>";
       $("#summarySubtotal").textContent = money(subtotal);
       $("#summaryTotal").textContent = money(totals.amount);
       $("#summaryDelivery").textContent = money(delivery);
@@ -1619,11 +1801,25 @@ if (document.body.classList.contains("admin-body")) {
           delivery === 0
             ? "ডেলিভারি চার্জ প্রযোজ্য নয়।"
             : "ডেলিভারি: " + money(delivery);
+      list.querySelectorAll('[data-keyring-fields]').forEach(fieldset => {
+        fieldset.disabled = state.get(fieldset.dataset.keyringFields).quantity === 0 || busy || submitted;
+      });
       submit.disabled = busy || submitted || !quantity;
     }
     list.onclick = (ev) => {
       const b = ev.target.closest("button");
       if (!b) return;
+      if (b.dataset.removeBackPhoto) {
+        const id = b.dataset.removeBackPhoto;
+        state.get(id).backPhoto = null;
+        list.querySelector(`[data-back-photo="${id}"]`).value = "";
+        list.querySelector(`[data-back-photo-name="${id}"]`).textContent = "";
+        const img = list.querySelector(`[data-back-photo-preview="${id}"]`);
+        img.hidden = true;
+        img.removeAttribute("src");
+        update();
+        return;
+      }
       const id = b.dataset.plus || b.dataset.minus || b.dataset.removeFile;
       if (!id) return;
       const p = state.get(id);
@@ -1640,7 +1836,52 @@ if (document.body.classList.contains("admin-body")) {
       }
       update();
     };
+    list.oninput = (ev) => {
+      if (!ev.target.dataset.keyringField) return;
+      const p = state.get(ev.target.dataset.productId);
+      p.personalization[ev.target.dataset.keyringField] = ev.target.value;
+    };
     list.onchange = async (ev) => {
+      if (ev.target.dataset.printSides) {
+        const id = ev.target.dataset.printSides, p = state.get(id);
+        p.printSides = Number(ev.target.value);
+        p.price = printPrice(data.products.find(item => item.id === id), p.printSides);
+        list.querySelector(`[data-unit-price="${id}"]`).textContent = money(p.price);
+        list.querySelector(`[data-back-photo-panel="${id}"]`).hidden = p.printSides !== 2;
+        if (p.printSides !== 2) {
+          p.backPhoto = null;
+          list.querySelector(`[data-back-photo="${id}"]`).value = "";
+          list.querySelector(`[data-back-photo-name="${id}"]`).textContent = "";
+          const img = list.querySelector(`[data-back-photo-preview="${id}"]`);
+          img.hidden = true; img.removeAttribute("src");
+        }
+        update();
+        return;
+      }
+      if (ev.target.dataset.backPhoto) {
+        const id = ev.target.dataset.backPhoto, p = state.get(id), file = ev.target.files[0];
+        p.backPhoto = null;
+        const img = list.querySelector(`[data-back-photo-preview="${id}"]`);
+        img.hidden = true;
+        img.removeAttribute("src");
+        list.querySelector(`[data-back-photo-name="${id}"]`).textContent = "";
+        if (!file) { update(); return; }
+        busy = true; update();
+        try {
+          if (!["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024)
+            throw Error("পেছনের ছবির জন্য সর্বোচ্চ ২ এমবি PNG, JPEG বা WebP দিন।");
+          const photoData = await new Promise((resolve, reject) => {
+            const reader = new FileReader(); reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(Error("ছবি পড়া যায়নি।")); reader.readAsDataURL(file);
+          });
+          const decoded = new Image(); decoded.src = photoData; await decoded.decode();
+          p.backPhoto = { name: file.name, data: photoData };
+          img.src = photoData; img.hidden = false;
+          list.querySelector(`[data-back-photo-name="${id}"]`).textContent = file.name;
+        } catch (err) { ev.target.value = ""; error(err.message); }
+        finally { busy = false; update(); }
+        return;
+      }
       if (ev.target.dataset.quantity) {
         const p = state.get(ev.target.dataset.quantity);
         p.quantity = Math.min(
@@ -1706,10 +1947,14 @@ if (document.body.classList.contains("admin-body")) {
         items = [...state.values()]
           .filter((p) => p.quantity > 0)
           .map((p) => ({
-            productId: p.id,
+            productId: p.sourceProductId || p.id,
             quantity: p.quantity,
             file: p.file,
+            ...(isBikeKeyring(p) ? { printSides: p.printSides, personalization: p.personalization, backPhoto: p.backPhoto } : {}),
           }));
+      try {
+        for (const item of items) if (isBikeKeyring(catalogData.products.find(p => p.id === item.productId))) Object.assign(item, keyringDetails(item));
+      } catch (err) { error(err.message); return; }
       if (
         !customer ||
         !/^(?:\+?88)?01[3-9]\d{8}$/.test(phone) ||
@@ -1721,6 +1966,7 @@ if (document.body.classList.contains("admin-body")) {
         );
         return;
       }
+      $("#shop-error")?.remove();
       busy = true;
       update();
       message.textContent = "অনুরোধ পাঠানো হচ্ছে…";
@@ -1743,15 +1989,16 @@ if (document.body.classList.contains("admin-body")) {
         if (!response.ok)
           throw Error(
             response.status === 400
-              ? "তথ্য ও ফাইল যাচাই করুন। অনুমোদিত ফাইলের আকার সর্বোচ্চ ২ এমবি।"
+              ? result.error || "তথ্য ও ফাইল যাচাই করুন। অনুমোদিত ফাইলের আকার সর্বোচ্চ ২ এমবি।"
               : "অনুরোধ পাঠানো যায়নি। পরে আবার চেষ্টা করুন।",
           );
         submitted = true;
+        if (cartMode) { saveCart([]); updateCartBadge(); }
         message.textContent = `ডেমো এই ব্রাউজারে সংরক্ষিত হয়েছে। নম্বর: ${result.id}। মোট: ${money(result.amount)}। পেমেন্ট নেওয়া হয়নি।`;
         message.focus();
         submit.textContent = "ডেমো সংরক্ষিত হয়েছে";
         form
-          .querySelectorAll("input,textarea,button")
+          .querySelectorAll("input,textarea,select,button")
           .forEach((el) => (el.disabled = true));
       } catch (err) {
         error(err.message);
@@ -1766,5 +2013,6 @@ if (document.body.classList.contains("admin-body")) {
   applyBusiness();
   applyPublicPricing();
   mobileMenu();
-  Promise.all([storefront(), checkout()]).catch((err) => error(err.message));
+  initCartLinks();
+  Promise.all([storefront(), checkout(), cartPage()]).catch((err) => error(err.message));
 }

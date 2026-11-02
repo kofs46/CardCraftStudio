@@ -9,6 +9,7 @@ Open `index.html` in your browser, or open this folder in VS Code and use Live S
 | Page | Interface |
 | --- | --- |
 | `index.html` | Homepage, product catalog, search, and flipping card previews |
+| `cart.html` | Persistent shopping cart, quantities, removal, and checkout |
 | `order.html` | Quantities, artwork selection, delivery, and demo order submission |
 | `admin.html` | Product images, prices, orders, customers, and business settings |
 | `about.html` | About the business |
@@ -18,7 +19,7 @@ On the admin page, select **Enter admin preview**. This is a browser-only demo: 
 
 ## UI / UX screenshots
 
-Actual screenshots of the running website interfaces. The admin screenshot shows the clean demo dashboard with no customer data.
+Screenshots of an earlier interface revision, before the current catalog and cart update. The admin screenshot shows the clean demo dashboard with no customer data. The current product lineup is listed below.
 
 ### Homepage — `index.html`
 
@@ -28,12 +29,25 @@ Actual screenshots of the running website interfaces. The admin screenshot shows
 
 ![Admin dashboard UI with management navigation, statistics, filters and order table](docs/screenshots/admin-panel.png)
 
-### Demo card assets
+## Current catalog
 
-The website's product previews still use the included fictional, AI-generated front/back card assets in `images/`. Identity, driving, vaccine, and student samples are marked **DEMO / নমুনা** and **NOT VALID**; they are not issued documents. Replace them through the admin product editor.
+| Product | Price |
+| --- | --- |
+| UV Smart Card | ৳100 |
+| Premium NFC Card | ৳350 |
+| Bike Key Ring | One side ৳250 / two sides ৳300 |
+
+Bike Key Ring is one product with two print options in its details popup. At checkout it requires the bike brand, bike number in English, owner name in English, and phone number. The two-side option also supports an optional PNG/JPEG/WebP back photo up to 2 MB. Admin can edit both prices, descriptions, and front/back images, and view the personalization and photo in order details.
+
+The product images are replaceable demo assets. The retired identity, driving, vaccination, and student-card products and their unused images are no longer included in the current catalog.
 
 ## Repository scope
 
 This repository includes the current static frontend and the assets it uses. Local databases, orders, account data, backups, editor settings, unused earlier backend code, and unused images are excluded. Google Fonts loads externally when available; local fallback fonts remain usable offline.
 
 Replace sample contact details, business information, and policy copy before using this as a live business website. Real authentication, order storage, secure artwork handling, and payment services require backend integration.
+
+
+## Shopping cart
+
+Use **কার্টে যোগ করুন** on products or the details popup. For Bike Key Ring, choose one-side or two-side printing before adding. `cart.html` supports quantity changes, removal, and persistent browser storage. Both print options can be ordered together, with separate bike details and an optional back photo for the two-side option at checkout. Delivery is calculated at checkout. A successful demo order clears the cart; validation failures leave it intact. No real order or payment is sent to the business.

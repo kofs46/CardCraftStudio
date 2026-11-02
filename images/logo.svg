@@ -9,6 +9,6 @@
     <rect x="6" y="2" width="40" height="26" rx="6" stroke="#F59E0B" stroke-width="2" fill="none" opacity="0.6"/>
   </g>
   <!-- Shop name in Bangla &amp; English subtitle -->
-  <text x="68" y="28" font-family="'Hind Siliguri', 'Segoe UI', sans-serif" font-weight="700" font-size="20" fill="#0F766E">কার্ড পয়েন্ট বিডি</text>
-  <text x="69" y="44" font-family="'Poppins', sans-serif" font-weight="500" font-size="10" letter-spacing="1.5" fill="#64748B">PREMIUM PVC CARD PRINT</text>
+  <text x="68" y="28" font-family="'Hind Siliguri', 'Segoe UI', sans-serif" font-weight="700" font-size="20" fill="#0F766E">কার্ডক্রাফট স্টুডিও</text>
+  <text x="69" y="44" font-family="'Poppins', sans-serif" font-weight="500" font-size="10" letter-spacing="1.5" fill="#64748B">UV · NFC · CUSTOM PRINT</text>
 </svg>

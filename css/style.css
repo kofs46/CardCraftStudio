@@ -2260,5 +2260,24 @@ body.admin-body{background:var(--color-bg)}.admin-body .admin-navbar{background:
 .original-admin-brand { display:flex; align-items:center; gap:10px; min-width:0; }
 .admin-brand-logo { width:48px; height:48px; flex-shrink:0; object-fit:contain; }
 .login-brand-logo { display:block; width:112px; height:112px; object-fit:contain; margin:0 auto 16px; }
-@media(max-width:991px) { .brand-wordmark { display:none; } }
+@media(max-width:991px) { .brand-wordmark { display:block; max-width:none; font-size:.95rem; } }
 @media(max-width:480px) { .navbar__logo.business-logo { width:44px; height:44px; } .admin-brand-logo { width:40px; height:40px; } }
+
+/* Bengali header name with the original sample card icon. */
+.header-card-icon { width:40px; height:32px; flex-shrink:0; object-fit:contain; }
+.brand-wordmark.brand-wordmark--bangla { font-family:var(--font-bangla), "Hind Siliguri", sans-serif; max-width:none; white-space:nowrap; }
+@media(max-width:480px) { .header-card-icon { width:32px; height:28px; } .brand-wordmark.brand-wordmark--bangla { font-size:.85rem; } .navbar__brand { gap:4px; } }
+
+/* Sidebar navigation and sales overview. */
+.admin-layout { display:grid; grid-template-columns:220px minmax(0,1fr); gap:28px; align-items:start; }
+.admin-main { min-width:0; }
+.admin-sidebar { position:sticky; top:20px; background:#fff; border:1px solid #dce5ed; border-radius:16px; padding:20px 12px; }
+.admin-sidebar h2 { font-size:1rem; padding:0 12px; margin-bottom:16px; }
+.admin-sidebar-nav { display:flex; flex-direction:column; gap:8px; }
+.admin-sidebar-nav .filter-pill { display:block; text-align:left; white-space:normal; border-radius:9px; }
+.dashboard-summary p { color:#64748b; margin-bottom:20px; }
+.dashboard-statuses { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:12px; margin:24px 0 32px; }
+.dashboard-status-card { display:flex; flex-direction:column; gap:10px; padding:18px; background:#fff; border:1px solid #dce5ed; border-radius:12px; color:inherit; }
+.dashboard-status-card:hover { border-color:#0f766e; }
+.dashboard-status-card small { color:#64748b; }
+@media(max-width:991px) { .admin-layout { grid-template-columns:minmax(0,1fr); } .admin-sidebar { position:static; } .admin-sidebar-nav { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); } }

@@ -1,58 +1,43 @@
-# CraftCard Studio BD
+# CardCraft Studio BD
 
-A Bangla card-printing website with a storefront, front/back card previews, order form, and admin demo interface.
+Bangla storefront and protected admin dashboard for UV Smart Cards (৳100), Premium NFC Cards (৳350), and Bike Key Rings (one side ৳250 / two sides ৳300).
 
-## Run the demo
+The frontend is connected to a Node API, Supabase Auth, PostgreSQL and Storage. Deployment is prepared for Vercel. Orders, products, prices, discounts, delivery rules, categories, combos and business settings are shared across browsers. Only the saved shopping list remains in browser localStorage.
 
-Open `index.html` in your browser, or open this folder in VS Code and use Live Server. No install or build step is needed. Use the same browser and origin for the storefront, orders, and admin pages.
+**Start here: [Backend and deployment setup](BACKEND-SETUP.md).** Configure Supabase and server environment variables before running. Opening HTML or using Live Server alone is insufficient.
 
-| Page | Interface |
+## Local development
+
+1. Run `supabase/schema.sql` in Supabase SQL Editor.
+2. Create the approved admin Auth user and fill `.env` using `.env.example`.
+3. Run `npm start` and open `http://localhost:5175`.
+4. Run `npm test` for API, authorization, pricing, uploads and concurrency tests.
+
+On Windows PowerShell, use `npm.cmd` if `npm.ps1` is blocked. Node.js 22+ is required; no npm runtime dependencies are needed.
+
+## Pages
+
+| Page | Purpose |
 | --- | --- |
-| `index.html` | Homepage, product catalog, search, and flipping card previews |
-| `order-list.html` | Saved order list, quantities, removal, and checkout |
-| `order.html` | Quantities, artwork selection, delivery, and demo order submission |
-| `admin.html` | Product images, prices, orders, customers, and business settings |
-| `about.html` | About the business |
-| `privacy.html` | Privacy information |
+| `index.html` | Catalog, search, card flip previews and product selection |
+| `order-list.html` | Saved product options and quantities |
+| `order.html` | Customer address, key-ring personalization, files and submission |
+| `admin.html` | Protected login, sales/status dashboard and management sidebar |
+| `about.html`, `privacy.html` | Business and privacy details |
 
-On the admin page, select **Enter admin preview**. This is a browser-only demo: products, orders, artwork, and settings are stored in localStorage. It has no protected admin login, shared database, payment processing, or live order service. Use fictional customer details. Browser storage is separate for each browser/origin; clearing site data resets it.
+The corrected logo is `images/cardcraft-studio-bd-logo.jpeg`. Public headers retain the small sample card icon and Bengali name. Original logo artwork remains in footers, admin login and browser icons.
 
-## UI / UX screenshots
+## Validation and limits
 
-Screenshots of an earlier interface revision, before the current catalog and cart update. The admin screenshot shows the clean demo dashboard with no customer data. The current product lineup is listed below.
+The server calculates prices, discounts and delivery. Repeated order UUIDs are idempotent; changed details with the same UUID are rejected. Admin sessions require an allowlisted Supabase Auth UUID. Customer artwork is private, with temporary admin download links. Mutations are committed transactionally using revision checks; file removal uses a durable cleanup queue.
 
-### Homepage — `index.html`
+Payments are not processed or verified. Completed sales exclude delivery and do not represent a bank balance. Existing browser demo orders are not silently imported. See the setup guide for required live acceptance checks, storage housekeeping, backups and current small-shop scaling limits.
 
-![Homepage UI with Bangla navigation, hero, service details and order actions](docs/screenshots/homepage.png)
+Tests use a mocked Supabase API transport; SQL was also checked locally with PostgreSQL-compatible PGlite for migration, transactions, cleanup queue and permissions. Actual project integration still requires your Supabase configuration.
 
-### Admin panel — `admin.html`
+## Interface previews
 
-![Admin dashboard UI with management navigation, statistics, filters and order table](docs/screenshots/admin-panel.png)
+These screenshots show an earlier UI revision, not the current sidebar dashboard:
 
-## Current catalog
-
-| Product | Price |
-| --- | --- |
-| UV Smart Card | ৳100 |
-| Premium NFC Card | ৳350 |
-| Bike Key Ring | One side ৳250 / two sides ৳300 |
-
-Bike Key Ring is one product with two print options in its details popup. At checkout it requires the bike brand, bike number in English, owner name in English, and phone number. The two-side option also supports an optional PNG/JPEG/WebP back photo up to 2 MB. Admin can edit both prices, descriptions, and front/back images, and view the personalization and photo in order details.
-
-The product images are replaceable demo assets. The retired identity, driving, vaccination, and student-card products and their unused images are no longer included in the current catalog.
-
-## Repository scope
-
-This repository includes the current static frontend and the assets it uses. Local databases, orders, account data, backups, editor settings, unused earlier backend code, and unused images are excluded. Google Fonts loads externally when available; local fallback fonts remain usable offline.
-
-Replace sample contact details, business information, and policy copy before using this as a live business website. Real authentication, order storage, secure artwork handling, and payment services require backend integration.
-
-
-## Order list
-
-Use **অর্ডার করুন** on a product to add it to the order list. For Bike Key Ring, choose the print side in its details popup and select **অর্ডারে যোগ করুন**. The header's **অর্ডার করুন** button shows the saved item count and opens `order-list.html`, where quantities can be changed and products removed. Continue to the address/details form to confirm the demo order. Both key-ring variants can be included, with separate personalization and an optional back photo for the two-side option. Storage and successful-order clearing behavior are preserved. The old `cart.html` URL redirects to the order list.
-
-
-## Business logo
-
-The supplied CraftCard Studio BD logo is used in the public header, footer, admin interface and browser icon. Its original artwork is preserved in `images/craftcard-studio-bd-logo.png`.
+![Homepage](docs/screenshots/homepage.png)
+![Earlier admin interface](docs/screenshots/admin-panel.png)

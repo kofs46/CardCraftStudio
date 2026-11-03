@@ -1,0 +1,8 @@
+.env*
+!.env.example
+tests
+data
+backups
+scripts
+logo.jpeg
+images/craftcard-studio-bd-logo.png

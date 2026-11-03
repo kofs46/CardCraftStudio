@@ -1,0 +1,13 @@
+{
+  "name": "cardcraft-studio-bd",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/local.mjs",
+    "dev": "node --env-file-if-exists=.env server/local.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

@@ -22,71 +22,9 @@ const sideLabel = (side) =>
   "অন্যান্য ছবি";
 const imageUrl = (src) => src === "images/product-keyring-photo.jpg" ? "images/product-keyring-photo.png" : String(src || "");
 
-// Frontend preview only: no API requests, passwords or server authentication.
-const previewSeed = [
-  {
-    "id": "uv-smart",
-    "name": "ইউভি স্মার্ট কার্ড",
-    "category": "স্মার্ট কার্ড",
-    "description": "নিজের নাম, লোগো বা ব্র্যান্ড ডিজাইনে UV প্রিন্টের স্মার্ট কার্ড। পছন্দের সামনের ও পেছনের ডিজাইন দিয়ে অর্ডার করুন।",
-    "price": 100,
-    "images": [
-      "images/demo-business-front.png",
-      "images/demo-business-back.png"
-    ],
-    "material": "UV প্রিন্টেড PVC",
-    "size": "85.6 × 54 mm",
-    "featured": true,
-    "imageSides": [
-      "front",
-      "back"
-    ],
-    "available": true
-  },
-  {
-    "id": "premium-nfc",
-    "name": "প্রিমিয়াম NFC কার্ড",
-    "category": "NFC কার্ড",
-    "description": "ব্যক্তিগত বা ব্যবসায়িক পরিচিতির জন্য প্রিমিয়াম NFC কার্ড। নিজের লোগো ও ডিজাইন ব্যবহার করুন; NFC সেটআপের প্রয়োজন অর্ডারের নোটে জানান।",
-    "price": 350,
-    "images": [
-      "images/product-nfc-front.svg",
-      "images/product-nfc-back.svg"
-    ],
-    "material": "NFC PVC কার্ড",
-    "size": "85.6 × 54 mm",
-    "featured": true,
-    "imageSides": [
-      "front",
-      "back"
-    ],
-    "available": true
-  },
-  {
-    "id": "bike-keyring",
-    "name": "বাইক কি রিং",
-    "category": "বাইক এক্সেসরিজ",
-    "description": "নিজের বাইকের ব্র্যান্ড, নম্বর, নাম ও ফোন নম্বর দিয়ে কাস্টম কি রিং। এক পাশে প্রিন্ট অথবা দুই পাশে প্রিন্ট বেছে নিন; দুই পাশে নিলে পেছনে নিজের ছবিও দিতে পারবেন।",
-    "price": 250,
-    "doublePrice": 300,
-    "customization": "bike-keyring",
-    "images": [
-      "images/product-keyring-photo.png",
-      "images/product-keyring-photo-back.svg"
-    ],
-    "imageSides": [
-      "front",
-      "back"
-    ],
-    "material": "কাস্টম প্রিন্টেড কি রিং",
-    "size": "ডিজাইন অনুযায়ী",
-    "featured": true,
-    "available": true
-  }
-];
-
-const previewDefaults = {
-  businessName: "CraftCard Studio BD",
+// Catalog defaults are display-only. The server validates and prices every order.
+const defaultSettings = {
+  businessName: "CardCraft Studio BD",
   phone: "01983469936",
   phone2: "",
   address: "সাভার,ঢাকা-১৩৪৭।",
@@ -164,41 +102,6 @@ function addCartItem(product, sides = 1, quantity = 1) {
   return lines;
 }
 
-function normalizePreview(data) {
-  const replaceCatalog = ![2, 3].includes(data.catalogVersion);
-  let products = replaceCatalog ? structuredClone(previewSeed) : (data.products || []);
-  let combos = replaceCatalog ? [] : (data.combos || []);
-  if (data.catalogVersion === 2) {
-    const single = products.find(p => p.id === "bike-keyring-single");
-    const double = products.find(p => p.id === "bike-keyring-double");
-    const defaults = structuredClone(previewSeed.find(p => p.id === "bike-keyring"));
-    if ((single || double) && !products.some(p => p.id === "bike-keyring")) {
-      const keyring = { ...defaults, ...(single || double), id: "bike-keyring", name: defaults.name,
-        description: defaults.description, customization: "bike-keyring",
-        price: single?.price ?? defaults.price, doublePrice: double?.price ?? defaults.doublePrice,
-        images: [single?.images?.[0] && single.images[0] !== "images/product-keyring-front.svg" ? single.images[0] : defaults.images[0],
-          double?.images?.[1] && double.images[1] !== "images/product-keyring-back.svg" ? double.images[1] : defaults.images[1]],
-        imageSides: ["front", "back"],
-      };
-      products = products.filter(p => !["bike-keyring-single", "bike-keyring-double"].includes(p.id));
-      products.push(keyring);
-    } else products = products.filter(p => !["bike-keyring-single", "bike-keyring-double"].includes(p.id));
-    combos = combos.filter(c => !c.items?.some(i => ["bike-keyring-single", "bike-keyring-double"].includes(i.productId)));
-  }
-  products = products.map(p => p.images?.includes("images/product-keyring-photo.jpg")
-    ? { ...p, images: p.images.map(src => imageUrl(src)) } : p);
-  return {
-    ...data, catalogVersion: 3, products,
-    categories: replaceCatalog ? [...new Set(previewSeed.map(p => p.category))] : (data.categories || []),
-    combos,
-    settings: { ...previewDefaults, ...data.settings,
-      businessName: data.brandVersion === 1 ? (data.settings?.businessName || previewDefaults.businessName) : previewDefaults.businessName,
-      ...(data.businessContactsVersion === 1 ? {} : Object.fromEntries(
-        ["phone", "phone2", "address", "email", "whatsapp", "facebook"].map(key => [key, previewDefaults[key]])
-      )),
-    }, businessContactsVersion: 1, brandVersion: 1,
-  };
-}
 const unitPrice = (p) =>
   Math.max(
     0,
@@ -210,7 +113,7 @@ const unitPrice = (p) =>
         100,
     ) / 100,
   );
-function previewTotals(items, data, zone = "dhaka") {
+function calculateTotals(items, data, zone = "dhaka") {
   const rows = items.map((i) => {
     const p = data.products.find(p => p.id === i.productId) || i;
     return { ...i, product: { ...p, price: printPrice(p, i.printSides) } };
@@ -276,217 +179,56 @@ function previewTotals(items, data, zone = "dhaka") {
   };
 }
 
-function previewRead() {
-  try {
-    const saved = localStorage.getItem("pvc_shop_frontend_v1");
-    if (saved) {
-      const previous = JSON.parse(saved);
-      const normalized = normalizePreview(previous);
-      if (previous.catalogVersion !== 3 || previous.businessContactsVersion !== 1 || previous.brandVersion !== 1) {
-        try { localStorage.setItem("pvc_shop_frontend_v1", JSON.stringify(normalized)); } catch {}
-      }
-      return normalized;
-    }
-  } catch {}
-  return {
-    products: structuredClone(previewSeed),
-    brandVersion: 1,
-    businessContactsVersion: 1,
-    catalogVersion: 3,
-    categories: [...new Set(previewSeed.map((p) => p.category))],
-    orders: [],
-    settings: { ...previewDefaults },
-    combos: [],
-  };
-}
-function previewSave(data) {
-  try {
-    localStorage.setItem("pvc_shop_frontend_v1", JSON.stringify(data));
-  } catch {
-    throw Error(
-      "Browser storage is full or unavailable. Use smaller images or enable local storage.",
-    );
+async function readApiJson(response) {
+  const text = await response.text();
+  let result;
+  try { result = JSON.parse(text); }
+  catch {
+    const local = ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
+    const hint = local
+      ? "প্রজেক্টে npm.cmd start চালিয়ে http://localhost:5175 খুলুন। VS Code Live Server দিয়ে backend চলে না।"
+      : "হোস্টিংয়ে /api রুট এবং deployment access protection যাচাই করুন।";
+    throw Error(`সার্ভার থেকে সঠিক API উত্তর পাওয়া যায়নি (HTTP ${response.status})। ${hint}`);
   }
+  if (!result || typeof result !== "object" || Array.isArray(result)) {
+    throw Error("API-এর উত্তর সঠিক নয়। backend ও /api রুটের সেটআপ যাচাই করুন।");
+  }
+  return result;
 }
-async function previewFetch(url, options = {}) {
-  try {
-    const route = url.replace("/api/", ""),
-      method = options.method || "GET",
-      body = options.body ? JSON.parse(options.body) : {},
-      data = previewRead();
-    let result = { ok: true };
-    if (route === "auth") result = { setupRequired: false };
-    else if (route === "login" || route === "logout") {
-    } else if (route === "catalog")
-      result = {
-        products: data.products.filter((p) => p.available),
-        categories: data.categories,
-        settings: data.settings,
-        combos: data.combos,
-      };
-    else if (route === "admin") result = data;
-    else if (route === "settings") {
-      const next = { ...data.settings, ...body };
-      for (const key of ["dhakaFee", "outsideFee", "freeThreshold"])
-        if (!Number.isFinite(next[key]) || next[key] < 0 || next[key] > 100000)
-          throw Error("Enter valid non-negative delivery values.");
-      if (!Number.isInteger(next.freeThreshold))
-        throw Error("Free delivery quantity must be a whole number.");
-      for (const key of ["facebook", "instagram", "youtube", "tiktok"])
-        if (next[key] && !/^https?:\/\//i.test(next[key]))
-          throw Error("Social links must start with https:// or http://.");
-      data.settings = next;
-      previewSave(data);
-    } else if (route === "combos") {
-      if (method === "DELETE")
-        data.combos = data.combos.filter((c) => c.id !== body.id);
-      else {
-        if (
-          !body.name?.trim() ||
-          !Number.isFinite(body.price) ||
-          body.price < 0 ||
-          !body.items?.length ||
-          body.items.some(
-            (i) =>
-              !data.products.some((p) => p.id === i.productId) ||
-              !Number.isInteger(i.quantity) ||
-              i.quantity < 1,
-          )
-        )
-          throw Error(
-            "Enter a name, price and product quantities for the combo.",
-          );
-        const combo = {
-          ...body,
-          id: body.id || "combo-" + Date.now().toString(36),
-        };
-        data.combos = data.combos.some((c) => c.id === combo.id)
-          ? data.combos.map((c) => (c.id === combo.id ? combo : c))
-          : [...data.combos, combo];
-      }
-      previewSave(data);
-    } else if (route === "categories") {
-      if (method === "DELETE") {
-        if (data.products.some((p) => p.category === body.name))
-          throw Error("Move or delete the category products first.");
-        data.categories = data.categories.filter((c) => c !== body.name);
-      } else {
-        const name = String(body.name || "").trim();
-        if (
-          !name ||
-          data.categories.some(
-            (c) =>
-              c.toLowerCase() === name.toLowerCase() && c !== body.previous,
-          )
-        )
-          throw Error("Enter a unique category name.");
-        data.categories = body.previous
-          ? data.categories.map((c) => (c === body.previous ? name : c))
-          : [...data.categories, name];
-        if (body.previous)
-          data.products = data.products.map((p) =>
-            p.category === body.previous ? { ...p, category: name } : p,
-          );
-      }
-      previewSave(data);
-    } else if (route === "products") {
-      if (method === "DELETE")
-        data.products = data.products.filter((p) => p.id !== body.id);
-      else {
-        if (
-          !body.name?.trim() ||
-          !data.categories.includes(body.category) ||
-          !Number.isFinite(body.price) ||
-          body.price < 0
-        )
-          throw Error("Name, category and a valid price are required.");
-        if (
-          !Array.isArray(body.images) ||
-          !body.images.length ||
-          body.images.length > 6
-        )
-          throw Error("Add one to six product images.");
-        if (
-          !Number.isFinite(body.discount || 0) ||
-          (body.discount || 0) < 0 ||
-          (body.discount || 0) >
-            (body.discountType === "percent" ? 100 : body.price)
-        )
-          throw Error(
-            "Discount must be within the product price or 0–100 percent.",
-          );
-        const existing = data.products.find(p => p.id === body.id);
-        if (isBikeKeyring(existing) || isBikeKeyring(body)) {
-          if (!Number.isFinite(body.doublePrice) || body.doublePrice < 0 || body.doublePrice > 10000000)
-            throw Error("দুই পাশে প্রিন্টের সঠিক মূল্য দিন।");
-          body.customization = "bike-keyring";
-        }
-        const product = {
-          ...body,
-          id: body.id || "preview-" + Date.now().toString(36),
-          finishes: ["Matte", "Gloss"],
-          colors: ["#0f766e"],
-          currency: "BDT",
-        };
-        data.products = data.products.some((p) => p.id === product.id)
-          ? data.products.map((p) => (p.id === product.id ? product : p))
-          : [...data.products, product];
-        result.id = product.id;
-      }
-      previewSave(data);
-    } else if (route === "orders") {
-      data.orders = data.orders.map((o) =>
-        o.id === body.id ? { ...o, status: body.status } : o,
-      );
-      previewSave(data);
-    } else if (route === "order-artwork") {
-      data.orders = data.orders.map((o) =>
-        o.id === body.id
-          ? { ...o, items: o.items.map((i) => ({ ...i, file: null, backPhoto: null })) }
-          : o,
-      );
-      previewSave(data);
-    } else if (route === "order-request") {
-      let order = data.orders.find((o) => o.requestId === body.requestId);
-      if (!order) {
-        const items = body.items.map((i) => {
-          const p = data.products.find((p) => p.id === i.productId);
-          if (!p) throw Error("Product unavailable");
-          if (!Number.isInteger(i.quantity) || i.quantity < 1 || i.quantity > 1000) throw Error("সঠিক পণ্যের পরিমাণ দিন।");
-          const detail = isBikeKeyring(p) ? keyringDetails(i) : {};
-          return { ...i, ...detail, name: p.name, price: printPrice(p, detail.printSides) };
-        });
-        const totals = previewTotals(items, data, body.zone);
-        const { quantity, subtotal, delivery } = totals;
-        order = {
-          ...body,
-          id: "DEMO-" + Date.now().toString(36).toUpperCase(),
-          items,
-          quantity,
-          product: items.map((i) => i.name).join(", "),
-          subtotal,
-          delivery,
-          amount: totals.amount,
-          discount: totals.discount,
-          offer: totals.offer,
-          zone: body.zone || "dhaka",
-          status: "Pending",
-          date: new Date().toISOString(),
-          payment: "Frontend preview — no payment",
-        };
-        data.orders.push(order);
-        previewSave(data);
-      }
-      result = { id: order.id, amount: order.amount };
-    } else throw Error("Preview action unavailable");
-    return { ok: true, status: 200, json: async () => result };
-  } catch (error) {
-    return {
-      ok: false,
-      status: 400,
-      json: async () => ({ error: error.message }),
+
+let liveCatalog = null;
+const uploadedFiles = new Map();
+function catalogSnapshot() {
+  return liveCatalog || {products:[],categories:[],settings:defaultSettings,combos:[],orders:[]};
+}
+async function apiFetch(url, options = {}) {
+  if (location.protocol === "file:") {
+    throw Error("আপনি HTML ফাইল সরাসরি খুলেছেন। প্রজেক্টের Terminal-এ npm.cmd start চালিয়ে http://localhost:5175 খুলুন। backend চালাতে Supabase-এর .env সেটআপও প্রয়োজন।");
+  }
+  const request = {...options, credentials:"same-origin", cache:"no-store"};
+  if (request.body) {
+    const body=JSON.parse(request.body);
+    const uploadFile=async(file) => {
+      if(!file?.data?.startsWith("data:"))return file;
+      if(uploadedFiles.has(file.data))return {...uploadedFiles.get(file.data),name:file.name};
+      const response=await fetch('/api/upload',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'artwork',data:file.data})});
+      const result=await readApiJson(response);if(!response.ok)throw Error(result.error||'ফাইল আপলোড হয়নি।');
+      const reference={name:file.name,receipt:result.receipt};uploadedFiles.set(file.data,reference);return reference;
     };
+    if(url==='/api/order-request')for(const item of body.items){item.file=await uploadFile(item.file);item.backPhoto=await uploadFile(item.backPhoto);}
+    if(url==='/api/products'&&Array.isArray(body.images))for(let i=0;i<body.images.length;i++)if(body.images[i].startsWith('data:')){
+      const response=await fetch('/api/upload',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'product',data:body.images[i]})});
+      const result=await readApiJson(response);if(!response.ok)throw Error(result.error||'ছবি আপলোড হয়নি।');body.images[i]=result.url;
+    }
+    request.body=JSON.stringify(body);
   }
+  return fetch(url,request);
+}
+async function loadLiveCatalog() {
+  const response=await apiFetch('/api/catalog');
+  const result=await readApiJson(response);
+  if(!response.ok)throw Error(result.error||'সার্ভারের সঙ্গে সংযোগ হয়নি।');
+  liveCatalog=result;return result;
 }
 
 if (document.body.classList.contains("admin-body")) {
@@ -587,8 +329,8 @@ if (document.body.classList.contains("admin-body")) {
       "সবচেয়ে সাশ্রয়ী একটি কম্বো স্বয়ংক্রিয়ভাবে প্রযোজ্য। কম্বোর পণ্যগুলোর জন্য কম্বোর মূল্য, বাকি পণ্যে নিয়মিত ছাড় প্রযোজ্য।",
     "These are display details only. No money or payment verification is handled by this frontend.":
       "এগুলো শুধু দেখানোর তথ্য। এখানে টাকা গ্রহণ বা পেমেন্ট যাচাই করা হয় না।",
-    "Customers from demo orders in this browser appear here. This frontend preview does not protect customer data.":
-      "এই ব্রাউজারের ডেমো অর্ডারের গ্রাহকদের তথ্য এখানে দেখা যাবে। প্রকৃত ব্যক্তিগত তথ্য ব্যবহার করবেন না।",
+    "অর্ডার করা গ্রাহকদের তথ্য শুধু অনুমোদিত অ্যাডমিন দেখতে পারবেন।":
+      "অর্ডার করা গ্রাহকদের তথ্য শুধু অনুমোদিত অ্যাডমিন দেখতে পারবেন।",
   };
   function localizeAdmin() {
     const walker = document.createTreeWalker(app, NodeFilter.SHOW_TEXT);
@@ -620,12 +362,12 @@ if (document.body.classList.contains("admin-body")) {
     "Cancelled",
   ];
   async function api(route, method = "GET", body) {
-    const response = await previewFetch(`/api/${route}`, {
+    const response = await apiFetch(`/api/${route}`, {
       method,
       headers: body ? { "Content-Type": "application/json" } : {},
       body: body ? JSON.stringify(body) : undefined,
     });
-    const result = await response.json();
+    const result = await readApiJson(response);
     if (!response.ok) {
       if (response.status === 401 && !loginPage) location.replace("admin.html");
       throw Error(result.error || "Request failed");
@@ -655,55 +397,21 @@ if (document.body.classList.contains("admin-body")) {
     return `<div class="table-scroll table-container"><table class="admin-table"><thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.length ? rows.join("") : `<tr><td colspan="${headers.length}">No records yet.</td></tr>`}</tbody></table></div>`;
   }
   function dashboard() {
+    const productValue = (o) => Math.max(0, (Number(o.amount) || 0) - (Number(o.delivery) || 0));
+    const completed = data.orders.filter(o => o.status === "Completed");
+    const active = data.orders.filter(o => ["Pending", "Processing", "Printing"].includes(o.status));
+    const sum = (orders) => orders.reduce((total, o) => total + productValue(o), 0);
+    const day = (date) => new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Dhaka", year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(date));
+    const today = day(new Date());
+    const todayCompleted = completed.filter(o => o.date && !Number.isNaN(Date.parse(o.date)) && day(o.date) === today);
     const cards = [
+      ["সম্পন্ন বিক্রির মূল্য", money(sum(completed)), "green", "৳"],
+      ["আজকের সম্পন্ন বিক্রি", money(sum(todayCompleted)), "teal", "৳"],
+      ["চলমান অর্ডারের মূল্য", money(sum(active)), "amber", "৳"],
       ["মোট অর্ডার", data.orders.length, "blue", "▤"],
-      [
-        "অপেক্ষমাণ",
-        data.orders.filter((o) => o.status === "Pending").length,
-        "amber",
-        "◷",
-      ],
-      [
-        "প্রিন্টিং চলছে",
-        data.orders.filter(
-          (o) => o.status === "Printing" || o.status === "Processing",
-        ).length,
-        "teal",
-        "▣",
-      ],
-      [
-        "সম্পন্ন অর্ডারের মূল্য",
-        money(
-          data.orders
-            .filter((o) => o.status === "Completed")
-            .reduce((n, o) => n + o.amount - (o.delivery || 0), 0),
-        ),
-        "green",
-        "৳",
-      ],
     ];
-    return (
-      '<div class="admin-stats-grid">' +
-      cards
-        .map(
-          ([label, value, color, icon]) =>
-            '<div class="stat-card"><div class="stat-card__icon stat-card__icon--' +
-            color +
-            '">' +
-            icon +
-            '</div><div><div class="stat-card__num">' +
-            e(value) +
-            '</div><div class="stat-card__label">' +
-            label +
-            "</div></div></div>",
-        )
-        .join("") +
-      '</div><div class="admin-toolbar"><label class="admin-search-box">অর্ডার খুঁজুন<input id="overview-search" class="form-control" placeholder="নাম, ফোন বা অর্ডার নম্বর"></label><label>অবস্থা<select id="overview-status" class="form-control"><option value="">সব অর্ডার</option>' +
-      options(statuses) +
-      '</select></label></div><div id="overview-orders">' +
-      orderTable(data.orders.slice().reverse()) +
-      "</div>"
-    );
+    const statusNames = {Pending:"অপেক্ষমাণ",Processing:"প্রস্তুত হচ্ছে",Printing:"প্রিন্টিং চলছে",Completed:"সম্পন্ন",Cancelled:"বাতিল"};
+    return `<div class="dashboard-summary"><h2>বিক্রির হিসাব</h2><p>পণ্যের মূল্য থেকে হিসাব করা হয়েছে; ডেলিভারি চার্জ বাদ। এটি অর্ডারের হিসাব, নগদ বা ব্যাংকের ব্যালেন্স নয়।</p></div><div class="admin-stats-grid">${cards.map(([label,value,color,icon]) => `<div class="stat-card"><div class="stat-card__icon stat-card__icon--${color}">${icon}</div><div><div class="stat-card__num">${e(value)}</div><div class="stat-card__label">${label}</div></div></div>`).join("")}</div><section class="dashboard-statuses" aria-label="অর্ডারের অবস্থার সারসংক্ষেপ">${statuses.map(status => { const orders=data.orders.filter(o=>o.status===status); return `<a href="admin.html?view=dashboard&status=${status}" class="dashboard-status-card"><span>${statusNames[status]}</span><strong>${orders.length}টি অর্ডার</strong><small>পণ্যের মূল্য ${money(sum(orders))}</small></a>`; }).join("")}</section><h2>অর্ডারের বিবরণ</h2><div class="admin-toolbar"><label class="admin-search-box">অর্ডার খুঁজুন<input id="overview-search" class="form-control" placeholder="নাম, ফোন বা অর্ডার নম্বর"></label><label>অবস্থা<select id="overview-status" class="form-control"><option value="">সব অর্ডার</option>${options(statuses)}</select></label></div><div id="overview-orders">${orderTable(data.orders.slice().reverse())}</div>`;
   }
   function orderTable(orders) {
     return table(
@@ -735,7 +443,7 @@ if (document.body.classList.contains("admin-body")) {
       business: "Business & social",
     };
     const labels = {
-      dashboard: "অর্ডার ম্যানেজমেন্ট",
+      dashboard: "ড্যাশবোর্ড",
       categories: "ক্যাটাগরি",
       products: "পণ্য ও ছাড়",
       combos: "কম্বো অফার",
@@ -745,7 +453,7 @@ if (document.body.classList.contains("admin-body")) {
       customers: "গ্রাহকের তথ্য",
       images: "কার্ডের ছবি",
     };
-    app.innerHTML = `<header class="admin-navbar"><div class="container admin-navbar__inner"><a class="original-admin-brand" href="admin.html?view=dashboard"><img src="images/craftcard-studio-bd-logo.png" alt="CraftCard Studio BD লোগো" class="admin-brand-logo" width="48" height="48">${e(data.settings.businessName || previewDefaults.businessName)} <span>| অ্যাডমিন প্যানেল</span></a><div class="original-header-actions"><a href="index.html">ওয়েবসাইট দেখুন</a><button id="logout" type="button">লগআউট</button></div></div></header><main id="main" class="container live-admin original-admin"><div class="original-admin-heading"><h1>${labels[page] || "অ্যাডমিন প্যানেল"}</h1><p>ফ্রন্টএন্ড ডেমো · তথ্য শুধু এই ব্রাউজারে থাকে</p></div><nav class="admin-toolbar admin-section-tabs" aria-label="অ্যাডমিন অপশন">${Object.entries(
+    app.innerHTML = `<header class="admin-navbar"><div class="container admin-navbar__inner"><a class="original-admin-brand" href="admin.html?view=dashboard">${e(data.settings.businessName || defaultSettings.businessName)} <span>| অ্যাডমিন প্যানেল</span></a><div class="original-header-actions"><a href="index.html">ওয়েবসাইট দেখুন</a><button id="logout" type="button">লগআউট</button></div></div></header><main id="main" class="container live-admin original-admin admin-layout"><aside class="admin-sidebar"><h2>পরিচালনা</h2><nav class="admin-sidebar-nav" aria-label="অ্যাডমিন অপশন">${Object.entries(
       labels,
     )
       .map(
@@ -760,7 +468,7 @@ if (document.body.classList.contains("admin-body")) {
       )
       .join(
         "",
-      )}</nav><p id="live-message" role="status" tabindex="-1"></p><section id="workspace"></section></main>`;
+      )}</nav></aside><div class="admin-main"><div class="original-admin-heading"><h1>${labels[page] || "অ্যাডমিন প্যানেল"}</h1><p>অর্ডার, পণ্য ও বিক্রির হিসাব</p></div><p id="live-message" role="status" tabindex="-1"></p><section id="workspace"></section></div></main>`;
     const workspace = document.querySelector("#workspace");
     if (page === "categories")
       workspace.innerHTML = `<form id="category-form" class="admin-panel">${field("Category name", "name", "", "text", 'required maxlength="100"')}<button class="btn btn-primary">Add category</button></form>${table(
@@ -775,7 +483,7 @@ if (document.body.classList.contains("admin-body")) {
     else if (page === "orders")
       workspace.innerHTML = `<label>Search orders<input id="order-search" placeholder="Name, phone or order ID"></label><div id="order-list">${orderTable(data.orders)}</div>`;
     else if (page === "customers")
-      workspace.innerHTML = `<label>Search customers<input id="customer-search" placeholder="Name, email or phone"></label><div id="customer-list"></div><p>Customers from demo orders in this browser appear here. This frontend preview does not protect customer data.</p>`;
+      workspace.innerHTML = `<label>Search customers<input id="customer-search" placeholder="Name, email or phone"></label><div id="customer-list"></div><p>অর্ডার করা গ্রাহকদের তথ্য শুধু অনুমোদিত অ্যাডমিন দেখতে পারবেন।</p>`;
     else if (page === "combos") workspace.innerHTML = comboPage();
     else if (page === "delivery" || page === "business")
       workspace.innerHTML = settingsPage();
@@ -1107,10 +815,17 @@ if (document.body.classList.contains("admin-body")) {
     document
       .querySelector("#overview-status")
       ?.addEventListener("change", filterOverview);
-    document.querySelector("#workspace").onclick = (ev) => {
+    const initialStatus = new URLSearchParams(location.search).get("status");
+    if (document.querySelector("#overview-status") && statuses.includes(initialStatus)) {
+      document.querySelector("#overview-status").value = initialStatus;
+      filterOverview();
+    }
+    document.querySelector("#workspace").onclick = async (ev) => {
       const id = ev.target.closest("[data-order]")?.dataset.order;
       if (!id) return;
-      const order = data.orders.find((o) => o.id === id);
+      let order;
+      try { order = await api("order-details?id=" + encodeURIComponent(id)); }
+      catch (error) { message(error.message); return; }
       const dialog = document.querySelector("#modal");
       document.querySelector("#modal-content").innerHTML =
         `<h2>${e(order.id)}</h2><p>${e(order.customer)} · ${e(order.phone)} · ${e(order.email)}</p><p>${e(order.location)}</p><p>${e(order.date)}</p><h3>Design requirements</h3><p style="white-space:pre-wrap">${e(order.requirements)}</p>${table(
@@ -1212,7 +927,7 @@ if (document.body.classList.contains("admin-body")) {
   async function start() {
     if (!loginPage) return reload();
     const auth = await api("auth");
-    app.innerHTML = `<div id="adminLoginGate"><main id="main" class="login-card"><img src="images/craftcard-studio-bd-logo.png" alt="CraftCard Studio BD লোগো" class="login-brand-logo" width="112" height="112"><h1>অ্যাডমিন প্যানেল</h1><p>${e(previewRead().settings.businessName)}</p><p id="live-message" role="alert" tabindex="-1"></p><form id="sign-in"><button class="btn btn--primary btn--block">ডেমো প্যানেলে প্রবেশ করুন</button></form><small>এটি ফ্রন্টএন্ড প্রিভিউ। কোনো প্রকৃত পাসওয়ার্ড প্রয়োজন নেই।</small><p><a href="index.html">ওয়েবসাইটে ফিরে যান</a></p></main></div>`;
+    app.innerHTML = `<div id="adminLoginGate"><main id="main" class="login-card"><img src="images/cardcraft-studio-bd-logo.jpeg" alt="CardCraft Studio BD লোগো" class="login-brand-logo" width="112" height="112"><h1>অ্যাডমিন প্যানেল</h1><p>${e(catalogSnapshot().settings.businessName)}</p><p id="live-message" role="alert" tabindex="-1"></p><form id="sign-in"><label>ইমেইল<input class="form-control" name="email" type="email" autocomplete="username" required maxlength="254"></label><label>পাসওয়ার্ড<input class="form-control" name="password" type="password" autocomplete="current-password" required maxlength="200"></label><button class="btn btn--primary btn--block">লগইন করুন</button></form><small>শুধু অনুমোদিত অ্যাডমিন প্রবেশ করতে পারবেন।</small><p><a href="index.html">ওয়েবসাইটে ফিরে যান</a></p></main></div>`;
     document.querySelector("#sign-in").onsubmit = async (ev) => {
       ev.preventDefault();
       const button = ev.target.querySelector("button");
@@ -1230,13 +945,13 @@ if (document.body.classList.contains("admin-body")) {
   }
   start().catch((error) => {
     app.innerHTML =
-      '<main class="live-login"><h1>Admin unavailable</h1><p id="live-message" role="alert" tabindex="-1"></p><p>Refresh this page to restart the frontend preview.</p></main>';
+      '<main class="live-login"><h1>অ্যাডমিন সংযোগ পাওয়া যায়নি</h1><p id="live-message" role="alert" tabindex="-1"></p><p>সার্ভারের সেটআপ যাচাই করে আবার চেষ্টা করুন।</p></main>';
     message(error.message);
   });
 } else {
   const $ = (selector) => document.querySelector(selector);
   function applyBusiness() {
-    const settings = previewRead().settings;
+    const settings = catalogSnapshot().settings;
     const phoneHref = (value) => "tel:" + digits(value).replace(/[^+0-9]/g, "");
     if (settings.businessName)
       document
@@ -1340,10 +1055,10 @@ if (document.body.classList.contains("admin-body")) {
     }
   }
   window.addEventListener("storage", (event) => {
-    if (event.key === "pvc_shop_frontend_v1") applyBusiness();
+    if (event.key === cartStorageKey) applyBusiness();
   });
   function applyPublicPricing() {
-    const data = previewRead(),
+    const data = catalogSnapshot(),
       settings = data.settings,
       combo = data.combos.find(
         (c) =>
@@ -1456,12 +1171,12 @@ if (document.body.classList.contains("admin-body")) {
     element.focus();
   }
   async function catalog() {
-    const response = await previewFetch("/api/catalog");
+    const response = await apiFetch("/api/catalog");
     if (!response.ok)
       throw Error(
         "সার্ভারের সঙ্গে সংযোগ হয়নি। npm start চালু করে আবার চেষ্টা করুন।",
       );
-    return response.json();
+    return liveCatalog || readApiJson(response);
   }
   function cardPreview(product, extras = false) {
     const images = product.images || [];
@@ -1528,7 +1243,7 @@ if (document.body.classList.contains("admin-body")) {
     function render() {
       const lines = readCart(data.products);
       saveCart(lines); updateCartBadge();
-      const totals = previewTotals(lines, data);
+      const totals = calculateTotals(lines, data);
       page.querySelector("#cart-items").innerHTML = lines.length ? lines.map(line => {
         const product = data.products.find(p => p.id === line.productId);
         const key = cartLineKey(line.productId, line.printSides);
@@ -1766,7 +1481,7 @@ if (document.body.classList.contains("admin-body")) {
     const notice = document.createElement("p");
     notice.className = "shop-notice";
     notice.textContent =
-      "এটি ফ্রন্টএন্ড ডেমো। তথ্য ও ফাইল শুধু এই ব্রাউজারে রাখা হবে। প্রকৃত ব্যক্তিগত তথ্য দেবেন না। কোনো অর্ডার স্টুডিওতে পাঠানো হবে না।";
+      "অর্ডার পাঠালে আপনার যোগাযোগের তথ্য ও ডিজাইন স্টুডিওর অর্ডার ব্যবস্থায় সংরক্ষিত হবে। এখানে অনলাইন পেমেন্ট নেওয়া হয় না।";
     form.prepend(notice);
     const message = document.createElement("p");
     message.id = "order-message";
@@ -1784,7 +1499,7 @@ if (document.body.classList.contains("admin-body")) {
         quantity += item.quantity;
         subtotal += item.quantity * item.price;
       }
-      const totals = previewTotals(
+      const totals = calculateTotals(
           [...state.values()]
             .filter((p) => p.quantity > 0)
             .map((p) => ({ productId: p.id, quantity: p.quantity, printSides: p.printSides })),
@@ -1985,7 +1700,7 @@ if (document.body.classList.contains("admin-body")) {
       message.textContent = "অনুরোধ পাঠানো হচ্ছে…";
       try {
         requestId ||= crypto.randomUUID();
-        const response = await previewFetch("/api/order-request", {
+        const response = await apiFetch("/api/order-request", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -1998,7 +1713,7 @@ if (document.body.classList.contains("admin-body")) {
             items,
           }),
         });
-        const result = await response.json();
+        const result = await readApiJson(response);
         if (!response.ok)
           throw Error(
             response.status === 400
@@ -2007,9 +1722,9 @@ if (document.body.classList.contains("admin-body")) {
           );
         submitted = true;
         if (cartMode) { saveCart([]); updateCartBadge(); }
-        message.textContent = `ডেমো এই ব্রাউজারে সংরক্ষিত হয়েছে। নম্বর: ${result.id}। মোট: ${money(result.amount)}। পেমেন্ট নেওয়া হয়নি।`;
+        message.textContent = `অর্ডার গ্রহণ করা হয়েছে। নম্বর: ${result.id}। মোট: ${money(result.amount)}। পেমেন্ট নেওয়া হয়নি।`;
         message.focus();
-        submit.textContent = "ডেমো সংরক্ষিত হয়েছে";
+        submit.textContent = "অর্ডার গ্রহণ করা হয়েছে";
         form
           .querySelectorAll("input,textarea,select,button")
           .forEach((el) => (el.disabled = true));
@@ -2023,9 +1738,14 @@ if (document.body.classList.contains("admin-body")) {
     };
     update();
   }
-  applyBusiness();
-  applyPublicPricing();
   mobileMenu();
   initCartLinks();
-  Promise.all([storefront(), checkout(), cartPage()]).catch((err) => error(err.message));
+  loadLiveCatalog().then(async () => {
+    applyBusiness();
+    applyPublicPricing();
+    await Promise.all([storefront(), checkout(), cartPage()]);
+  }).catch((err) => {
+    error(err.message);
+    document.querySelectorAll('#submitOrderBtn, button[type="submit"]').forEach(button => button.disabled = true);
+  });
 }

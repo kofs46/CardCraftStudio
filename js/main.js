@@ -376,7 +376,7 @@ if (document.body.classList.contains("admin-body")) {
     });
     const result = await readApiJson(response);
     if (!response.ok) {
-      if (response.status === 401 && !loginPage) location.replace("admin.html");
+      if (response.status === 401 && !loginPage) location.replace("/admin");
       throw Error(result.error || "Request failed");
     }
     return result;
@@ -424,7 +424,7 @@ if (document.body.classList.contains("admin-body")) {
     const link = event.target.closest('a[href]');
     if (!link || link.target || link.hasAttribute("download")) return;
     const url = new URL(link.href, location.href);
-    if (url.origin !== location.origin || !url.pathname.endsWith("/admin.html")) return;
+    if (url.origin !== location.origin || !["/admin", "/admin.html"].includes(url.pathname)) return;
     if (navigateAdmin(url)) event.preventDefault();
   });
   window.addEventListener("popstate", () => {
@@ -448,7 +448,7 @@ if (document.body.classList.contains("admin-body")) {
       ["মোট অর্ডার", data.orders.length, "blue", "▤"],
     ];
     const statusNames = {Pending:"অপেক্ষমাণ",Processing:"প্রস্তুত হচ্ছে",Printing:"প্রিন্টিং চলছে",Completed:"সম্পন্ন",Cancelled:"বাতিল"};
-    return `<div class="dashboard-summary"><h2>বিক্রির হিসাব</h2><p>পণ্যের মূল্য থেকে হিসাব করা হয়েছে; ডেলিভারি চার্জ বাদ। এটি অর্ডারের হিসাব, নগদ বা ব্যাংকের ব্যালেন্স নয়।</p></div><div class="admin-stats-grid">${cards.map(([label,value,color,icon]) => `<div class="stat-card"><div class="stat-card__icon stat-card__icon--${color}">${icon}</div><div><div class="stat-card__num">${e(value)}</div><div class="stat-card__label">${label}</div></div></div>`).join("")}</div><section class="dashboard-statuses" aria-label="অর্ডারের অবস্থার সারসংক্ষেপ">${statuses.map(status => { const orders=data.orders.filter(o=>o.status===status); return `<a href="admin.html?view=dashboard&status=${status}" class="dashboard-status-card order-state--${status.toLowerCase()}" data-count="${orders.length}"><span>${statusBadge(status)}</span><strong>${orders.length}টি অর্ডার</strong><small>পণ্যের মূল্য ${money(sum(orders))}</small></a>`; }).join("")}</section><h2>অর্ডারের বিবরণ</h2><div class="admin-toolbar"><label class="admin-search-box">অর্ডার খুঁজুন<input id="overview-search" class="form-control" placeholder="নাম, ফোন বা অর্ডার নম্বর"></label><label>অবস্থা<select id="overview-status" class="form-control"><option value="">সব অর্ডার</option>${options(statuses)}</select></label></div><div id="overview-orders">${orderTable(data.orders.slice().reverse())}</div>`;
+    return `<div class="dashboard-summary"><h2>বিক্রির হিসাব</h2><p>পণ্যের মূল্য থেকে হিসাব করা হয়েছে; ডেলিভারি চার্জ বাদ। এটি অর্ডারের হিসাব, নগদ বা ব্যাংকের ব্যালেন্স নয়।</p></div><div class="admin-stats-grid">${cards.map(([label,value,color,icon]) => `<div class="stat-card"><div class="stat-card__icon stat-card__icon--${color}">${icon}</div><div><div class="stat-card__num">${e(value)}</div><div class="stat-card__label">${label}</div></div></div>`).join("")}</div><section class="dashboard-statuses" aria-label="অর্ডারের অবস্থার সারসংক্ষেপ">${statuses.map(status => { const orders=data.orders.filter(o=>o.status===status); return `<a href="/admin?view=dashboard&status=${status}" class="dashboard-status-card order-state--${status.toLowerCase()}" data-count="${orders.length}"><span>${statusBadge(status)}</span><strong>${orders.length}টি অর্ডার</strong><small>পণ্যের মূল্য ${money(sum(orders))}</small></a>`; }).join("")}</section><h2>অর্ডারের বিবরণ</h2><div class="admin-toolbar"><label class="admin-search-box">অর্ডার খুঁজুন<input id="overview-search" class="form-control" placeholder="নাম, ফোন বা অর্ডার নম্বর"></label><label>অবস্থা<select id="overview-status" class="form-control"><option value="">সব অর্ডার</option>${options(statuses)}</select></label></div><div id="overview-orders">${orderTable(data.orders.slice().reverse())}</div>`;
   }
   function orderTable(orders) {
     return table(
@@ -490,14 +490,14 @@ if (document.body.classList.contains("admin-body")) {
       customers: "গ্রাহকের তথ্য",
       images: "কার্ডের ছবি",
     };
-    app.innerHTML = `<header class="admin-navbar"><div class="container admin-navbar__inner"><a class="original-admin-brand" href="admin.html?view=dashboard">${e(data.settings.businessName || defaultSettings.businessName)} <span>| অ্যাডমিন প্যানেল</span></a><div class="original-header-actions"><button id="refresh-admin" type="button">তথ্য রিফ্রেশ করুন</button><a href="index.html">ওয়েবসাইট দেখুন</a><button id="logout" type="button">লগআউট</button></div></div></header><main id="main" class="container live-admin original-admin admin-layout"><aside class="admin-sidebar"><h2>পরিচালনা</h2><nav class="admin-sidebar-nav" aria-label="অ্যাডমিন অপশন">${Object.entries(
+    app.innerHTML = `<header class="admin-navbar"><div class="container admin-navbar__inner"><a class="original-admin-brand" href="/admin?view=dashboard">${e(data.settings.businessName || defaultSettings.businessName)} <span>| অ্যাডমিন প্যানেল</span></a><div class="original-header-actions"><button id="refresh-admin" type="button">তথ্য রিফ্রেশ করুন</button><a href="/homepage">ওয়েবসাইট দেখুন</a><button id="logout" type="button">লগআউট</button></div></div></header><main id="main" class="container live-admin original-admin admin-layout"><aside class="admin-sidebar"><h2>পরিচালনা</h2><nav class="admin-sidebar-nav" aria-label="অ্যাডমিন অপশন">${Object.entries(
       labels,
     )
       .map(
         ([key, label]) =>
           '<a class="filter-pill ' +
           (page === key ? "active" : "") +
-          '" href="admin.html?view=' +
+          '" href="/admin?view=' +
           key +
           '">' +
           label +
@@ -899,7 +899,7 @@ if (document.body.classList.contains("admin-body")) {
     document.querySelector("#logout").onclick = () =>
       run(async () => {
         await api("logout", "POST", {});
-        location.replace("admin.html");
+        location.replace("/admin");
       });
     document
       .querySelector("#category-form")
@@ -972,7 +972,7 @@ if (document.body.classList.contains("admin-body")) {
   async function start() {
     if (!loginPage) return reload();
     const auth = await api("auth");
-    app.innerHTML = `<div id="adminLoginGate"><main id="main" class="login-card"><img src="images/cardcraft-studio-bd-logo.jpeg" alt="CardCraft Studio BD লোগো" class="login-brand-logo" width="112" height="112"><h1>অ্যাডমিন প্যানেল</h1><p>${e(catalogSnapshot().settings.businessName)}</p><p id="live-message" role="alert" tabindex="-1"></p><form id="sign-in"><label>ইমেইল<input class="form-control" name="email" type="email" autocomplete="username" required maxlength="254"></label><label>পাসওয়ার্ড<input class="form-control" name="password" type="password" autocomplete="current-password" required maxlength="200"></label><button class="btn btn--primary btn--block">লগইন করুন</button></form><small>শুধু অনুমোদিত অ্যাডমিন প্রবেশ করতে পারবেন।</small><p><a href="index.html">ওয়েবসাইটে ফিরে যান</a></p></main></div>`;
+    app.innerHTML = `<div id="adminLoginGate"><main id="main" class="login-card"><img src="images/cardcraft-studio-bd-logo.jpeg" alt="CardCraft Studio BD লোগো" class="login-brand-logo" width="112" height="112"><h1>অ্যাডমিন প্যানেল</h1><p>${e(catalogSnapshot().settings.businessName)}</p><p id="live-message" role="alert" tabindex="-1"></p><form id="sign-in"><label>ইমেইল<input class="form-control" name="email" type="email" autocomplete="username" required maxlength="254"></label><label>পাসওয়ার্ড<input class="form-control" name="password" type="password" autocomplete="current-password" required maxlength="200"></label><button class="btn btn--primary btn--block">লগইন করুন</button></form><small>শুধু অনুমোদিত অ্যাডমিন প্রবেশ করতে পারবেন।</small><p><a href="/homepage">ওয়েবসাইটে ফিরে যান</a></p></main></div>`;
     document.querySelector("#sign-in").onsubmit = async (ev) => {
       ev.preventDefault();
       const button = ev.target.querySelector("button");
@@ -983,7 +983,7 @@ if (document.body.classList.contains("admin-body")) {
           email: f.get("email"),
           password: f.get("password"),
         });
-        location.replace("admin.html?view=dashboard");
+        location.replace("/admin?view=dashboard");
       });
       button.disabled = false;
     };
@@ -1183,8 +1183,8 @@ if (document.body.classList.contains("admin-body")) {
         .map((line) => '<li class="pricing-card__item">' + e(line) + "</li>")
         .join("");
       featured.querySelector("a").href = combo
-        ? "order.html?combo=" + encodeURIComponent(combo.id)
-        : "order-list.html";
+        ? "/order?combo=" + encodeURIComponent(combo.id)
+        : "/order-list";
     }
   }
   function mobileMenu() {
@@ -1270,7 +1270,7 @@ if (document.body.classList.contains("admin-body")) {
         if (!link.isConnected) host.prepend(link);
       }
       link.classList.add("order-list-link");
-      link.href = "order-list.html";
+      link.href = "/order-list";
       link.innerHTML = 'অর্ডার করুন (<span data-cart-count>০</span>)';
     }
     updateCartBadge();
@@ -1285,7 +1285,7 @@ if (document.body.classList.contains("admin-body")) {
       notice.className = "shop-notice"; notice.setAttribute("role", "status"); container.append(notice);
     }
     notice.replaceChildren(document.createTextNode(text + " "));
-    const link = document.createElement("a"); link.href = "order-list.html"; link.textContent = "অর্ডার তালিকা দেখুন"; notice.append(link);
+    const link = document.createElement("a"); link.href = "/order-list"; link.textContent = "অর্ডার তালিকা দেখুন"; notice.append(link);
   }
   async function cartPage() {
     const page = document.querySelector("#cart-page");
@@ -1337,9 +1337,9 @@ if (document.body.classList.contains("admin-body")) {
       dialog.id = "product-dialog";
       document.body.append(dialog);
     }
-    dialog.innerHTML = `<button type="button" class="btn btn--outline" id="close-product">বন্ধ করুন</button><h2>${e(product.name)}</h2><p>${e(product.category)} · ${money(unitPrice(product))}${isBikeKeyring(product) ? " থেকে" : ""}</p><p style="white-space:pre-wrap">${e(product.description)}</p><p>${e(product.material)} · ${e(product.size)}</p><div class="product-gallery">${cardPreview(product, true)}</div><a class="btn btn--primary" href="order.html?product=${encodeURIComponent(product.id)}">অর্ডার করুন</a>`;
+    dialog.innerHTML = `<button type="button" class="btn btn--outline" id="close-product">বন্ধ করুন</button><h2>${e(product.name)}</h2><p>${e(product.category)} · ${money(unitPrice(product))}${isBikeKeyring(product) ? " থেকে" : ""}</p><p style="white-space:pre-wrap">${e(product.description)}</p><p>${e(product.material)} · ${e(product.size)}</p><div class="product-gallery">${cardPreview(product, true)}</div><a class="btn btn--primary" href="/order?product=${encodeURIComponent(product.id)}">অর্ডার করুন</a>`;
     if (isBikeKeyring(product)) {
-      const orderLink = dialog.querySelector('a[href^="order.html"]');
+      const orderLink = dialog.querySelector('a[href^="/order"]');
       const controls = document.createElement("fieldset");
       controls.className = "keyring-print-options";
       controls.innerHTML = `<legend>প্রিন্টের ধরন বেছে নিন</legend><label><input type="radio" name="keyring-sides" value="1" checked> এক পাশে প্রিন্ট — ${money(product.price)}</label><label><input type="radio" name="keyring-sides" value="2"> দুই পাশে প্রিন্ট — ${money(product.doublePrice)}</label><p>দুই পাশে প্রিন্টে পেছনে নিজের ছবি দেওয়ার সুযোগ আছে। অর্ডারের সময় বাইকের তথ্য দিন।</p><strong id="keyring-option-price" role="status">${money(unitPrice(product))}</strong>`;
@@ -1361,7 +1361,7 @@ if (document.body.classList.contains("admin-body")) {
         addCartItem(product, sides); updateCartBadge(); cartNotice(dialog);
       } catch (err) { cartNotice(dialog, err.message); }
     };
-    dialog.querySelector('a[href^="order.html"]').replaceWith(add);
+    dialog.querySelector('a[href^="/order"]').replaceWith(add);
     $("#close-product").onclick = () => dialog.close();
     bindCardFlips(dialog);
     dialog.showModal();
@@ -1395,7 +1395,7 @@ if (document.body.classList.contains("admin-body")) {
             .join(" + ") +
           "</p><strong>" +
           money(c.price) +
-          '</strong><a class="btn btn--outline" href="order.html?combo=' +
+          '</strong><a class="btn btn--outline" href="/order?combo=' +
           encodeURIComponent(c.id) +
           '">কম্বো বেছে নিন</a></article>',
       )
@@ -1486,7 +1486,7 @@ if (document.body.classList.contains("admin-body")) {
     data.products = data.products.filter(p => state.get(p.id)?.quantity > 0);
     for (const id of state.keys()) if (!state.get(id).quantity) state.delete(id);
     if (!data.products.length) {
-      form.innerHTML = '<div class="shop-notice" role="status"><p>অর্ডারের জন্য কোনো পণ্য বেছে নেওয়া হয়নি অথবা পণ্যটি এখন পাওয়া যাচ্ছে না।</p><a class="btn btn--primary" href="index.html#services">পণ্য বেছে নিন</a> <a class="btn btn--outline" href="order-list.html">অর্ডার তালিকা দেখুন</a></div>';
+      form.innerHTML = '<div class="shop-notice" role="status"><p>অর্ডারের জন্য কোনো পণ্য বেছে নেওয়া হয়নি অথবা পণ্যটি এখন পাওয়া যাচ্ছে না।</p><a class="btn btn--primary" href="/services">পণ্য বেছে নিন</a> <a class="btn btn--outline" href="/order-list">অর্ডার তালিকা দেখুন</a></div>';
       return;
     }
     const zoneLabel = document.createElement("label");
@@ -1790,7 +1790,7 @@ if (document.body.classList.contains("admin-body")) {
           );
         submitted = true;
         if (cartMode) { try { saveCart([]); updateCartBadge(); } catch {} }
-        form.innerHTML = `<section class="order-success" role="status" tabindex="-1"><h2>✓ অর্ডার গ্রহণ করা হয়েছে</h2><p>আপনার অর্ডার নম্বরটি সংরক্ষণ করুন।</p><strong class="tracking-code">${e(result.id)}</strong><p>সর্বমোট: ${money(result.amount)}। অনলাইন পেমেন্ট নেওয়া হয়নি।</p><a class="btn btn--primary" href="track.html?code=${encodeURIComponent(result.id)}">অর্ডার ট্র্যাক করুন</a> <a class="btn btn--outline" href="index.html">হোমে ফিরুন</a></section>`;
+        form.innerHTML = `<section class="order-success" role="status" tabindex="-1"><h2>✓ অর্ডার গ্রহণ করা হয়েছে</h2><p>আপনার অর্ডার নম্বরটি সংরক্ষণ করুন।</p><strong class="tracking-code">${e(result.id)}</strong><p>সর্বমোট: ${money(result.amount)}। অনলাইন পেমেন্ট নেওয়া হয়নি।</p><a class="btn btn--primary" href="/tracking?code=${encodeURIComponent(result.id)}">অর্ডার ট্র্যাক করুন</a> <a class="btn btn--outline" href="/homepage">হোমে ফিরুন</a></section>`;
         form.querySelector('.order-success').focus();
         form.scrollIntoView({behavior:"smooth",block:"start"});
       } catch (err) {
@@ -1829,6 +1829,10 @@ if (document.body.classList.contains("admin-body")) {
     applyBusiness();
     applyPublicPricing();
     await Promise.all([storefront(), checkout(), cartPage()]);
+    if (location.pathname === "/services" || (["/homepage", "/", "/index.html"].includes(location.pathname) && location.hash === "#services")) {
+      if (location.pathname !== "/services") history.replaceState(null, "", "/services" + location.search);
+      document.querySelector("#services")?.scrollIntoView({block:"start"});
+    }
   }).catch((err) => {
     error(err.message);
     document.querySelectorAll('#submitOrderBtn, button[type="submit"]').forEach(button => button.disabled = true);

@@ -1,16 +1,112 @@
 {
   "rewrites": [
-    { "source": "/api/:route", "destination": "/api/handler?route=:route" }
+    {
+      "source": "/api/:route",
+      "destination": "/api/handler?route=:route"
+    },
+    {
+      "source": "/homepage",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/tracking",
+      "destination": "/track.html"
+    },
+    {
+      "source": "/order",
+      "destination": "/order.html"
+    },
+    {
+      "source": "/order-list",
+      "destination": "/order-list.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/services",
+      "destination": "/index.html"
+    }
   ],
-  "functions": { "api/handler.mjs": { "maxDuration": 30 } },
+  "functions": {
+    "api/handler.mjs": {
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
       ]
     }
-  ]
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/homepage",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/homepage",
+      "permanent": true
+    },
+    {
+      "source": "/about.html",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/track.html",
+      "destination": "/tracking",
+      "permanent": true
+    },
+    {
+      "source": "/order.html",
+      "destination": "/order",
+      "permanent": true
+    },
+    {
+      "source": "/order-list.html",
+      "destination": "/order-list",
+      "permanent": true
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/admin",
+      "permanent": true
+    },
+    {
+      "source": "/privacy.html",
+      "destination": "/privacy",
+      "permanent": true
+    },
+    {
+      "source": "/cart.html",
+      "destination": "/order-list",
+      "permanent": true
+    }
+  ],
+  "trailingSlash": false
 }

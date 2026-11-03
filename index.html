@@ -19,7 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=file-download-23">
+  <link rel="stylesheet" href="css/style.css?v=clean-routes-24">
   <link rel="icon" type="image/jpeg" href="images/cardcraft-studio-bd-logo.jpeg">
 </head>
 <body>
@@ -27,22 +27,22 @@
   <!-- ==================== SHARED NAVBAR ==================== -->
   <header class="navbar" role="banner">
     <div class="container navbar__inner">
-      <a href="index.html" class="navbar__brand" aria-label="CardCraft Studio BD হোমপেজ">
+      <a href="/homepage" class="navbar__brand" aria-label="CardCraft Studio BD হোমপেজ">
         <img src="images/header-card-icon.svg" alt="" width="40" height="32" class="header-card-icon"><span class="brand-wordmark brand-wordmark--bangla" lang="bn">কার্ডক্রাফট স্টুডিও বিডি</span>
       </a>
 
       <!-- Desktop & Mobile Menu -->
       <nav role="navigation" aria-label="প্রধান নেভিগেশন">
         <ul class="navbar__menu" id="primaryNav">
-          <li><a href="index.html" class="navbar__link navbar__link--active">হোম</a></li>
-          <li><a href="#services" class="navbar__link">সার্ভিসসমূহ</a></li>
-          <li><a href="track.html" class="navbar__link">অর্ডার ট্র্যাকিং</a></li><li><a href="about.html" class="navbar__link">আমাদের সম্পর্কে</a></li>
+          <li><a href="/homepage" class="navbar__link navbar__link--active">হোম</a></li>
+          <li><a href="/services" class="navbar__link">সার্ভিসসমূহ</a></li>
+          <li><a href="/tracking" class="navbar__link">অর্ডার ট্র্যাকিং</a></li><li><a href="/about" class="navbar__link">আমাদের সম্পর্কে</a></li>
         </ul>
       </nav>
 
       <!-- Right Header Actions -->
       <div style="display: flex; align-items: center; gap: 12px;">
-        <a href="order-list.html" class="btn btn--primary navbar__cta">এখনই অর্ডার করুন</a>
+        <a href="/order-list" class="btn btn--primary navbar__cta">এখনই অর্ডার করুন</a>
         <!-- Mobile Toggle Button -->
         <button class="navbar__toggle" aria-label="মেনু খুলুন বা বন্ধ করুন" aria-expanded="false" aria-controls="primaryNav">
           <span></span>
@@ -88,8 +88,8 @@
 
           <!-- Actions -->
           <div class="hero__actions">
-            <a href="order-list.html" class="btn btn--accent btn--lg">এখনই অর্ডার করুন</a>
-            <a href="#services" class="btn btn--outline btn--lg">কাজের স্যাম্পল দেখুন</a>
+            <a href="/order-list" class="btn btn--accent btn--lg">এখনই অর্ডার করুন</a>
+            <a href="/services" class="btn btn--outline btn--lg">কাজের স্যাম্পল দেখুন</a>
           </div>
         </div>
 
@@ -113,9 +113,9 @@
         </div>
 
         <div class="samples-grid">
-<article class="sample-card"><div class="sample-card__image-container"><img src="images/demo-business-front.png" alt="ইউভি স্মার্ট কার্ড" class="sample-card__img" width="400" height="250" loading="lazy"></div><div class="sample-card__body"><h3 class="sample-card__title">ইউভি স্মার্ট কার্ড</h3><p>নিজের নাম, লোগো বা ব্র্যান্ড ডিজাইনে UV প্রিন্টের স্মার্ট কার্ড। পছন্দের সামনের ও পেছনের ডিজাইন দিয়ে অর্ডার করুন।</p><strong>৳১০০</strong><a class="btn btn--primary" href="order.html?product=uv-smart">অর্ডার করুন</a></div></article>
-<article class="sample-card"><div class="sample-card__image-container"><img src="images/product-nfc-front.svg" alt="প্রিমিয়াম NFC কার্ড" class="sample-card__img" width="400" height="250" loading="lazy"></div><div class="sample-card__body"><h3 class="sample-card__title">প্রিমিয়াম NFC কার্ড</h3><p>ব্যক্তিগত বা ব্যবসায়িক পরিচিতির জন্য প্রিমিয়াম NFC কার্ড। নিজের লোগো ও ডিজাইন ব্যবহার করুন; NFC সেটআপের প্রয়োজন অর্ডারের নোটে জানান।</p><strong>৳৩৫০</strong><a class="btn btn--primary" href="order.html?product=premium-nfc">অর্ডার করুন</a></div></article>
-<article class="sample-card"><div class="sample-card__image-container"><img src="images/product-keyring-photo.png" alt="বাইক কি রিং" class="sample-card__img" width="400" height="250" loading="lazy"></div><div class="sample-card__body"><h3 class="sample-card__title">বাইক কি রিং</h3><p>নিজের বাইকের ব্র্যান্ড, নম্বর, নাম ও ফোন নম্বর দিয়ে কাস্টম কি রিং। এক পাশে প্রিন্ট অথবা দুই পাশে প্রিন্ট বেছে নিন; দুই পাশে নিলে পেছনে নিজের ছবিও দিতে পারবেন।</p><strong>৳২৫০ থেকে</strong><a class="btn btn--primary" href="order.html?product=bike-keyring">অর্ডার করুন</a></div></article>
+<article class="sample-card"><div class="sample-card__image-container"><img src="images/demo-business-front.png" alt="ইউভি স্মার্ট কার্ড" class="sample-card__img" width="400" height="250" loading="lazy"></div><div class="sample-card__body"><h3 class="sample-card__title">ইউভি স্মার্ট কার্ড</h3><p>নিজের নাম, লোগো বা ব্র্যান্ড ডিজাইনে UV প্রিন্টের স্মার্ট কার্ড। পছন্দের সামনের ও পেছনের ডিজাইন দিয়ে অর্ডার করুন।</p><strong>৳১০০</strong><a class="btn btn--primary" href="/order?product=uv-smart">অর্ডার করুন</a></div></article>
+<article class="sample-card"><div class="sample-card__image-container"><img src="images/product-nfc-front.svg" alt="প্রিমিয়াম NFC কার্ড" class="sample-card__img" width="400" height="250" loading="lazy"></div><div class="sample-card__body"><h3 class="sample-card__title">প্রিমিয়াম NFC কার্ড</h3><p>ব্যক্তিগত বা ব্যবসায়িক পরিচিতির জন্য প্রিমিয়াম NFC কার্ড। নিজের লোগো ও ডিজাইন ব্যবহার করুন; NFC সেটআপের প্রয়োজন অর্ডারের নোটে জানান।</p><strong>৳৩৫০</strong><a class="btn btn--primary" href="/order?product=premium-nfc">অর্ডার করুন</a></div></article>
+<article class="sample-card"><div class="sample-card__image-container"><img src="images/product-keyring-photo.png" alt="বাইক কি রিং" class="sample-card__img" width="400" height="250" loading="lazy"></div><div class="sample-card__body"><h3 class="sample-card__title">বাইক কি রিং</h3><p>নিজের বাইকের ব্র্যান্ড, নম্বর, নাম ও ফোন নম্বর দিয়ে কাস্টম কি রিং। এক পাশে প্রিন্ট অথবা দুই পাশে প্রিন্ট বেছে নিন; দুই পাশে নিলে পেছনে নিজের ছবিও দিতে পারবেন।</p><strong>৳২৫০ থেকে</strong><a class="btn btn--primary" href="/order?product=bike-keyring">অর্ডার করুন</a></div></article>
 </div>
       </div>
     </section>
@@ -184,7 +184,7 @@
               </li>
             </ul>
 
-            <a href="order-list.html" class="btn btn--outline btn--block">কার্ড অর্ডার করুন</a>
+            <a href="/order-list" class="btn btn--outline btn--block">কার্ড অর্ডার করুন</a>
           </div>
 
           <!-- Card 2: HOT OFFER Free Delivery -->
@@ -221,7 +221,7 @@
               </li>
             </ul>
 
-            <a href="order-list.html" class="btn btn--accent btn--block">অফারটি গ্রহণ করুন</a>
+            <a href="/order-list" class="btn btn--accent btn--block">অফারটি গ্রহণ করুন</a>
           </div>
         </div>
       </div>
@@ -283,9 +283,9 @@
           <p>© ২০২৬ CardCraft Studio BD। সর্বস্বত্ব সংরক্ষিত।</p>
         </div>
         <ul class="footer__links">
-          <li><a href="about.html" class="footer__bottom-link">আমাদের সম্পর্কে</a></li>
-          <li><a href="privacy.html" class="footer__bottom-link">গোপনীয়তা নীতি (Privacy Policy)</a></li>
-          <li><a href="order-list.html" class="footer__bottom-link">অর্ডার ফরম</a></li>
+          <li><a href="/about" class="footer__bottom-link">আমাদের সম্পর্কে</a></li>
+          <li><a href="/privacy" class="footer__bottom-link">গোপনীয়তা নীতি (Privacy Policy)</a></li>
+          <li><a href="/order-list" class="footer__bottom-link">অর্ডার ফরম</a></li>
         </ul>
       </div>
     </div>
@@ -298,6 +298,6 @@
   </a>
 
   <!-- Script -->
-  <script defer src="js/main.js?v=file-download-23"></script>
+  <script defer src="js/main.js?v=clean-routes-24"></script>
 </body>
 </html>

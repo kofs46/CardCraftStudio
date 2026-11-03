@@ -21,9 +21,13 @@ export function startServer({
   const server = createServer(async (req, res) => {
     const url = new URL(req.url, "http://localhost");
     if (url.pathname.startsWith("/api/")) return handle(req, res);
+    const legacy = {"/":"/homepage", "/index.html":"/homepage", "/about.html":"/about", "/track.html":"/tracking", "/order.html":"/order", "/order-list.html":"/order-list", "/admin.html":"/admin", "/privacy.html":"/privacy", "/cart.html":"/order-list"};
+    const pages = {"/homepage":"index.html", "/services":"index.html", "/about":"about.html", "/tracking":"track.html", "/order":"order.html", "/order-list":"order-list.html", "/admin":"admin.html", "/privacy":"privacy.html"};
+    if (legacy[url.pathname]) { res.writeHead(308,{Location:legacy[url.pathname]+url.search}).end(); return; }
+
     try {
       const relative = decodeURIComponent(
-        url.pathname === "/" ? "index.html" : url.pathname.slice(1),
+        pages[url.pathname] || url.pathname.slice(1),
       );
       if (
         !["GET", "HEAD"].includes(req.method) ||

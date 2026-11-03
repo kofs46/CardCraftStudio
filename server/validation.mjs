@@ -1,5 +1,6 @@
 import { ApiError, config } from "./supabase.mjs";
 import { verifyFile } from "./files.mjs";
+import { isNfc, nfcDetails } from './nfc.mjs';
 const fail = (m) => {
   throw new ApiError(m);
 };
@@ -66,6 +67,7 @@ export function validate(route, body, state) {
         quantity: i.quantity,
         printSides: sides,
         personalization: i.personalization,
+        ...(isNfc(p) ? { nfc: nfcDetails(i.nfc) } : {}),
         file: verifyFile(i.file),
         backPhoto: sides === 2 ? verifyFile(i.backPhoto, true) : null,
       };

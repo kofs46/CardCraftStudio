@@ -57,6 +57,10 @@ Local files, backups, the old SQLite backend and `.env` must not be deployed. Th
 
 ## Operational limits
 
+NFC orders now collect the requested display name, business/contact details and optional social links. Design PDF/images are optional. Admin order details retain these instructions; automatic NFC encoding and hosted scan profiles are not implemented by this form.
+
+New orders use short random `CC-XXXXXXXXXXXX` tracking codes. `track.html` accepts these and earlier UUID-based codes. The rate-limited `/api/track` endpoint returns only order ID, current status and placement date; it does not expose contact details or artwork. Existing database tables require no additional migration for these fields. Admin status cards use labeled colors and refresh every 30 seconds on visible dashboard/order pages when no search/status input is active. Customer order confirmation no longer waits for artwork cleanup; cleanup remains queued and is attempted after subsequent admin mutations.
+
 - Order placement is **not payment processing**. Orders are saved as unpaid; the site does not verify bKash/Nagad or charge a card. Completed-order sales are sales totals, not bank balances or verified cash receipts.
 - Uploads are sent separately, at most 2 MB per file, avoiding one large base64 order request. Files are signature checked and restricted to PNG/JPEG/WebP/PDF. This is type validation, not antivirus scanning.
 - Customer upload receipts expire after 24 hours. Abandoned uploads and superseded product photos need periodic Storage review/cleanup; never delete artwork still referenced by a retained order. Automatic age-based deletion is not enabled.

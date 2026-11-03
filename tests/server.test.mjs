@@ -7,7 +7,7 @@ test("local HTTP server serves current pages/assets, denies private paths and fa
     for (const page of [
       "/",
       "/order-list.html",
-      "/cart.html",
+      "/cart.html", "/track.html",
       "/admin.html",
       "/images/cardcraft-studio-bd-logo.jpeg",
     ])

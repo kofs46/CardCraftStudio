@@ -30,7 +30,7 @@ export function startServer({
         relative.includes("..") ||
         relative.includes("\\") ||
         !(
-          /^(index|about|admin|order|order-list|cart|privacy)\.html$/.test(
+          /^(index|about|admin|order|order-list|cart|privacy|track)\.html$/.test(
             relative,
           ) || /^(css|js|images)\/[\w/ .-]+$/.test(relative)
         )

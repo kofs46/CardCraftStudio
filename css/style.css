@@ -2281,3 +2281,22 @@ body.admin-body{background:var(--color-bg)}.admin-body .admin-navbar{background:
 .dashboard-status-card:hover { border-color:#0f766e; }
 .dashboard-status-card small { color:#64748b; }
 @media(max-width:991px) { .admin-layout { grid-template-columns:minmax(0,1fr); } .admin-sidebar { position:static; } .admin-sidebar-nav { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); } }
+
+/* Status is conveyed through labels/symbols as well as color. */
+.order-status { display:inline-block; padding:6px 12px; margin:4px 0; border-radius:8px; font-weight:700; border:1px solid currentColor; }
+.order-status--pending { color:#b91c1c; background:#fee2e2; }
+.order-status--processing { color:#854d0e; background:#fef08a; }
+.order-status--printing { color:#9a3412; background:#fed7aa; }
+.order-status--completed { color:#166534; background:#dcfce7; }
+.order-status--cancelled { color:#475569; background:#f1f5f9; }
+.order-state--pending:not([data-count="0"]) { border:2px solid #dc2626; background:#fff1f2; }
+.order-state--processing { border-color:#eab308; }
+.order-state--printing { border-color:#f97316; }
+.order-state--completed { border-color:#22c55e; }
+.nfc-customization { display:grid; gap:14px; width:100%; min-width:0; border:1px solid #cbd5e1; border-radius:12px; padding:20px; margin:16px 0; }
+.nfc-customization label { display:grid; gap:6px; }
+.nfc-customization legend { font-weight:700; }
+.product-option-item__controls { flex-wrap:wrap; }
+.order-success { background:#f0fdf4; border:1px solid #86efac; border-radius:16px; padding:32px; text-align:center; }
+.tracking-code { display:block; font-size:1.5rem; letter-spacing:2px; margin:20px 0; overflow-wrap:anywhere; }
+#tracking-form { display:grid; gap:16px; }

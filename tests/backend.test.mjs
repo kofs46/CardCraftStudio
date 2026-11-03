@@ -45,6 +45,10 @@ globalThis.fetch = async (input, options = {}) => {
     return reply([
       { catalog: { ...structuredClone(state), orders: undefined } },
     ]);
+  if (url.pathname === "/rest/v1/shop_orders") {
+    const id=url.searchParams.get("id")?.slice(3);
+    return reply(state.orders.filter(o=>o.id===id).map(o=>({payload:structuredClone(o)})));
+  }
   if (url.pathname.endsWith("/shop_snapshot"))
     return reply({ state: structuredClone(state), revision });
   if (url.pathname.endsWith("/shop_commit")) {
@@ -100,7 +104,7 @@ const order = (items = [{ productId: "uv-smart", quantity: 1 }]) => ({
   phone: "01983469936",
   location: "Savar Dhaka 1347",
   zone: "dhaka",
-  items,
+  items: items.map(item=>item.productId === 'premium-nfc' ? {...item,nfc:Object.hasOwn(item,'nfc') ? item.nfc : {displayName:'Test NFC Owner'}} : item),
 });
 test("public catalog excludes customer orders and hidden products", async () => {
   state.products[0].available = false;
@@ -405,4 +409,38 @@ test("admin product prices, category rename, combos and delivery settings persis
     ]),
   });
   assert.equal(result.body.amount, 470);
+});
+
+test('NFC orders accept profile instructions without artwork and preserve links in admin details',async()=>{
+ const body=order([{productId:'premium-nfc',quantity:1,nfc:{displayName:'Omar',facebook:'facebook.com/CardCraftstudiobd',linkedin:'https://linkedin.com/in/example',other:'Show WhatsApp and opening hours'}}]);
+ const result=await request('order-request',{method:'POST',body});
+ assert.equal(result.status,200);assert.match(result.body.id,/^CC-[A-F0-9]{12}$/);
+ assert.equal(state.orders[0].items[0].file,null);assert.equal(state.orders[0].items[0].nfc.displayName,'Omar');
+ assert.equal(state.orders[0].items[0].nfc.facebook,'https://facebook.com/CardCraftstudiobd');
+ const details=await request('order-details?id='+result.body.id,{cookie:admin});assert.equal(details.body.items[0].nfc.other,'Show WhatsApp and opening hours');
+ const repeat=await request('order-request',{method:'POST',body});assert.equal(repeat.body.id,result.body.id);
+});
+test('tracking reveals only status/date/id, supports existing IDs, rejects invalid codes and limits attempts',async()=>{
+ const placed=await request('order-request',{method:'POST',body:order()});
+ const tracked=await request('track',{method:'POST',body:{tracking:placed.body.id.toLowerCase().replace('cc-','CC-')}});
+ assert.equal(tracked.status,200);assert.deepEqual(Object.keys(tracked.body).sort(),['date','id','status']);
+ assert.equal(tracked.body.status,'Pending');
+ await request('orders',{method:'PATCH',cookie:admin,body:{id:placed.body.id,status:'Completed'}});
+ assert.equal((await request('track',{method:'POST',body:{tracking:placed.body.id}})).body.status,'Completed');
+ assert.equal((await request('track',{method:'POST',body:{tracking:'CC-FFFFFFFFFFFF'}})).status,404);
+ assert.equal((await request('track',{method:'POST',body:{tracking:"';select *"}})).status,400);
+ state.orders[0].id='CC-'+randomUUID();
+ assert.equal((await request('track',{method:'POST',body:{tracking:state.orders[0].id}})).status,200);
+ limited=true;assert.equal((await request('track',{method:'POST',body:{tracking:state.orders[0].id}})).status,429);
+});
+test('NFC name, link schemes and email are validated server-side',async()=>{
+ for(const nfc of [null,[],{},{displayName:'Omar',facebook:'javascript:alert(1)'},{displayName:'Omar',email:'not-an-email'}]) {
+  assert.equal((await request('order-request',{method:'POST',body:order([{productId:'premium-nfc',quantity:1,nfc}])})).status,400);
+ }
+ assert.equal(state.orders.length,0);
+});
+test('NFC orders also accept optional private PDF artwork',async()=>{
+ const file={name:'my-card.pdf',receipt:receipt({path:`uploads/${randomUUID()}.pdf`,type:'application/pdf',expires:Date.now()+60000})};
+ const response=await request('order-request',{method:'POST',body:order([{productId:'premium-nfc',quantity:1,nfc:{displayName:'Omar'},file}])});
+ assert.equal(response.status,200);assert.match(state.orders[0].items[0].file.path,/\.pdf$/);
 });

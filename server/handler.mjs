@@ -17,6 +17,7 @@ const methods = {
   orders: "PATCH",
   "order-artwork": "DELETE",
   "order-request": "POST",
+  track: 'POST',
   upload: "POST",
 };
 async function readBody(req) {
@@ -166,8 +167,18 @@ export async function handle(req, res) {
       session(res, "", true);
       return send({ ok: true });
     }
-    if (!["catalog", "order-request", "upload"].includes(route))
+    if (!["catalog", "order-request", "upload", "track"].includes(route))
       await admin(req);
+    if (route === 'track') {
+      await limit(req, 'track', 40, 900);
+      const id = String(body.tracking || '').trim().replace(/^cc-/i,'CC-');
+      if (!/^CC-(?:[A-Fa-f0-9]{12}|[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12})$/.test(id)) throw new ApiError('সঠিক অর্ডার নম্বর দিন।');
+      const canonical = id.length === 15 ? id.toUpperCase() : 'CC-' + id.slice(3).toLowerCase();
+      const rows = await sb('/rest/v1/shop_orders?id=eq.' + encodeURIComponent(canonical) + '&select=payload&limit=1');
+      if (!rows?.length) throw new ApiError('এই নম্বরে অর্ডার পাওয়া যায়নি।',404);
+      const order=rows[0].payload;
+      return send({id:order.id,status:order.status,date:order.date});
+    }
     if (route === "upload") {
       if (body.kind === "product") await admin(req);
       else if (body.kind !== "artwork")
@@ -248,7 +259,7 @@ export async function handle(req, res) {
         })
       ) {
         // A failed storage deletion remains queued for the next successful mutation.
-        try {
+        if (route !== 'order-request') try {
           await cleanup();
         } catch (error) {
           console.error("Artwork cleanup pending", {

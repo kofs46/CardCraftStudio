@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { randomUUID, randomBytes } from "node:crypto";
 // Shared helpers and page-specific behavior for the existing site.
 const e = (value) =>
   String(value ?? "").replace(
@@ -378,9 +378,12 @@ export async function applyAction(state, url, options = {}) {
         });
         const totals = previewTotals(items, data, body.zone);
         const { quantity, subtotal, delivery } = totals;
+        let orderId;
+        do { orderId = 'CC-' + randomBytes(6).toString('hex').toUpperCase(); }
+        while (data.orders.some(existing => existing.id === orderId));
         order = {
           ...body,
-          id: "CC-" + randomUUID(),
+          id: orderId,
           items,
           quantity,
           product: items.map((i) => i.name).join(", "),

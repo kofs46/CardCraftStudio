@@ -67,6 +67,11 @@ function keyringDetails(item) {
   }
   return { printSides, personalization, backPhoto };
 }
+const isNfc = p => p?.id === "premium-nfc" || p?.sourceProductId === "premium-nfc" || p?.customization === "nfc";
+const nfcLabels = {displayName:"প্রদর্শনের নাম",title:"পদবি / পেশা",company:"প্রতিষ্ঠান",phone:"প্রদর্শনের ফোন নম্বর",email:"ইমেইল",facebook:"Facebook লিংক",instagram:"Instagram লিংক",youtube:"YouTube লিংক",linkedin:"LinkedIn লিংক",website:"ওয়েবসাইট",bio:"পরিচিতি",other:"অন্য তথ্য ও নির্দেশনা"};
+const statusNames = {Pending:"অপেক্ষমাণ",Processing:"প্রস্তুত হচ্ছে",Printing:"প্রিন্টিং হচ্ছে",Completed:"সম্পন্ন",Cancelled:"বাতিল"};
+const statusBadge = status => `<span class="order-status order-status--${e(String(status).toLowerCase())}">${status === "Cancelled" ? "✕ " : ""}${e(statusNames[status] || status)}</span>`;
+
 const cartStorageKey = "cardcraft_cart_v1";
 const cartLineKey = (id, sides = 1) => id + "::" + Number(sides);
 function readCart(products) {
@@ -443,7 +448,7 @@ if (document.body.classList.contains("admin-body")) {
       ["মোট অর্ডার", data.orders.length, "blue", "▤"],
     ];
     const statusNames = {Pending:"অপেক্ষমাণ",Processing:"প্রস্তুত হচ্ছে",Printing:"প্রিন্টিং চলছে",Completed:"সম্পন্ন",Cancelled:"বাতিল"};
-    return `<div class="dashboard-summary"><h2>বিক্রির হিসাব</h2><p>পণ্যের মূল্য থেকে হিসাব করা হয়েছে; ডেলিভারি চার্জ বাদ। এটি অর্ডারের হিসাব, নগদ বা ব্যাংকের ব্যালেন্স নয়।</p></div><div class="admin-stats-grid">${cards.map(([label,value,color,icon]) => `<div class="stat-card"><div class="stat-card__icon stat-card__icon--${color}">${icon}</div><div><div class="stat-card__num">${e(value)}</div><div class="stat-card__label">${label}</div></div></div>`).join("")}</div><section class="dashboard-statuses" aria-label="অর্ডারের অবস্থার সারসংক্ষেপ">${statuses.map(status => { const orders=data.orders.filter(o=>o.status===status); return `<a href="admin.html?view=dashboard&status=${status}" class="dashboard-status-card"><span>${statusNames[status]}</span><strong>${orders.length}টি অর্ডার</strong><small>পণ্যের মূল্য ${money(sum(orders))}</small></a>`; }).join("")}</section><h2>অর্ডারের বিবরণ</h2><div class="admin-toolbar"><label class="admin-search-box">অর্ডার খুঁজুন<input id="overview-search" class="form-control" placeholder="নাম, ফোন বা অর্ডার নম্বর"></label><label>অবস্থা<select id="overview-status" class="form-control"><option value="">সব অর্ডার</option>${options(statuses)}</select></label></div><div id="overview-orders">${orderTable(data.orders.slice().reverse())}</div>`;
+    return `<div class="dashboard-summary"><h2>বিক্রির হিসাব</h2><p>পণ্যের মূল্য থেকে হিসাব করা হয়েছে; ডেলিভারি চার্জ বাদ। এটি অর্ডারের হিসাব, নগদ বা ব্যাংকের ব্যালেন্স নয়।</p></div><div class="admin-stats-grid">${cards.map(([label,value,color,icon]) => `<div class="stat-card"><div class="stat-card__icon stat-card__icon--${color}">${icon}</div><div><div class="stat-card__num">${e(value)}</div><div class="stat-card__label">${label}</div></div></div>`).join("")}</div><section class="dashboard-statuses" aria-label="অর্ডারের অবস্থার সারসংক্ষেপ">${statuses.map(status => { const orders=data.orders.filter(o=>o.status===status); return `<a href="admin.html?view=dashboard&status=${status}" class="dashboard-status-card order-state--${status.toLowerCase()}" data-count="${orders.length}"><span>${statusBadge(status)}</span><strong>${orders.length}টি অর্ডার</strong><small>পণ্যের মূল্য ${money(sum(orders))}</small></a>`; }).join("")}</section><h2>অর্ডারের বিবরণ</h2><div class="admin-toolbar"><label class="admin-search-box">অর্ডার খুঁজুন<input id="overview-search" class="form-control" placeholder="নাম, ফোন বা অর্ডার নম্বর"></label><label>অবস্থা<select id="overview-status" class="form-control"><option value="">সব অর্ডার</option>${options(statuses)}</select></label></div><div id="overview-orders">${orderTable(data.orders.slice().reverse())}</div>`;
   }
   function orderTable(orders) {
     return table(
@@ -458,7 +463,7 @@ if (document.body.classList.contains("admin-body")) {
       ],
       orders.map(
         (o) =>
-          `<tr><td>${e(o.id)}</td><td>${e(o.customer)}<br>${e(o.phone)}</td><td>${e(o.product)}</td><td>${e(o.quantity)}</td><td>${money(o.amount)}</td><td><select aria-label="Order status ${e(o.id)}" data-status="${e(o.id)}">${options(statuses, o.status)}</select></td><td><button data-order="${e(o.id)}">View details</button></td></tr>`,
+          `<tr><td>${e(o.id)}</td><td>${e(o.customer)}<br>${e(o.phone)}</td><td>${e(o.product)}</td><td>${e(o.quantity)}</td><td>${money(o.amount)}</td><td>${statusBadge(o.status)}<select aria-label="Order status ${e(o.id)}" data-status="${e(o.id)}">${options(statuses, o.status)}</select></td><td><button data-order="${e(o.id)}">View details</button></td></tr>`,
       ),
     );
   }
@@ -872,7 +877,7 @@ if (document.body.classList.contains("admin-body")) {
           ["Product", "Quantity", "Unit price", "Artwork"],
           order.items.map(
             (item) =>
-              `<tr><td>${e(item.name)}${item.personalization ? `<p>${item.printSides === 2 ? "দুই পাশে প্রিন্ট" : "এক পাশে প্রিন্ট"}</p><dl><dt>Bike brand</dt><dd>${e(item.personalization.bikeBrand)}</dd><dt>Bike number</dt><dd>${e(item.personalization.bikeNumber)}</dd><dt>Owner name</dt><dd>${e(item.personalization.ownerName)}</dd><dt>Phone</dt><dd>${e(item.personalization.phone)}</dd></dl>` : ""}</td><td>${item.quantity}</td><td>${money(item.price)}</td><td>${item.file ? `<a download="${e(item.file.name)}" href="${e(item.file.data)}">Download ${e(item.file.name)}</a>` : "No file"}${item.backPhoto ? `<p>পেছনের নিজের ছবি: <a download="${e(item.backPhoto.name)}" href="${e(item.backPhoto.data)}">${e(item.backPhoto.name)}</a></p><img src="${e(item.backPhoto.data)}" alt="অর্ডারের পেছনের ছবি" width="100" height="100" style="object-fit:contain">` : ""}</td></tr>`,
+              `<tr><td>${e(item.name)}${item.nfc ? `<h4>NFC স্ক্যানের পর দেখানোর তথ্য</h4><dl>${Object.entries(item.nfc).filter(([,value])=>value).map(([key,value])=>`<dt>${e(nfcLabels[key] || key)}</dt><dd style="white-space:pre-wrap;overflow-wrap:anywhere">${e(value)}</dd>`).join("")}</dl>` : ""}${item.personalization ? `<p>${item.printSides === 2 ? "দুই পাশে প্রিন্ট" : "এক পাশে প্রিন্ট"}</p><dl><dt>Bike brand</dt><dd>${e(item.personalization.bikeBrand)}</dd><dt>Bike number</dt><dd>${e(item.personalization.bikeNumber)}</dd><dt>Owner name</dt><dd>${e(item.personalization.ownerName)}</dd><dt>Phone</dt><dd>${e(item.personalization.phone)}</dd></dl>` : ""}</td><td>${item.quantity}</td><td>${money(item.price)}</td><td>${item.file ? `<a download="${e(item.file.name)}" href="${e(item.file.data)}">Download ${e(item.file.name)}</a>` : "No file"}${item.backPhoto ? `<p>পেছনের নিজের ছবি: <a download="${e(item.backPhoto.name)}" href="${e(item.backPhoto.data)}">${e(item.backPhoto.name)}</a></p><img src="${e(item.backPhoto.data)}" alt="অর্ডারের পেছনের ছবি" width="100" height="100" style="object-fit:contain">` : ""}</td></tr>`,
           ),
         )}<p>Subtotal: ${money(order.subtotal)} · Discount: ${money(order.discount || 0)} ${e(order.offer || "")} · Delivery area: ${order.zone === "outside" ? "Outside Dhaka" : "Inside Dhaka"} · Delivery: ${money(order.delivery)} · Total: ${money(order.amount)}</p><p>${e(order.payment)}</p><button id="wipe-artwork">Remove retained artwork</button>`;
       document.querySelector("#wipe-artwork").onclick = () =>
@@ -983,6 +988,11 @@ if (document.body.classList.contains("admin-body")) {
       button.disabled = false;
     };
   }
+  setInterval(() => {
+    if (!data || !["dashboard", "orders"].includes(page) || document.visibilityState !== "visible") return;
+    if (document.activeElement?.closest("#workspace input, #workspace select, #workspace textarea")) return;
+    reload().catch(error => message(error.message));
+  }, 30000);
   start().catch((error) => {
     app.innerHTML =
       '<main class="live-login"><h1>অ্যাডমিন সংযোগ পাওয়া যায়নি</h1><p id="live-message" role="alert" tabindex="-1"></p><p>সার্ভারের সেটআপ যাচাই করে আবার চেষ্টা করুন।</p></main>';
@@ -1446,7 +1456,7 @@ if (document.body.classList.contains("admin-body")) {
         sourceProductId: p.id, checkoutSides: line.printSides }));
     }) };
     const state = new Map(
-      data.products.map((p) => [p.id, { ...p, price: printPrice(p, p.checkoutSides || 1), quantity: 0, file: null, printSides: p.checkoutSides || 1, personalization: { bikeBrand: "", bikeNumber: "", ownerName: "", phone: "" }, backPhoto: null }]),
+      data.products.map((p) => [p.id, { ...p, price: printPrice(p, p.checkoutSides || 1), quantity: 0, file: null, printSides: p.checkoutSides || 1, personalization: { bikeBrand: "", bikeNumber: "", ownerName: "", phone: "" }, backPhoto: null, nfc: {} }]),
     );
     const selected = orderParams.get("product");
     if (!cartMode && state.has(selected)) {
@@ -1503,12 +1513,15 @@ if (document.body.classList.contains("admin-body")) {
       const selected = state.get(p.id);
       return `<div class="keyring-customization"><label>প্রিন্টের ধরন<select data-print-sides="${e(p.id)}" class="form-control"><option value="1" ${selected.printSides === 1 ? "selected" : ""}>এক পাশে — ${money(p.price)}</option><option value="2" ${selected.printSides === 2 ? "selected" : ""}>দুই পাশে — ${money(p.doublePrice)}</option></select></label><fieldset data-keyring-fields="${e(p.id)}"><legend>কি রিংয়ে প্রিন্টের তথ্য</legend><label>বাইকের ব্র্যান্ডের নাম *<input class="form-control" data-keyring-field="bikeBrand" data-product-id="${e(p.id)}" maxlength="80" placeholder="যেমন: Royal Enfield" required></label><label>বাইকের নম্বর (ইংরেজিতে) *<input class="form-control" data-keyring-field="bikeNumber" data-product-id="${e(p.id)}" lang="en" maxlength="50" placeholder="DHAKA METRO HA 12-3456" required></label><label>নিজের নাম (ইংরেজিতে) *<input class="form-control" data-keyring-field="ownerName" data-product-id="${e(p.id)}" lang="en" maxlength="80" placeholder="YOUR NAME" required></label><label>কি রিংয়ে প্রিন্টের ফোন নম্বর *<input class="form-control" type="tel" inputmode="tel" data-keyring-field="phone" data-product-id="${e(p.id)}" maxlength="16" placeholder="01XXXXXXXXX" required></label><div data-back-photo-panel="${e(p.id)}" ${selected.printSides === 2 ? "" : "hidden"}><label>পেছনে নিজের ছবি (ঐচ্ছিক, সর্বোচ্চ ২ এমবি)<input type="file" data-back-photo="${e(p.id)}" accept="image/png,image/jpeg,image/webp"></label><p>ছবি দিলে দুই পাশে প্রিন্টের পেছনে ব্যবহার করা হবে।</p><span data-back-photo-name="${e(p.id)}" role="status"></span><img data-back-photo-preview="${e(p.id)}" alt="পেছনের ছবির প্রিভিউ" width="120" height="120" hidden><button type="button" class="btn btn--outline" data-remove-back-photo="${e(p.id)}">পেছনের ছবি সরান</button></div></fieldset></div>`;
     }
+    function nfcFields(p) {
+      return `<fieldset class="nfc-customization" data-nfc-fields="${e(p.id)}"><legend>NFC স্ক্যানের পর কী দেখাতে চান?</legend><p>নিজের বা প্রতিষ্ঠানের তথ্য দিন। যেসব লিংক দেখাতে চান শুধু সেগুলো পূরণ করুন। ডিজাইনের PDF/ছবি দেওয়া ঐচ্ছিক।</p>${Object.entries(nfcLabels).map(([key,label]) => `<label>${e(label)}${key === "displayName" ? " *" : " (ঐচ্ছিক)"}${["bio","other"].includes(key) ? `<textarea class="form-control" data-nfc-field="${key}" data-product-id="${e(p.id)}" maxlength="${key === "bio" ? 1500 : 3000}"></textarea>` : `<input class="form-control" data-nfc-field="${key}" data-product-id="${e(p.id)}" type="${key === "email" ? "email" : "text"}" maxlength="${["facebook","instagram","youtube","linkedin","website"].includes(key) ? 1000 : key === "email" ? 254 : key === "displayName" ? 120 : 150}" ${key === "displayName" ? "required" : ""}>`}</label>`).join("")}</fieldset>`;
+    }
     const list = $(".product-option-list");
     list.innerHTML = data.products.length
       ? data.products
           .map(
             (p) =>
-              `<section class="product-option-item"><div class="product-option-item__top"><div><small>${e(p.category)}</small><h3 class="product-option-item__name">${e(p.name)}</h3><p>${e(p.description)}</p></div><strong data-unit-price="${e(p.id)}">${money(state.get(p.id).price)}</strong></div><div class="product-option-item__controls"><div class="quantity-stepper"><button type="button" class="quantity-stepper__btn" data-minus="${e(p.id)}" aria-label="${e(p.name)} কমান">−</button><input class="quantity-stepper__input" data-quantity="${e(p.id)}" type="number" min="0" max="1000" value="${state.get(p.id).quantity}" aria-label="${e(p.name)} পরিমাণ"><button type="button" class="quantity-stepper__btn" data-plus="${e(p.id)}" aria-label="${e(p.name)} বাড়ান">+</button></div>${isBikeKeyring(p) ? keyringFields(p) : `<label>ডিজাইনের ফাইল (PDF / PNG / JPEG / WebP, সর্বোচ্চ ২ এমবি)<input type="file" data-artwork="${e(p.id)}" accept="application/pdf,image/png,image/jpeg,image/webp"><span data-filename="${e(p.id)}"></span></label><button class="btn btn--outline" type="button" data-remove-file="${e(p.id)}">ফাইল সরান</button>`}</div></section>`,
+              `<section class="product-option-item"><div class="product-option-item__top"><div><small>${e(p.category)}</small><h3 class="product-option-item__name">${e(p.name)}</h3><p>${e(p.description)}</p></div><strong data-unit-price="${e(p.id)}">${money(state.get(p.id).price)}</strong></div><div class="product-option-item__controls"><div class="quantity-stepper"><button type="button" class="quantity-stepper__btn" data-minus="${e(p.id)}" aria-label="${e(p.name)} কমান">−</button><input class="quantity-stepper__input" data-quantity="${e(p.id)}" type="number" min="0" max="1000" value="${state.get(p.id).quantity}" aria-label="${e(p.name)} পরিমাণ"><button type="button" class="quantity-stepper__btn" data-plus="${e(p.id)}" aria-label="${e(p.name)} বাড়ান">+</button></div>${isNfc(p) ? nfcFields(p) : ""}${isBikeKeyring(p) ? keyringFields(p) : `<label>ডিজাইনের ফাইল (ঐচ্ছিক) (PDF / PNG / JPEG / WebP, সর্বোচ্চ ২ এমবি)<input type="file" data-artwork="${e(p.id)}" accept="application/pdf,image/png,image/jpeg,image/webp"><span data-filename="${e(p.id)}"></span></label><button class="btn btn--outline" type="button" data-remove-file="${e(p.id)}">ফাইল সরান</button>`}</div></section>`,
           )
           .join("")
       : "<p>এখন কোনো পণ্য পাওয়া যাচ্ছে না।</p>";
@@ -1570,8 +1583,8 @@ if (document.body.classList.contains("admin-body")) {
           delivery === 0
             ? "ডেলিভারি চার্জ প্রযোজ্য নয়।"
             : "ডেলিভারি: " + money(delivery);
-      list.querySelectorAll('[data-keyring-fields]').forEach(fieldset => {
-        fieldset.disabled = state.get(fieldset.dataset.keyringFields).quantity === 0 || busy || submitted;
+      list.querySelectorAll('[data-keyring-fields], [data-nfc-fields]').forEach(fieldset => {
+        fieldset.disabled = state.get(fieldset.dataset.keyringFields || fieldset.dataset.nfcFields).quantity === 0 || busy || submitted;
       });
       submit.disabled = busy || submitted || !quantity;
     }
@@ -1606,6 +1619,10 @@ if (document.body.classList.contains("admin-body")) {
       update();
     };
     list.oninput = (ev) => {
+      if (ev.target.dataset.nfcField) {
+        state.get(ev.target.dataset.productId).nfc[ev.target.dataset.nfcField] = ev.target.value;
+        return;
+      }
       if (!ev.target.dataset.keyringField) return;
       const p = state.get(ev.target.dataset.productId);
       p.personalization[ev.target.dataset.keyringField] = ev.target.value;
@@ -1719,6 +1736,7 @@ if (document.body.classList.contains("admin-body")) {
             productId: p.sourceProductId || p.id,
             quantity: p.quantity,
             file: p.file,
+            ...(isNfc(p) ? { nfc: p.nfc } : {}),
             ...(isBikeKeyring(p) ? { printSides: p.printSides, personalization: p.personalization, backPhoto: p.backPhoto } : {}),
           }));
       try {
@@ -1762,23 +1780,40 @@ if (document.body.classList.contains("admin-body")) {
               : "অনুরোধ পাঠানো যায়নি। পরে আবার চেষ্টা করুন।",
           );
         submitted = true;
-        if (cartMode) { saveCart([]); updateCartBadge(); }
-        message.textContent = `অর্ডার গ্রহণ করা হয়েছে। নম্বর: ${result.id}। মোট: ${money(result.amount)}। পেমেন্ট নেওয়া হয়নি।`;
-        message.focus();
-        submit.textContent = "অর্ডার গ্রহণ করা হয়েছে";
-        form
-          .querySelectorAll("input,textarea,select,button")
-          .forEach((el) => (el.disabled = true));
+        if (cartMode) { try { saveCart([]); updateCartBadge(); } catch {} }
+        form.innerHTML = `<section class="order-success" role="status" tabindex="-1"><h2>✓ অর্ডার গ্রহণ করা হয়েছে</h2><p>আপনার অর্ডার নম্বরটি সংরক্ষণ করুন।</p><strong class="tracking-code">${e(result.id)}</strong><p>সর্বমোট: ${money(result.amount)}। অনলাইন পেমেন্ট নেওয়া হয়নি।</p><a class="btn btn--primary" href="track.html?code=${encodeURIComponent(result.id)}">অর্ডার ট্র্যাক করুন</a> <a class="btn btn--outline" href="index.html">হোমে ফিরুন</a></section>`;
+        form.querySelector('.order-success').focus();
+        form.scrollIntoView({behavior:"smooth",block:"start"});
       } catch (err) {
         error(err.message);
         message.textContent = "";
       } finally {
         busy = false;
-        update();
+        if (!submitted) update();
       }
     };
     update();
   }
+  function initTracking() {
+    const form = document.querySelector("#tracking-form");
+    if (!form) return;
+    const input = form.querySelector("input");
+    input.value = new URLSearchParams(location.search).get("code") || "";
+    form.onsubmit = async event => {
+      event.preventDefault();
+      const button = form.querySelector("button"), output = document.querySelector("#tracking-result");
+      button.disabled = true; output.textContent = "অর্ডারের অবস্থা দেখা হচ্ছে…";
+      try {
+        const response = await apiFetch("/api/track", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tracking:input.value.trim()})});
+        const result = await readApiJson(response);
+        if (!response.ok) throw Error(result.error || "অর্ডার পাওয়া যায়নি।");
+        output.innerHTML = `<h2>${e(result.id)}</h2>${statusBadge(result.status)}<p>অর্ডারের তারিখ: ${e(new Date(result.date).toLocaleString("bn-BD",{timeZone:"Asia/Dhaka"}))}</p>`;
+      } catch (error) { output.textContent = error.message; }
+      finally { button.disabled = false; }
+    };
+    if (input.value) form.requestSubmit();
+  }
+  initTracking();
   mobileMenu();
   initCartLinks();
   loadLiveCatalog().then(async () => {

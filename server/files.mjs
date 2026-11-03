@@ -99,5 +99,7 @@ export async function signedFile(file) {
   return {
     name: file.name,
     data: config().url + "/storage/v1" + result.signedURL,
+    downloadUrl: config().url + "/storage/v1" + result.signedURL +
+      (result.signedURL.includes('?') ? '&' : '?') + 'download=' + encodeURIComponent(file.name || 'artwork'),
   };
 }

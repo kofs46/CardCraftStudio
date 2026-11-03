@@ -255,6 +255,7 @@ test("key-ring variants priced independently, portrait stays private, signed onl
   });
   assert.equal(detail.status, 200);
   assert.match(detail.body.items[1].backPhoto.data, /token=short-lived/);
+  assert.equal(new URL(detail.body.items[1].backPhoto.downloadUrl).searchParams.get('download'), 'portrait.png');
   assert.equal(
     (
       await request("order-artwork", {

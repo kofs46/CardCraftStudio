@@ -463,7 +463,7 @@ if (document.body.classList.contains("admin-body")) {
       ],
       orders.map(
         (o) =>
-          `<tr><td>${e(o.id)}</td><td>${e(o.customer)}<br>${e(o.phone)}</td><td>${e(o.product)}</td><td>${e(o.quantity)}</td><td>${money(o.amount)}</td><td>${statusBadge(o.status)}<select aria-label="Order status ${e(o.id)}" data-status="${e(o.id)}">${options(statuses, o.status)}</select></td><td><button data-order="${e(o.id)}">View details</button></td></tr>`,
+          `<tr><td>${e(o.id)}</td><td>${e(o.customer)}<br>${e(o.phone)}</td><td>${e(o.product)}</td><td>${e(o.quantity)}</td><td>${money(o.amount)}</td><td>${statusBadge(o.status)}<select aria-label="Order status ${e(o.id)}" data-status="${e(o.id)}">${options(statuses, o.status)}</select></td><td><button data-order="${e(o.id)}">View details</button>${o.items?.some(item=>item.file || item.backPhoto) ? `<br><button class="btn btn--outline" data-order="${e(o.id)}">ফাইল ডাউনলোড</button>` : ""}</td></tr>`,
       ),
     );
   }
@@ -877,7 +877,7 @@ if (document.body.classList.contains("admin-body")) {
           ["Product", "Quantity", "Unit price", "Artwork"],
           order.items.map(
             (item) =>
-              `<tr><td>${e(item.name)}${item.nfc ? `<h4>NFC স্ক্যানের পর দেখানোর তথ্য</h4><dl>${Object.entries(item.nfc).filter(([,value])=>value).map(([key,value])=>`<dt>${e(nfcLabels[key] || key)}</dt><dd style="white-space:pre-wrap;overflow-wrap:anywhere">${e(value)}</dd>`).join("")}</dl>` : ""}${item.personalization ? `<p>${item.printSides === 2 ? "দুই পাশে প্রিন্ট" : "এক পাশে প্রিন্ট"}</p><dl><dt>Bike brand</dt><dd>${e(item.personalization.bikeBrand)}</dd><dt>Bike number</dt><dd>${e(item.personalization.bikeNumber)}</dd><dt>Owner name</dt><dd>${e(item.personalization.ownerName)}</dd><dt>Phone</dt><dd>${e(item.personalization.phone)}</dd></dl>` : ""}</td><td>${item.quantity}</td><td>${money(item.price)}</td><td>${item.file ? `<a download="${e(item.file.name)}" href="${e(item.file.data)}">Download ${e(item.file.name)}</a>` : "No file"}${item.backPhoto ? `<p>পেছনের নিজের ছবি: <a download="${e(item.backPhoto.name)}" href="${e(item.backPhoto.data)}">${e(item.backPhoto.name)}</a></p><img src="${e(item.backPhoto.data)}" alt="অর্ডারের পেছনের ছবি" width="100" height="100" style="object-fit:contain">` : ""}</td></tr>`,
+              `<tr><td>${e(item.name)}${item.nfc ? `<h4>NFC স্ক্যানের পর দেখানোর তথ্য</h4><dl>${Object.entries(item.nfc).filter(([,value])=>value).map(([key,value])=>`<dt>${e(nfcLabels[key] || key)}</dt><dd style="white-space:pre-wrap;overflow-wrap:anywhere">${e(value)}</dd>`).join("")}</dl>` : ""}${item.personalization ? `<p>${item.printSides === 2 ? "দুই পাশে প্রিন্ট" : "এক পাশে প্রিন্ট"}</p><dl><dt>Bike brand</dt><dd>${e(item.personalization.bikeBrand)}</dd><dt>Bike number</dt><dd>${e(item.personalization.bikeNumber)}</dd><dt>Owner name</dt><dd>${e(item.personalization.ownerName)}</dd><dt>Phone</dt><dd>${e(item.personalization.phone)}</dd></dl>` : ""}</td><td>${item.quantity}</td><td>${money(item.price)}</td><td>${item.file ? `<div class="admin-artwork-file"><strong>${e(item.file.name)}</strong><a class="btn btn--primary" download="${e(item.file.name)}" href="${e(item.file.downloadUrl || item.file.data)}">ডিজাইন ফাইল ডাউনলোড</a></div>` : "No file"}${item.backPhoto ? `<p>পেছনের নিজের ছবি: <strong>${e(item.backPhoto.name)}</strong> <a class="btn btn--primary" download="${e(item.backPhoto.name)}" href="${e(item.backPhoto.downloadUrl || item.backPhoto.data)}">পেছনের ছবি ডাউনলোড</a></p><img src="${e(item.backPhoto.data)}" alt="অর্ডারের পেছনের ছবি" width="100" height="100" style="object-fit:contain">` : ""}</td></tr>`,
           ),
         )}<p>Subtotal: ${money(order.subtotal)} · Discount: ${money(order.discount || 0)} ${e(order.offer || "")} · Delivery area: ${order.zone === "outside" ? "Outside Dhaka" : "Inside Dhaka"} · Delivery: ${money(order.delivery)} · Total: ${money(order.amount)}</p><p>${e(order.payment)}</p><button id="wipe-artwork">Remove retained artwork</button>`;
       document.querySelector("#wipe-artwork").onclick = () =>
@@ -1521,7 +1521,7 @@ if (document.body.classList.contains("admin-body")) {
       ? data.products
           .map(
             (p) =>
-              `<section class="product-option-item"><div class="product-option-item__top"><div><small>${e(p.category)}</small><h3 class="product-option-item__name">${e(p.name)}</h3><p>${e(p.description)}</p></div><strong data-unit-price="${e(p.id)}">${money(state.get(p.id).price)}</strong></div><div class="product-option-item__controls"><div class="quantity-stepper"><button type="button" class="quantity-stepper__btn" data-minus="${e(p.id)}" aria-label="${e(p.name)} কমান">−</button><input class="quantity-stepper__input" data-quantity="${e(p.id)}" type="number" min="0" max="1000" value="${state.get(p.id).quantity}" aria-label="${e(p.name)} পরিমাণ"><button type="button" class="quantity-stepper__btn" data-plus="${e(p.id)}" aria-label="${e(p.name)} বাড়ান">+</button></div>${isNfc(p) ? nfcFields(p) : ""}${isBikeKeyring(p) ? keyringFields(p) : `<label>ডিজাইনের ফাইল (ঐচ্ছিক) (PDF / PNG / JPEG / WebP, সর্বোচ্চ ২ এমবি)<input type="file" data-artwork="${e(p.id)}" accept="application/pdf,image/png,image/jpeg,image/webp"><span data-filename="${e(p.id)}"></span></label><button class="btn btn--outline" type="button" data-remove-file="${e(p.id)}">ফাইল সরান</button>`}</div></section>`,
+              `<section class="product-option-item"><div class="product-option-item__top"><div><small>${e(p.category)}</small><h3 class="product-option-item__name">${e(p.name)}</h3><p>${e(p.description)}</p></div><strong data-unit-price="${e(p.id)}">${money(state.get(p.id).price)}</strong></div><div class="product-option-item__controls"><div class="quantity-stepper"><button type="button" class="quantity-stepper__btn" data-minus="${e(p.id)}" aria-label="${e(p.name)} কমান">−</button><input class="quantity-stepper__input" data-quantity="${e(p.id)}" type="number" min="0" max="1000" value="${state.get(p.id).quantity}" aria-label="${e(p.name)} পরিমাণ"><button type="button" class="quantity-stepper__btn" data-plus="${e(p.id)}" aria-label="${e(p.name)} বাড়ান">+</button></div>${isNfc(p) ? nfcFields(p) : ""}${isBikeKeyring(p) ? keyringFields(p) : `<label>ডিজাইনের ফাইল (ঐচ্ছিক) (PDF / PNG / JPEG / WebP, সর্বোচ্চ ২ এমবি)<input type="file" data-artwork="${e(p.id)}" accept="application/pdf,image/png,image/jpeg,image/webp"><span data-filename="${e(p.id)}" role="status"></span></label><button type="button" class="btn btn--outline" data-continue-details="${e(p.id)}" hidden>পরের ধাপ: ডেলিভারির তথ্য দিন ↓</button><button class="btn btn--outline" type="button" data-remove-file="${e(p.id)}">ফাইল সরান</button>`}</div></section>`,
           )
           .join("")
       : "<p>এখন কোনো পণ্য পাওয়া যাচ্ছে না।</p>";
@@ -1591,6 +1591,12 @@ if (document.body.classList.contains("admin-body")) {
     list.onclick = (ev) => {
       const b = ev.target.closest("button");
       if (!b) return;
+      if (b.dataset.continueDetails) {
+        const name = $("#customerName");
+        name.closest(".form-group").scrollIntoView({behavior:"smooth",block:"center"});
+        name.focus({preventScroll:true});
+        return;
+      }
       if (b.dataset.removeBackPhoto) {
         const id = b.dataset.removeBackPhoto;
         state.get(id).backPhoto = null;
@@ -1609,6 +1615,7 @@ if (document.body.classList.contains("admin-body")) {
         p.file = null;
         list.querySelector(`[data-artwork="${id}"]`).value = "";
         list.querySelector(`[data-filename="${id}"]`).textContent = "";
+        list.querySelector(`[data-continue-details="${id}"]`).hidden = true;
       } else {
         p.quantity = Math.min(
           1000,
@@ -1682,6 +1689,7 @@ if (document.body.classList.contains("admin-body")) {
           p = state.get(id),
           file = ev.target.files[0];
         p.file = null;
+        list.querySelector(`[data-continue-details="${id}"]`).hidden = true;
         list.querySelector(`[data-filename="${id}"]`).textContent = "";
         if (!file) {
           update();
@@ -1713,7 +1721,8 @@ if (document.body.classList.contains("admin-body")) {
             p.quantity = 1;
             list.querySelector(`[data-quantity="${id}"]`).value = 1;
           }
-          list.querySelector(`[data-filename="${id}"]`).textContent = file.name;
+          list.querySelector(`[data-filename="${id}"]`).textContent = file.name + " — ফাইল নির্বাচিত হয়েছে। অর্ডার নিশ্চিত করতে নিচে নাম, ফোন ও ঠিকানা দিন।";
+          list.querySelector(`[data-continue-details="${id}"]`).hidden = false;
         } catch (err) {
           ev.target.value = "";
           error(err.message);

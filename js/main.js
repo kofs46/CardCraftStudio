@@ -352,7 +352,9 @@ if (document.body.classList.contains("admin-body")) {
   let data,
     images = [],
     imageSides = [];
-  const page = new URLSearchParams(location.search).get("view") || "login";
+  let page = new URLSearchParams(location.search).get("view") || "login";
+  let lastAdminLoad = 0;
+  let adminReload = null;
   const loginPage = ["index", "login"].includes(page);
   const statuses = [
     "Pending",
@@ -389,10 +391,40 @@ if (document.body.classList.contains("admin-body")) {
     el.focus();
   }
   async function reload() {
-    data = await api("admin");
+    if (adminReload) return adminReload;
+    adminReload = (async () => {
+      const latest = await api("admin");
+      data = latest;
+      lastAdminLoad = Date.now();
+      render();
+      localizeAdmin();
+    })();
+    try { await adminReload; } finally { adminReload = null; }
+  }
+  function navigateAdmin(url, push = true) {
+    const next = url.searchParams.get("view") || "login";
+    const views = ["dashboard", "analytics", "categories", "products", "combos", "delivery", "business", "orders", "customers", "images"];
+    if (!data || !views.includes(next)) return false;
+    if (push) history.pushState(null, "", url.pathname + url.search);
+    page = next;
     render();
     localizeAdmin();
+    if (Date.now() - lastAdminLoad > 30000) {
+      reload().catch(error => message(error.message));
+    }
+    return true;
   }
+  app.addEventListener("click", event => {
+    if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest('a[href]');
+    if (!link || link.target || link.hasAttribute("download")) return;
+    const url = new URL(link.href, location.href);
+    if (url.origin !== location.origin || !url.pathname.endsWith("/admin.html")) return;
+    if (navigateAdmin(url)) event.preventDefault();
+  });
+  window.addEventListener("popstate", () => {
+    if (!navigateAdmin(new URL(location.href), false)) location.reload();
+  });
   function table(headers, rows) {
     return `<div class="table-scroll table-container"><table class="admin-table"><thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.length ? rows.join("") : `<tr><td colspan="${headers.length}">No records yet.</td></tr>`}</tbody></table></div>`;
   }
@@ -453,7 +485,7 @@ if (document.body.classList.contains("admin-body")) {
       customers: "গ্রাহকের তথ্য",
       images: "কার্ডের ছবি",
     };
-    app.innerHTML = `<header class="admin-navbar"><div class="container admin-navbar__inner"><a class="original-admin-brand" href="admin.html?view=dashboard">${e(data.settings.businessName || defaultSettings.businessName)} <span>| অ্যাডমিন প্যানেল</span></a><div class="original-header-actions"><a href="index.html">ওয়েবসাইট দেখুন</a><button id="logout" type="button">লগআউট</button></div></div></header><main id="main" class="container live-admin original-admin admin-layout"><aside class="admin-sidebar"><h2>পরিচালনা</h2><nav class="admin-sidebar-nav" aria-label="অ্যাডমিন অপশন">${Object.entries(
+    app.innerHTML = `<header class="admin-navbar"><div class="container admin-navbar__inner"><a class="original-admin-brand" href="admin.html?view=dashboard">${e(data.settings.businessName || defaultSettings.businessName)} <span>| অ্যাডমিন প্যানেল</span></a><div class="original-header-actions"><button id="refresh-admin" type="button">তথ্য রিফ্রেশ করুন</button><a href="index.html">ওয়েবসাইট দেখুন</a><button id="logout" type="button">লগআউট</button></div></div></header><main id="main" class="container live-admin original-admin admin-layout"><aside class="admin-sidebar"><h2>পরিচালনা</h2><nav class="admin-sidebar-nav" aria-label="অ্যাডমিন অপশন">${Object.entries(
       labels,
     )
       .map(
@@ -794,6 +826,14 @@ if (document.body.classList.contains("admin-body")) {
   }
 
   function wire() {
+    document.querySelector("#refresh-admin").onclick = () => run(async () => {
+      const button = document.querySelector("#refresh-admin");
+      button.disabled = true;
+      button.textContent = "লোড হচ্ছে…";
+      try { await reload(); } finally {
+        if (button.isConnected) { button.disabled = false; button.textContent = "তথ্য রিফ্রেশ করুন"; }
+      }
+    });
     wireManagement();
     const filterOverview = () => {
       const q = document.querySelector("#overview-search").value.toLowerCase(),
@@ -1171,6 +1211,7 @@ if (document.body.classList.contains("admin-body")) {
     element.focus();
   }
   async function catalog() {
+    if (liveCatalog) return liveCatalog;
     const response = await apiFetch("/api/catalog");
     if (!response.ok)
       throw Error(

@@ -69,6 +69,12 @@ export function validate(route, body, state) {
         personalization: i.personalization,
         ...(isNfc(p) ? { nfc: nfcDetails(i.nfc) } : {}),
         file: verifyFile(i.file),
+        pieceFiles: (() => {
+          if (i.pieceFiles === undefined) return [];
+          if (!Array.isArray(i.pieceFiles) || i.pieceFiles.length > i.quantity)
+            fail("Design files must match the ordered quantity.");
+          return i.pieceFiles.map(file => verifyFile(file));
+        })(),
         backPhoto: sides === 2 ? verifyFile(i.backPhoto, true) : null,
       };
     });

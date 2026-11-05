@@ -192,7 +192,7 @@ export async function handle(req, res) {
       return send({
         ...catalog,
         orders: undefined,
-        products: catalog.products.filter((p) => p.available),
+        products: catalog.products.filter((p) => p.available).map(p => ({ ...p, price: p.id === "uv-smart" ? 150 : p.id === "premium-nfc" ? 400 : p.price })),
       });
     }
     const snap = await snapshot();
@@ -204,6 +204,7 @@ export async function handle(req, res) {
       if (!order) throw new ApiError("Order not found.", 404);
       await Promise.all(
         order.items.map(async (i) => {
+          i.pieceFiles = await Promise.all((i.pieceFiles || []).map(file => signedFile(file)));
           [i.file, i.backPhoto] = await Promise.all([
             signedFile(i.file),
             signedFile(i.backPhoto),

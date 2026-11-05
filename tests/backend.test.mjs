@@ -168,7 +168,7 @@ test("server ignores supplied totals, computes discounts/delivery, deduplicates 
   body.items[0].price = 1;
   const first = await request("order-request", { method: "POST", body });
   assert.equal(first.status, 200);
-  assert.equal(first.body.amount, 150);
+  assert.equal(first.body.amount, 200);
   const second = await request("order-request", { method: "POST", body });
   assert.equal(second.body.id, first.body.id);
   assert.equal(state.orders.length, 1);
@@ -382,7 +382,7 @@ test("admin product prices, category rename, combos and delivery settings persis
   assert.equal(
     (await request("order-request", { method: "POST", body: order() })).body
       .amount,
-    178,
+    220,
   );
   assert.equal(
     (
@@ -409,7 +409,7 @@ test("admin product prices, category rename, combos and delivery settings persis
       { productId: "premium-nfc", quantity: 1 },
     ]),
   });
-  assert.equal(result.body.amount, 470);
+  assert.equal(result.body.amount, 620);
 });
 
 test('NFC orders accept profile instructions without artwork and preserve links in admin details',async()=>{
@@ -444,4 +444,18 @@ test('NFC orders also accept optional private PDF artwork',async()=>{
  const file={name:'my-card.pdf',receipt:receipt({path:`uploads/${randomUUID()}.pdf`,type:'application/pdf',expires:Date.now()+60000})};
  const response=await request('order-request',{method:'POST',body:order([{productId:'premium-nfc',quantity:1,nfc:{displayName:'Omar'},file}])});
  assert.equal(response.status,200);assert.match(state.orders[0].items[0].file.path,/\.pdf$/);
+});
+
+
+test('per-piece designs remain ordered, private and downloadable by admin', async () => {
+ const pieceFiles = [1, 2].map(n => ({name:`piece-${n}.pdf`,receipt:receipt({path:`uploads/${randomUUID()}.pdf`,type:'application/pdf',expires:Date.now()+60000})}));
+ const body = order([{productId:'uv-smart',quantity:2,pieceFiles}]);
+ const placed = await request('order-request',{method:'POST',body});
+ assert.equal(placed.status,200);
+ assert.equal(state.orders[0].items[0].pieceFiles.length,2);
+ const details = await request('order-details?id='+placed.body.id,{cookie:admin});
+ assert.deepEqual(details.body.items[0].pieceFiles.map(f=>f.name),['piece-1.pdf','piece-2.pdf']);
+ assert.ok(details.body.items[0].pieceFiles.every(f=>f.downloadUrl));
+ const invalid = order([{productId:'uv-smart',quantity:1,pieceFiles}]);
+ assert.equal((await request('order-request',{method:'POST',body:invalid})).status,400);
 });

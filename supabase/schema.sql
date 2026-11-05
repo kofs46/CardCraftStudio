@@ -22,11 +22,11 @@ begin
  select distinct file_ref->>'path'
  from shop_orders old_order
  cross join lateral jsonb_array_elements(old_order.payload->'items') old_item
- cross join lateral (values(old_item->'file'),(old_item->'backPhoto')) refs(file_ref)
+ cross join lateral (select old_item->'file' as file_ref union all select old_item->'backPhoto' union all select value from jsonb_array_elements(coalesce(old_item->'pieceFiles','[]'::jsonb))) refs
  where file_ref->>'path' is not null and not exists (
    select 1 from jsonb_array_elements(next_state->'orders') new_order
    cross join lateral jsonb_array_elements(new_order->'items') new_item
-   where new_item->'file'->>'path'=file_ref->>'path' or new_item->'backPhoto'->>'path'=file_ref->>'path'
+   where new_item->'file'->>'path'=file_ref->>'path' or new_item->'backPhoto'->>'path'=file_ref->>'path' or exists (select 1 from jsonb_array_elements(coalesce(new_item->'pieceFiles','[]'::jsonb)) piece where piece->>'path'=file_ref->>'path')
  ) on conflict(path) do nothing;
  update shop_state set catalog=next_state-'orders',revision=revision+1 where id=true;
  for item in select value from jsonb_array_elements(next_state->'orders') loop

@@ -34,7 +34,7 @@ const previewSeed = [
     category: "স্মার্ট কার্ড",
     description:
       "নিজের নাম, লোগো বা ব্র্যান্ড ডিজাইনে UV প্রিন্টের স্মার্ট কার্ড। পছন্দের সামনের ও পেছনের ডিজাইন দিয়ে অর্ডার করুন।",
-    price: 100,
+    price: 150,
     images: ["images/demo-business-front.png", "images/demo-business-back.png"],
     material: "UV প্রিন্টেড PVC",
     size: "85.6 × 54 mm",
@@ -48,7 +48,7 @@ const previewSeed = [
     category: "NFC কার্ড",
     description:
       "ব্যক্তিগত বা ব্যবসায়িক পরিচিতির জন্য প্রিমিয়াম NFC কার্ড। নিজের লোগো ও ডিজাইন ব্যবহার করুন; NFC সেটআপের প্রয়োজন অর্ডারের নোটে জানান।",
-    price: 350,
+    price: 400,
     images: ["images/product-nfc-front.svg", "images/product-nfc-back.svg"],
     material: "NFC PVC কার্ড",
     size: "85.6 × 54 mm",
@@ -93,12 +93,18 @@ const previewDefaults = {
   deliveryEnabled: true,
   dhakaFee: 50,
   outsideFee: 50,
-  freeThreshold: 5,
+  freeThreshold: 3,
 };
 const isBikeKeyring = (p) =>
   p?.customization === "bike-keyring" || p?.id === "bike-keyring";
 const printPrice = (p, sides = 1) =>
+  p.id === "premium-nfc" ? 400 : p.id === "uv-smart" ? 150 :
   isBikeKeyring(p) && Number(sides) === 2 ? p.doublePrice : p.price;
+// Repeat five-piece UV packs, then price the remaining pieces by their tier.
+const quantityPrice = (p, quantity) => p.id === "uv-smart" || p.productId === "uv-smart"
+  ? Math.floor(quantity / 5) * 600 + [0, 150, 250, 350, 500][quantity % 5]
+  : p.id === "premium-nfc" ? 400 * quantity
+  : unitPrice({ ...p, price: printPrice(p, p.printSides) }) * quantity;
 function keyringDetails(item) {
   const printSides = Number(item.printSides ?? 1);
   if (![1, 2].includes(printSides))
@@ -153,10 +159,10 @@ function previewTotals(items, data, zone = "dhaka") {
     return { ...i, product: { ...p, price: printPrice(p, i.printSides) } };
   });
   const quantity = rows.reduce((n, i) => n + i.quantity, 0),
-    base = rows.reduce((n, i) => n + i.product.price * i.quantity, 0);
-  let net = rows.reduce((n, i) => n + unitPrice(i.product) * i.quantity, 0),
+    base = rows.reduce((n, i) => n + (i.productId === "uv-smart" ? quantityPrice(i.product, i.quantity) : i.product.price * i.quantity), 0);
+  let net = rows.reduce((n, i) => n + quantityPrice(i.product, i.quantity), 0),
     offer = "";
-  for (const combo of data.combos.filter((c) => c.enabled)) {
+  for (const combo of data.combos.filter((c) => c.enabled && !rows.some(r => ["uv-smart", "premium-nfc"].includes(r.productId)))) {
     if (
       !combo.items.length ||
       !combo.items.every((i) =>
@@ -197,6 +203,8 @@ function previewTotals(items, data, zone = "dhaka") {
     delivery =
       !quantity ||
       !settings.deliveryEnabled ||
+      quantity > 2 ||
+      rows.every(r => r.productId === "premium-nfc") ||
       (settings.freeThreshold > 0 && quantity >= settings.freeThreshold)
         ? 0
         : zone === "outside"
@@ -210,6 +218,7 @@ function previewTotals(items, data, zone = "dhaka") {
     delivery,
     amount: Math.round((net + delivery) * 100) / 100,
     offer,
+    nextUvDiscountPercent: quantity >= 5 ? 10 : 0,
   };
 }
 
@@ -351,6 +360,7 @@ export async function applyAction(state, url, options = {}) {
               items: o.items.map((i) => ({
                 ...i,
                 file: null,
+                pieceFiles: [],
                 backPhoto: null,
               })),
             }
@@ -374,6 +384,7 @@ export async function applyAction(state, url, options = {}) {
             ...detail,
             name: p.name,
             price: printPrice(p, detail.printSides),
+            lineTotal: quantityPrice({ ...p, printSides: detail.printSides }, i.quantity),
           };
         });
         const totals = previewTotals(items, data, body.zone);
@@ -392,6 +403,7 @@ export async function applyAction(state, url, options = {}) {
           amount: totals.amount,
           discount: totals.discount,
           offer: totals.offer,
+          nextUvDiscountPercent: totals.nextUvDiscountPercent,
           zone: body.zone || "dhaka",
           status: "Pending",
           date: new Date().toISOString(),

@@ -39,10 +39,17 @@ const defaultSettings = {
   deliveryEnabled: true,
   dhakaFee: 50,
   outsideFee: 50,
-  freeThreshold: 5,
+  freeThreshold: 3,
 };
 const isBikeKeyring = (p) => p?.customization === "bike-keyring" || p?.id === "bike-keyring";
-const printPrice = (p, sides = 1) => isBikeKeyring(p) && Number(sides) === 2 ? p.doublePrice : p.price;
+const printPrice = (p, sides = 1) =>
+  p.id === "premium-nfc" ? 400 : p.id === "uv-smart" ? 150 :
+  isBikeKeyring(p) && Number(sides) === 2 ? p.doublePrice : p.price;
+// Repeat five-piece UV packs, then price the remaining pieces by their tier.
+const quantityPrice = (p, quantity) => p.id === "uv-smart" || p.productId === "uv-smart"
+  ? Math.floor(quantity / 5) * 600 + [0, 150, 250, 350, 500][quantity % 5]
+  : p.id === "premium-nfc" ? 400 * quantity
+  : unitPrice({ ...p, price: printPrice(p, p.printSides) }) * quantity;
 function keyringDetails(item) {
   const printSides = Number(item.printSides ?? 1);
   if (![1, 2].includes(printSides)) throw Error("এক পাশে অথবা দুই পাশে প্রিন্ট বেছে নিন।");
@@ -124,10 +131,10 @@ function calculateTotals(items, data, zone = "dhaka") {
     return { ...i, product: { ...p, price: printPrice(p, i.printSides) } };
   });
   const quantity = rows.reduce((n, i) => n + i.quantity, 0),
-    base = rows.reduce((n, i) => n + i.product.price * i.quantity, 0);
-  let net = rows.reduce((n, i) => n + unitPrice(i.product) * i.quantity, 0),
+    base = rows.reduce((n, i) => n + (i.productId === "uv-smart" ? quantityPrice(i.product, i.quantity) : i.product.price * i.quantity), 0);
+  let net = rows.reduce((n, i) => n + quantityPrice(i.product, i.quantity), 0),
     offer = "";
-  for (const combo of data.combos.filter((c) => c.enabled)) {
+  for (const combo of data.combos.filter((c) => c.enabled && !rows.some(r => ["uv-smart", "premium-nfc"].includes(r.productId)))) {
     if (
       !combo.items.length ||
       !combo.items.every((i) =>
@@ -168,6 +175,8 @@ function calculateTotals(items, data, zone = "dhaka") {
     delivery =
       !quantity ||
       !settings.deliveryEnabled ||
+      quantity > 2 ||
+      rows.every(r => r.productId === "premium-nfc") ||
       (settings.freeThreshold > 0 && quantity >= settings.freeThreshold)
         ? 0
         : zone === "outside"
@@ -181,6 +190,7 @@ function calculateTotals(items, data, zone = "dhaka") {
     delivery,
     amount: Math.round((net + delivery) * 100) / 100,
     offer,
+    nextUvDiscountPercent: quantity >= 5 ? 10 : 0,
   };
 }
 
@@ -220,7 +230,7 @@ async function apiFetch(url, options = {}) {
       const result=await readApiJson(response);if(!response.ok)throw Error(result.error||'ফাইল আপলোড হয়নি।');
       const reference={name:file.name,receipt:result.receipt};uploadedFiles.set(file.data,reference);return reference;
     };
-    if(url==='/api/order-request')for(const item of body.items){item.file=await uploadFile(item.file);item.backPhoto=await uploadFile(item.backPhoto);}
+    if(url==='/api/order-request')for(const item of body.items){item.pieceFiles=await Promise.all((item.pieceFiles || []).map(uploadFile));item.file=await uploadFile(item.file);item.backPhoto=await uploadFile(item.backPhoto);}
     if(url==='/api/products'&&Array.isArray(body.images))for(let i=0;i<body.images.length;i++)if(body.images[i].startsWith('data:')){
       const response=await fetch('/api/upload',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'product',data:body.images[i]})});
       const result=await readApiJson(response);if(!response.ok)throw Error(result.error||'ছবি আপলোড হয়নি।');body.images[i]=result.url;
@@ -463,7 +473,7 @@ if (document.body.classList.contains("admin-body")) {
       ],
       orders.map(
         (o) =>
-          `<tr><td>${e(o.id)}</td><td>${e(o.customer)}<br>${e(o.phone)}</td><td>${e(o.product)}</td><td>${e(o.quantity)}</td><td>${money(o.amount)}</td><td>${statusBadge(o.status)}<select aria-label="Order status ${e(o.id)}" data-status="${e(o.id)}">${options(statuses, o.status)}</select></td><td><button data-order="${e(o.id)}">View details</button>${o.items?.some(item=>item.file || item.backPhoto) ? `<br><button class="btn btn--outline" data-order="${e(o.id)}">ফাইল ডাউনলোড</button>` : ""}</td></tr>`,
+          `<tr><td>${e(o.id)}</td><td>${e(o.customer)}<br>${e(o.phone)}</td><td>${e(o.product)}</td><td>${e(o.quantity)}</td><td>${money(o.amount)}</td><td>${statusBadge(o.status)}<select aria-label="Order status ${e(o.id)}" data-status="${e(o.id)}">${options(statuses, o.status)}</select></td><td><button data-order="${e(o.id)}">View details</button>${o.items?.some(item=>item.file || item.backPhoto || item.pieceFiles?.some(Boolean)) ? `<br><button class="btn btn--outline" data-order="${e(o.id)}">ফাইল ডাউনলোড</button>` : ""}</td></tr>`,
       ),
     );
   }
@@ -873,11 +883,11 @@ if (document.body.classList.contains("admin-body")) {
       catch (error) { message(error.message); return; }
       const dialog = document.querySelector("#modal");
       document.querySelector("#modal-content").innerHTML =
-        `<h2>${e(order.id)}</h2><p>${e(order.customer)} · ${e(order.phone)} · ${e(order.email)}</p><p>${e(order.location)}</p><p>${e(order.date)}</p><h3>Design requirements</h3><p style="white-space:pre-wrap">${e(order.requirements)}</p>${table(
+        `<h2>${e(order.id)}</h2>${order.nextUvDiscountPercent ? `<p>Next UV print order discount: ${order.nextUvDiscountPercent}% (claim with this order ID)</p>` : ""}<p>${e(order.customer)} · ${e(order.phone)} · ${e(order.email)}</p><p>${e(order.location)}</p><p>${e(order.date)}</p><h3>Design requirements</h3><p style="white-space:pre-wrap">${e(order.requirements)}</p>${table(
           ["Product", "Quantity", "Unit price", "Artwork"],
           order.items.map(
             (item) =>
-              `<tr><td>${e(item.name)}${item.nfc ? `<h4>NFC স্ক্যানের পর দেখানোর তথ্য</h4><dl>${Object.entries(item.nfc).filter(([,value])=>value).map(([key,value])=>`<dt>${e(nfcLabels[key] || key)}</dt><dd style="white-space:pre-wrap;overflow-wrap:anywhere">${e(value)}</dd>`).join("")}</dl>` : ""}${item.personalization ? `<p>${item.printSides === 2 ? "দুই পাশে প্রিন্ট" : "এক পাশে প্রিন্ট"}</p><dl><dt>Bike brand</dt><dd>${e(item.personalization.bikeBrand)}</dd><dt>Bike number</dt><dd>${e(item.personalization.bikeNumber)}</dd><dt>Owner name</dt><dd>${e(item.personalization.ownerName)}</dd><dt>Phone</dt><dd>${e(item.personalization.phone)}</dd></dl>` : ""}</td><td>${item.quantity}</td><td>${money(item.price)}</td><td>${item.file ? `<div class="admin-artwork-file"><strong>${e(item.file.name)}</strong><a class="btn btn--primary" download="${e(item.file.name)}" href="${e(item.file.downloadUrl || item.file.data)}">ডিজাইন ফাইল ডাউনলোড</a></div>` : "No file"}${item.backPhoto ? `<p>পেছনের নিজের ছবি: <strong>${e(item.backPhoto.name)}</strong> <a class="btn btn--primary" download="${e(item.backPhoto.name)}" href="${e(item.backPhoto.downloadUrl || item.backPhoto.data)}">পেছনের ছবি ডাউনলোড</a></p><img src="${e(item.backPhoto.data)}" alt="অর্ডারের পেছনের ছবি" width="100" height="100" style="object-fit:contain">` : ""}</td></tr>`,
+              `<tr><td>${e(item.name)}${item.nfc ? `<h4>NFC স্ক্যানের পর দেখানোর তথ্য</h4><dl>${Object.entries(item.nfc).filter(([,value])=>value).map(([key,value])=>`<dt>${e(nfcLabels[key] || key)}</dt><dd style="white-space:pre-wrap;overflow-wrap:anywhere">${e(value)}</dd>`).join("")}</dl>` : ""}${item.personalization ? `<p>${item.printSides === 2 ? "দুই পাশে প্রিন্ট" : "এক পাশে প্রিন্ট"}</p><dl><dt>Bike brand</dt><dd>${e(item.personalization.bikeBrand)}</dd><dt>Bike number</dt><dd>${e(item.personalization.bikeNumber)}</dd><dt>Owner name</dt><dd>${e(item.personalization.ownerName)}</dd><dt>Phone</dt><dd>${e(item.personalization.phone)}</dd></dl>` : ""}</td><td>${item.quantity}</td><td>${money(item.price)}</td><td>${(item.pieceFiles || []).map((file, index) => file ? `<p>Piece ${index + 1}: <a download="${e(file.name)}" href="${e(file.downloadUrl || file.data)}">${e(file.name)}</a></p>` : "").join("")}${item.file ? `<div class="admin-artwork-file"><strong>${e(item.file.name)}</strong><a class="btn btn--primary" download="${e(item.file.name)}" href="${e(item.file.downloadUrl || item.file.data)}">ডিজাইন ফাইল ডাউনলোড</a></div>` : "No file"}${item.backPhoto ? `<p>পেছনের নিজের ছবি: <strong>${e(item.backPhoto.name)}</strong> <a class="btn btn--primary" download="${e(item.backPhoto.name)}" href="${e(item.backPhoto.downloadUrl || item.backPhoto.data)}">পেছনের ছবি ডাউনলোড</a></p><img src="${e(item.backPhoto.data)}" alt="অর্ডারের পেছনের ছবি" width="100" height="100" style="object-fit:contain">` : ""}</td></tr>`,
           ),
         )}<p>Subtotal: ${money(order.subtotal)} · Discount: ${money(order.discount || 0)} ${e(order.offer || "")} · Delivery area: ${order.zone === "outside" ? "Outside Dhaka" : "Inside Dhaka"} · Delivery: ${money(order.delivery)} · Total: ${money(order.amount)}</p><p>${e(order.payment)}</p><button id="wipe-artwork">Remove retained artwork</button>`;
       document.querySelector("#wipe-artwork").onclick = () =>
@@ -1299,7 +1309,7 @@ if (document.body.classList.contains("admin-body")) {
         const product = data.products.find(p => p.id === line.productId);
         const key = cartLineKey(line.productId, line.printSides);
         const price = unitPrice({ ...product, price: printPrice(product, line.printSides) });
-        return `<article class="cart-item"><img src="${e(imageUrl(product.images[0]))}" alt="${e(product.name)}" width="96" height="96"><div><h2>${e(product.name)}</h2>${isBikeKeyring(product) ? `<p>${line.printSides === 2 ? "দুই পাশে প্রিন্ট" : "এক পাশে প্রিন্ট"}</p>` : ""}<p>প্রতি পিস ${money(price)}</p><div class="cart-item-controls"><button class="btn btn--outline" type="button" data-cart-minus="${e(key)}" aria-label="${e(product.name)} কমান">−</button><label>পরিমাণ<input type="number" min="1" max="1000" value="${line.quantity}" data-cart-quantity="${e(key)}" inputmode="numeric"></label><button class="btn btn--outline" type="button" data-cart-plus="${e(key)}" aria-label="${e(product.name)} বাড়ান">+</button><strong>${money(price * line.quantity)}</strong><button type="button" class="btn btn--outline" data-cart-remove="${e(key)}">সরান</button></div></div></article>`;
+        return `<article class="cart-item"><img src="${e(imageUrl(product.images[0]))}" alt="${e(product.name)}" width="96" height="96"><div><h2>${e(product.name)}</h2>${isBikeKeyring(product) ? `<p>${line.printSides === 2 ? "দুই পাশে প্রিন্ট" : "এক পাশে প্রিন্ট"}</p>` : ""}<p>প্রতি পিস ${money(price)}</p><div class="cart-item-controls"><button class="btn btn--outline" type="button" data-cart-minus="${e(key)}" aria-label="${e(product.name)} কমান">−</button><label>পরিমাণ<input type="number" min="1" max="1000" value="${line.quantity}" data-cart-quantity="${e(key)}" inputmode="numeric"></label><button class="btn btn--outline" type="button" data-cart-plus="${e(key)}" aria-label="${e(product.name)} বাড়ান">+</button><strong>${money(quantityPrice({ ...product, printSides: line.printSides }, line.quantity))}</strong><button type="button" class="btn btn--outline" data-cart-remove="${e(key)}">সরান</button></div></div></article>`;
       }).join("") : '<p class="shop-notice">আপনার অর্ডার তালিকা খালি। পণ্যের অর্ডার করুন বাটন দিয়ে পণ্য যোগ করুন।</p>';
       page.querySelector("#cart-subtotal").textContent = money(totals.subtotal);
       page.querySelector("#cart-discount").textContent = money(totals.discount);
@@ -1551,7 +1561,25 @@ if (document.body.classList.contains("admin-body")) {
       const items = [...state.values()].filter((p) => p.quantity > 0);
       for (const item of items) {
         quantity += item.quantity;
-        subtotal += item.quantity * item.price;
+        subtotal += quantityPrice(item, item.quantity);
+      }
+      for (const item of items) {
+        const section = list.querySelector(`[data-quantity="${item.id}"]`).closest('section');
+        let uploads = section.querySelector('[data-piece-uploads]');
+        if (!uploads) {
+          section.querySelector(`[data-artwork="${item.id}"]`)?.closest('label').setAttribute('hidden', '');
+          uploads = document.createElement('div'); uploads.dataset.pieceUploads = item.id;
+          section.append(uploads);
+        }
+        item.pieceFiles ||= [];
+        item.pieceFiles.length = item.quantity;
+        while (uploads.children.length > item.quantity) uploads.lastElementChild.remove();
+        while (uploads.children.length < item.quantity) {
+          const index = uploads.children.length;
+          const label = document.createElement('label');
+          label.innerHTML = `${index + 1} নং পিসের ডিজাইন (ঐচ্ছিক, PDF / PNG / JPEG / WebP, সর্বোচ্চ ২ এমবি)<input type="file" data-artwork="${e(item.id)}" data-piece-index="${index}" accept="application/pdf,image/png,image/jpeg,image/webp"><span data-piece-filename="${index}"></span>`;
+          uploads.append(label);
+        }
       }
       const totals = calculateTotals(
           [...state.values()]
@@ -1561,6 +1589,10 @@ if (document.body.classList.contains("admin-body")) {
           $("#delivery-zone").value,
         ),
         delivery = totals.delivery;
+      list.querySelectorAll('[data-unit-price]').forEach(el => {
+        const item = state.get(el.dataset.unitPrice);
+        el.textContent = money(quantityPrice(item, item.quantity || 1)) + (item.quantity > 1 ? " মোট" : " / পিস");
+      });
       $("#summary-discount").textContent =
         "ছাড়: " +
         money(totals.discount) +
@@ -1569,7 +1601,7 @@ if (document.body.classList.contains("admin-body")) {
         items
           .map(
             (p) =>
-              `<li class="summary-item"><div><strong>${e(p.name)}${isBikeKeyring(p) ? (p.printSides === 2 ? " · দুই পাশে প্রিন্ট" : " · এক পাশে প্রিন্ট") : ""}</strong><div>${p.quantity} × ${money(p.price)} ${p.file ? "· ফাইল সংযুক্ত" : ""}</div></div><span>${money(p.price * p.quantity)}</span></li>`,
+              `<li class="summary-item"><div><strong>${e(p.name)}${isBikeKeyring(p) ? (p.printSides === 2 ? " · দুই পাশে প্রিন্ট" : " · এক পাশে প্রিন্ট") : ""}</strong><div>${p.quantity} পিস ${p.file ? "· ফাইল সংযুক্ত" : ""}</div></div><span>${money(quantityPrice(p, p.quantity))}</span></li>`,
           )
           .join("") || "<li>অন্তত একটি পণ্য বেছে নিন।</li>";
       $("#summarySubtotal").textContent = money(subtotal);
@@ -1613,6 +1645,9 @@ if (document.body.classList.contains("admin-body")) {
       const p = state.get(id);
       if (b.dataset.removeFile) {
         p.file = null;
+        p.pieceFiles = [];
+        list.querySelectorAll(`[data-artwork="${id}"]`).forEach(input => input.value = "");
+        list.querySelectorAll(`[data-piece-uploads="${id}"] span`).forEach(span => span.textContent = "");
         list.querySelector(`[data-artwork="${id}"]`).value = "";
         list.querySelector(`[data-filename="${id}"]`).textContent = "";
         list.querySelector(`[data-continue-details="${id}"]`).hidden = true;
@@ -1688,9 +1723,11 @@ if (document.body.classList.contains("admin-body")) {
         const id = ev.target.dataset.artwork,
           p = state.get(id),
           file = ev.target.files[0];
-        p.file = null;
-        list.querySelector(`[data-continue-details="${id}"]`).hidden = true;
-        list.querySelector(`[data-filename="${id}"]`).textContent = "";
+        const pieceIndex = Number(ev.target.dataset.pieceIndex || 0);
+        p.pieceFiles ||= [];
+        p.pieceFiles[pieceIndex] = null;
+        const filename = ev.target.closest('label').querySelector('span');
+        filename.textContent = "";
         if (!file) {
           update();
           return;
@@ -1716,13 +1753,12 @@ if (document.body.classList.contains("admin-body")) {
             r.onerror = () => reject(Error("ফাইল পড়া যায়নি।"));
             r.readAsDataURL(file);
           });
-          p.file = { name: file.name, data };
+          p.pieceFiles[pieceIndex] = { name: file.name, data };
           if (!p.quantity) {
             p.quantity = 1;
             list.querySelector(`[data-quantity="${id}"]`).value = 1;
           }
-          list.querySelector(`[data-filename="${id}"]`).textContent = file.name + " — ফাইল নির্বাচিত হয়েছে। অর্ডার নিশ্চিত করতে নিচে নাম, ফোন ও ঠিকানা দিন।";
-          list.querySelector(`[data-continue-details="${id}"]`).hidden = false;
+          filename.textContent = file.name;
         } catch (err) {
           ev.target.value = "";
           error(err.message);
@@ -1745,6 +1781,7 @@ if (document.body.classList.contains("admin-body")) {
             productId: p.sourceProductId || p.id,
             quantity: p.quantity,
             file: p.file,
+            pieceFiles: (p.pieceFiles || []).slice(0, p.quantity),
             ...(isNfc(p) ? { nfc: p.nfc } : {}),
             ...(isBikeKeyring(p) ? { printSides: p.printSides, personalization: p.personalization, backPhoto: p.backPhoto } : {}),
           }));

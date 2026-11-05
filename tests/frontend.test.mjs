@@ -29,7 +29,7 @@ test("browser shopping list persists variant lines and uses server catalog price
     context,
   );
   assert.equal(result.lines.length, 2);
-  assert.equal(result.total.amount, 900);
+  assert.equal(result.total.amount, 850);
   assert.equal(result.total.quantity, 3);
   assert.ok(!source.includes("pvc_shop_frontend_v1"));
   assert.ok(source.includes('credentials:"same-origin"'));

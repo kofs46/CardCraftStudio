@@ -34,7 +34,7 @@ Install Node.js 22 or later. Copy `.env.example` to `.env` and fill in:
 
 Never put the service-role key or upload secret in HTML, browser JavaScript, a `VITE_`/`NEXT_PUBLIC_` variable, GitHub, or screenshots. This implementation uses the service-role JWT in both the API key and Authorization headers; use the specified legacy key rather than substituting a new-format secret key without adapting the REST client.
 
-Run `npm start` (PowerShell: `npm.cmd start` if script execution is disabled). Open `http://localhost:5175` and `/admin.html`. There are no npm runtime dependencies or install/build requirements. Run `npm test` / `npm.cmd test` for the automated suite.
+Run `npm start` (PowerShell: `npm.cmd start` if script execution is disabled). Open `http://localhost:5175` and `/admin.html`. Run `npm install` once (one small runtime dependency, `qrcode-generator`, for NFC QR codes); there is no build step. Run `npm test` / `npm.cmd test` for the automated suite.
 
 ## 4. Deploy to Vercel
 

@@ -6,6 +6,8 @@ The frontend is connected to a Node API, Supabase Auth, PostgreSQL and Storage. 
 
 **Start here: [Backend and deployment setup](BACKEND-SETUP.md).** Configure Supabase and server environment variables before running. Opening HTML or using Live Server alone is insufficient.
 
+**NFC digital business cards:** admin-created customer profiles at permanent `/p/<id>` URLs, five premium themes, customer self-service at `/nfc/dashboard`. See **[NFC setup & operations](NFC-SETUP.md)**. Try it without Supabase: `npm install && npm run nfc:demo`.
+
 ## Local development
 
 1. Run `supabase/schema.sql` in Supabase SQL Editor.
@@ -13,7 +15,7 @@ The frontend is connected to a Node API, Supabase Auth, PostgreSQL and Storage. 
 3. Run `npm start` and open `http://localhost:5175`.
 4. Run `npm test` for API, authorization, pricing, uploads and concurrency tests.
 
-On Windows PowerShell, use `npm.cmd` if `npm.ps1` is blocked. Node.js 22+ is required; no npm runtime dependencies are needed.
+On Windows PowerShell, use `npm.cmd` if `npm.ps1` is blocked. Node.js 22+ is required (24.x recommended). Run `npm install` once: the only runtime dependency is `qrcode-generator` (NFC QR codes); PGlite and jsQR are test-only.
 
 ## Pages
 

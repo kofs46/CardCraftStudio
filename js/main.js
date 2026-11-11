@@ -515,7 +515,7 @@ if (document.body.classList.contains("admin-body")) {
       )
       .join(
         "",
-      )}</nav></aside><div class="admin-main"><div class="original-admin-heading"><h1>${labels[page] || "অ্যাডমিন প্যানেল"}</h1><p>অর্ডার, পণ্য ও বিক্রির হিসাব</p></div><p id="live-message" role="status" tabindex="-1"></p><section id="workspace"></section></div></main>`;
+      )}<a class="filter-pill" href="/admin/nfc">NFC কার্ড ম্যানেজমেন্ট</a></nav></aside><div class="admin-main"><div class="original-admin-heading"><h1>${labels[page] || "অ্যাডমিন প্যানেল"}</h1><p>অর্ডার, পণ্য ও বিক্রির হিসাব</p></div><p id="live-message" role="status" tabindex="-1"></p><section id="workspace"></section></div></main>`;
     const workspace = document.querySelector("#workspace");
     if (page === "categories")
       workspace.innerHTML = `<form id="category-form" class="admin-panel">${field("Category name", "name", "", "text", 'required maxlength="100"')}<button class="btn btn-primary">Add category</button></form>${table(

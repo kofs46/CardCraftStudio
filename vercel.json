@@ -1,6 +1,30 @@
 {
   "rewrites": [
     {
+      "source": "/api/admin/nfc/:path*",
+      "destination": "/api/nfc?scope=admin&path=:path*"
+    },
+    {
+      "source": "/api/nfc/:path*",
+      "destination": "/api/nfc?scope=nfc&path=:path*"
+    },
+    {
+      "source": "/p/:id",
+      "destination": "/api/nfc?page=:id"
+    },
+    {
+      "source": "/admin/nfc",
+      "destination": "/admin-nfc.html"
+    },
+    {
+      "source": "/nfc/login",
+      "destination": "/nfc-login.html"
+    },
+    {
+      "source": "/nfc/dashboard",
+      "destination": "/nfc-dashboard.html"
+    },
+    {
       "source": "/api/:route",
       "destination": "/api/handler?route=:route"
     },
@@ -39,6 +63,9 @@
   ],
   "functions": {
     "api/handler.mjs": {
+      "maxDuration": 30
+    },
+    "api/nfc.mjs": {
       "maxDuration": 30
     }
   },

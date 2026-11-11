@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Customer Login | CardCraft Studio BD</title>
+  <link rel="icon" type="image/jpeg" href="/images/cardcraft-studio-bd-logo.jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/nfc-app.css?v=1">
+  <script type="module" src="/js/nfc/login.mjs?v=1"></script>
+</head>
+<body class="nfc-app nfc-login-page">
+  <main class="nfc-login" id="main">
+    <section class="nfc-login__brand" aria-hidden="true">
+      <div class="nfc-login__card"><span class="nfc-login__chip"></span><span class="nfc-login__waves"></span><strong>CardCraft Studio BD</strong><small>Premium NFC Digital Card</small></div>
+    </section>
+    <section class="nfc-login__panel">
+      <img src="/images/cardcraft-studio-bd-logo.jpeg" alt="CardCraft Studio BD" width="64" height="64" class="nfc-login__logo">
+      <h1>Manage your digital card</h1>
+      <p class="nfc-muted">Log in with the User ID and password you received from CardCraft Studio BD.</p>
+      <form id="login" novalidate>
+        <p id="login-error" class="nfc-problem" role="alert" hidden></p>
+        <div class="nfc-field">
+          <label for="user_id">User ID</label>
+          <input id="user_id" name="user_id" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="32" required>
+        </div>
+        <div class="nfc-field">
+          <label for="password">Password</label>
+          <div class="nfc-input-group">
+            <input id="password" name="password" type="password" autocomplete="current-password" maxlength="128" required>
+            <button type="button" id="toggle-pw" class="nfc-btn nfc-btn--ghost nfc-btn--sm" aria-pressed="false" aria-controls="password">Show</button>
+          </div>
+        </div>
+        <button type="submit" class="nfc-btn nfc-btn--primary nfc-btn--block nfc-btn--lg">Log in</button>
+      </form>
+      <div class="nfc-login__help">
+        <p><strong>Forgot your password?</strong> Contact us on WhatsApp — after verifying it's you, we'll send a new temporary password.</p>
+        <a class="nfc-btn nfc-btn--ghost nfc-btn--block" href="https://wa.me/8801983469936" target="_blank" rel="noopener">Contact support on WhatsApp</a>
+      </div>
+      <p class="nfc-login__foot"><a href="/homepage">← CardCraft Studio BD website</a></p>
+    </section>
+  </main>
+</body>
+</html>

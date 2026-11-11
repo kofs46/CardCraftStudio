@@ -3,11 +3,13 @@ import { readFile, realpath } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { handle } from "./handler.mjs";
+import { handleNfc } from "./nfc-platform/router.mjs";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const mime = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css",
   ".js": "text/javascript",
+  ".mjs": "text/javascript",
   ".svg": "image/svg+xml",
   ".png": "image/png",
   ".jpg": "image/jpeg",
@@ -20,9 +22,10 @@ export function startServer({
 } = {}) {
   const server = createServer(async (req, res) => {
     const url = new URL(req.url, "http://localhost");
+    if (/^\/(api\/nfc\/|api\/admin\/nfc\/|p\/)/.test(url.pathname)) return handleNfc(req, res);
     if (url.pathname.startsWith("/api/")) return handle(req, res);
     const legacy = {"/":"/homepage", "/index.html":"/homepage", "/about.html":"/about", "/track.html":"/tracking", "/order.html":"/order", "/order-list.html":"/order-list", "/admin.html":"/admin", "/privacy.html":"/privacy", "/cart.html":"/order-list"};
-    const pages = {"/homepage":"index.html", "/services":"index.html", "/about":"about.html", "/tracking":"track.html", "/order":"order.html", "/order-list":"order-list.html", "/admin":"admin.html", "/privacy":"privacy.html"};
+    const pages = {"/homepage":"index.html", "/services":"index.html", "/about":"about.html", "/tracking":"track.html", "/order":"order.html", "/order-list":"order-list.html", "/admin":"admin.html", "/privacy":"privacy.html", "/admin/nfc":"admin-nfc.html", "/nfc/login":"nfc-login.html", "/nfc/dashboard":"nfc-dashboard.html"};
     if (legacy[url.pathname]) { res.writeHead(308,{Location:legacy[url.pathname]+url.search}).end(); return; }
 
     try {
@@ -34,7 +37,7 @@ export function startServer({
         relative.includes("..") ||
         relative.includes("\\") ||
         !(
-          /^(index|about|admin|order|order-list|cart|privacy|track)\.html$/.test(
+          /^(index|about|admin|order|order-list|cart|privacy|track|admin-nfc|nfc-login|nfc-dashboard)\.html$/.test(
             relative,
           ) || /^(css|js|images)\/[\w/ .-]+$/.test(relative)
         )

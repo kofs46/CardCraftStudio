@@ -82,8 +82,10 @@ const sample = {
   custom_links: [{ title: "Portfolio", url: "https://demo.example/p", icon: "portfolio" }],
 };
 
-test("all five themes render every shared component with the same markup", () => {
-  assert.deepEqual(THEMES.map((t) => t.key), ["luxury", "minimal", "corporate", "holographic", "purple"]);
+test("all twelve themes render every shared component with the same markup", () => {
+  assert.deepEqual(THEMES.map((t) => t.key), ["luxury", "minimal", "corporate", "holographic", "purple",
+    "executive", "emerald", "rosegold", "medical", "carbon", "marble", "sunset"]);
+  assert.equal(new Set(THEMES.map((t) => t.name)).size, THEMES.length, "unique theme names");
   const css = fs.readFileSync(new URL("../css/nfc-themes.css", import.meta.url), "utf8");
   for (const t of THEMES) {
     const html = renderProfile(toView({ ...sample, profile: { ...sample.profile, theme_id: t.key } }, { profileUrl: (s) => "https://x/p/" + s }));
@@ -95,6 +97,21 @@ test("all five themes render every shared component with the same markup", () =>
     assert.ok(css.includes(`.nfcp--${t.key} {`), `CSS for ${t.key}`);
   }
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+});
+
+test("sticky contact bar: opt-in for existing profiles, shows Call/WhatsApp/Save when enabled", () => {
+  const off = renderProfile(toView(sample, { profileUrl: (s) => "https://x/p/" + s }));
+  assert.ok(!off.includes("nfcp-dock"), "absent by default for profiles without the setting");
+  const on = renderProfile(toView({ ...sample, profile: { ...sample.profile, visibility_settings: { dock: true } } }, { profileUrl: (s) => "https://x/p/" + s }));
+  const dock = on.slice(on.indexOf('<nav class="nfcp-dock"'));
+  assert.match(dock, /href="tel:01711000000"/);
+  assert.match(dock, /href="https:\/\/wa\.me\/8801711000000"/);
+  assert.match(dock, /class="is-primary" href="\/api\/nfc\/public\/demo-ab12\/vcf"/);
+  const noSave = renderProfile(toView({ ...sample, profile: { ...sample.profile, phone: "", whatsapp: "", visibility_settings: { dock: true, save_contact: false } } }));
+  assert.ok(!noSave.includes("nfcp-dock"), "no empty bar when there is nothing to show");
+  const css = fs.readFileSync(new URL("../css/nfc-themes.css", import.meta.url), "utf8");
+  assert.match(css, /\.nfcp-dock \{\s*position: sticky;/);
+  assert.match(css, /overflow: clip/);
 });
 
 test("empty sections are omitted and preview mode is inert", () => {

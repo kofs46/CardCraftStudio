@@ -1,6 +1,6 @@
 // Shared profile editor (admin wizard, admin edit, customer dashboard) + live preview.
 // Preview renders with the same renderProfile() used for public pages, inside a shadow root.
-import { esc, icon, THEMES, SOCIAL_PLATFORMS, SOCIAL_NAMES, LINK_ICONS, VISIBILITY_KEYS, toView, renderProfile, fontHref } from "./render.mjs";
+import { esc, icon, THEMES, SOCIAL_PLATFORMS, SOCIAL_NAMES, LINK_ICONS, VISIBILITY_KEYS, VISIBILITY_DEFAULTS, toView, renderProfile, fontHref } from "./render.mjs";
 import { processImage, toast } from "./common.mjs";
 
 const SCALARS = ["full_name", "designation", "company_name", "business_category", "tagline", "biography",
@@ -14,7 +14,7 @@ export function emptyDraft() {
     ...Object.fromEntries(SCALARS.map((k) => [k, ""])),
     theme_id: "luxury",
     public_slug: "",
-    visibility_settings: Object.fromEntries(VISIBILITY_KEYS.map((k) => [k, true])),
+    visibility_settings: Object.fromEntries(VISIBILITY_KEYS.map((k) => [k, true])), // new profiles: everything on, incl. sticky bar
     images: { profile_photo: null, cover_image: null, company_logo: null },
     social_links: SOCIAL_PLATFORMS.map((platform) => ({ platform, url: "", is_visible: true })),
     services: [],
@@ -27,7 +27,7 @@ export function draftFromRecord(rec) {
   const d = emptyDraft();
   for (const k of SCALARS) d[k] = p[k] ?? "";
   d.public_slug = p.public_slug || "";
-  d.visibility_settings = { ...d.visibility_settings, ...(p.visibility_settings || {}) };
+  d.visibility_settings = { ...VISIBILITY_DEFAULTS, ...(p.visibility_settings || {}) };
   const img = (path, url) => (path ? { path, url } : null);
   d.images = {
     profile_photo: img(p.profile_photo_path, p.profile_photo_url),
@@ -145,7 +145,8 @@ const SECTIONS = {
     </div><fieldset class="nfc-fieldset"><legend>Profile features</legend><div class="nfc-switches">
     ${toggle("QR code section", 'data-vis="qr"', d.visibility_settings.qr !== false)}
     ${toggle("Save Contact button", 'data-vis="save_contact"', d.visibility_settings.save_contact !== false)}
-    ${toggle("Share button", 'data-vis="share"', d.visibility_settings.share !== false)}</div></fieldset>`;
+    ${toggle("Share button", 'data-vis="share"', d.visibility_settings.share !== false)}
+    ${toggle("Sticky contact bar (Call · WhatsApp · Save stay visible while scrolling)", 'data-vis="dock"', d.visibility_settings.dock === true)}</div></fieldset>`;
   },
 
   images: (d) => `<div class="nfc-images">${["profile_photo", "cover_image", "company_logo"].map((k) => {

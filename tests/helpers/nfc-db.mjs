@@ -1,7 +1,7 @@
 // Test harness: runs the real Supabase migration SQL inside PGlite (in-process Postgres) and
 // exposes a fetch() that mimics the small subset of PostgREST / Storage / Auth the NFC server uses.
 import { PGlite } from '@electric-sql/pglite';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 
 const root = new URL('../../', import.meta.url);
 const read = (path) => readFileSync(new URL(path, root), 'utf8');
@@ -15,7 +15,9 @@ export async function createDb() {
     create table storage.buckets(id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
   `);
   await db.exec(read('supabase/schema.sql'));
-  await db.exec(read('supabase/migrations/20261111000000_nfc_platform.sql'));
+  // Apply every migration in filename (timestamp) order, exactly as you would in Supabase.
+  for (const file of readdirSync(new URL('supabase/migrations/', root)).filter((f) => f.endsWith('.sql')).sort())
+    await db.exec(read('supabase/migrations/' + file));
   return db;
 }
 

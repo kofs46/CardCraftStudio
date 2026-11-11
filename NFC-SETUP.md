@@ -19,8 +19,9 @@ The main admin sidebar has a new **NFC কার্ড ম্যানেজম�
 2. Paste the whole of `supabase/migrations/20261111000000_nfc_platform.sql` and run it.
    - It only **adds** `nfc_*` tables, functions and the `nfc-profile-media` storage bucket. It does not read, alter or delete any existing `shop_*` table, order or file.
    - It is safe to run again; existing NFC data is kept.
-3. Check: **Table Editor** shows `nfc_customers`, `nfc_profiles`, and so on. **Storage** shows the public bucket `nfc-profile-media` (2 MB, PNG/JPEG/WebP only).
-4. Do **not** add any policies to the NFC tables or to `nfc-profile-media`. Browsers never access them directly; only the server (with the service-role key) does.
+3. Then run `supabase/migrations/20261112000000_nfc_more_themes.sql` the same way. It adds the seven extra premium themes. **Run it before deploying code that offers those themes**; otherwise saving one of them fails.
+4. Check: **Table Editor** shows `nfc_customers`, `nfc_profiles`, and so on, and `nfc_themes` has 12 rows. **Storage** shows the public bucket `nfc-profile-media` (2 MB, PNG/JPEG/WebP only).
+5. Do **not** add any policies to the NFC tables or to `nfc-profile-media`. Browsers never access them directly; only the server (with the service-role key) does.
 
 > Run this against your real project only when you are ready. The migration is additive, but take a database backup first if your plan offers one.
 
@@ -51,7 +52,26 @@ Open `http://127.0.0.1:5199`. Data lives only in memory and disappears when you 
 
 - Admin: `/admin` → any email, password `demo-admin` → **NFC কার্ড ম্যানেজমেন্ট**
 - Customer: `/nfc/login` → `demo.luxury` / `DemoPass2026` (you'll be asked to change it)
-- Five sample profiles, one per theme, are printed in the terminal.
+- Twelve sample profiles, one per theme, are printed in the terminal (e.g. `/p/executive-demo`).
+
+## Themes
+
+| Theme | Best for |
+| --- | --- |
+| Luxury Black & Gold | Jewellery, luxury goods, premium services |
+| Minimal White | Designers, freelancers, anyone who wants clean and simple |
+| Corporate Blue | Companies, sales teams, logistics |
+| Holographic Premium | Agencies, events, futuristic brands |
+| Modern Purple Gradient | Coaches, small businesses, app-style look |
+| Executive Black | CEOs, lawyers, consultants (editorial layout, numbered sections) |
+| Emerald Prestige | Finance, banking, real estate |
+| Rose Gold Elegance | Beauty, bridal, fashion, boutiques (arch portrait) |
+| Clinical Trust | Doctors, clinics, pharma (the category shows as a ✓ credential, e.g. "MBBS, FCPS") |
+| Carbon Tech | Developers, IT companies, startups |
+| Marble Luxe | Architects, interior designers, premium brands |
+| Creative Sunset | Photographers, creators, influencers |
+
+**Sticky contact bar:** an optional bar that keeps **Call · WhatsApp · Save** at the bottom of the screen while visitors scroll. It works with every theme. It is on by default for new customers, off for existing ones, and can be switched under *Contact information → Profile features*.
 
 **Against your real Supabase:** add `NFC_SESSION_SECRET` to `.env`, run the migration (step 1), then `npm start` and open `http://localhost:5175/admin/nfc`.
 

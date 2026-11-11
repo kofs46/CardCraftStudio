@@ -55,8 +55,13 @@ test("customer edits appear on the public profile immediately and the URL never 
   assert.match(page2.text, /nfcp--holographic/);
   assert.match(page2.text, /Head of Growth/);
   assert.match(page2.text, /New tagline/);
-  for (const theme of ["luxury", "minimal", "purple"]) {
-    await c.req("PATCH", "/api/nfc/me/profile", { body: { theme_id: theme } });
+  // Every theme the UI offers must also exist in the database (nfc_themes foreign key), or saving it would fail.
+  const { THEME_KEYS } = await import("../js/nfc/render.mjs");
+  const dbThemes = (await app.db.query("select theme_key from nfc_themes where is_active")).rows.map((r) => r.theme_key);
+  assert.deepEqual([...dbThemes].sort(), [...THEME_KEYS].sort());
+  for (const theme of THEME_KEYS) {
+    const saved = await c.req("PATCH", "/api/nfc/me/profile", { body: { theme_id: theme } });
+    assert.equal(saved.status, 200, theme);
     assert.match((await app.request("GET", `/p/${cu.slug}`)).text, new RegExp(`nfcp--${theme}`));
   }
   const slugNow = (await app.db.query("select public_slug from nfc_profiles where customer_id = $1", [cu.id])).rows[0].public_slug;

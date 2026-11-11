@@ -61,18 +61,26 @@ const samples = [
   ["corporate", "Tanvir Ahmed", "Head of Sales", "Delta Logistics Ltd", "Logistics", "Moving Bangladesh forward"],
   ["holographic", "Samira Chowdhury", "Creative Technologist", "Neon Pixel Lab", "Digital Agency", "Future-ready brand experiences"],
   ["purple", "Fahim Hasan", "Fitness Coach", "FitLife Dhaka", "Health & Fitness", "Stronger every day"],
+  ["executive", "Imran Kabir", "Senior Partner", "Kabir & Associates", "Legal Services", "Counsel you can rely on"],
+  ["emerald", "Laila Haque", "Investment Director", "Greenfield Capital", "Finance", "Growing wealth, responsibly"],
+  ["rosegold", "Mehjabin Sultana", "Founder & Stylist", "Blush Bridal Studio", "Beauty & Bridal", "Every bride deserves to shine"],
+  ["medical", "Dr. Rafiq Hossain", "Consultant Cardiologist", "Dhaka Heart Clinic", "MBBS, FCPS (Cardiology)", "Caring for every heartbeat"],
+  ["carbon", "Shakib Alam", "Full-Stack Engineer", "ByteForge Labs", "Software Development", "Building products people love"],
+  ["marble", "Ayesha Rahman", "Principal Architect", "Studio Form & Light", "Architecture & Interiors", "Spaces with soul"],
+  ["sunset", "Tania Akter", "Photographer & Creator", "Golden Hour Media", "Photography", "Capturing your best moments"],
 ];
 const hash = await hashPassword("DemoPass2026");
 for (const [i, [theme, name, title, company, category, tagline]] of samples.entries()) {
-  const slug = `${name.split(" ")[0].toLowerCase()}-demo${i + 1}`;
+  const slug = `${theme}-demo`;
   await rpc(db, "nfc_admin_create", {
     customer: { user_id: `demo.${theme}`, password_hash: hash },
     profile: {
-      immutable_public_id: `demoprofile${i + 1}`, public_slug: slug, full_name: name, designation: title, company_name: company,
+      immutable_public_id: `demoprof${String(i + 1).padStart(4, "0")}`, public_slug: slug, full_name: name, designation: title, company_name: company,
       business_category: category, tagline, theme_id: theme,
       biography: `${name} leads ${company}. This is a fictional sample profile created for the local demo.\nTap the buttons below to try calling, WhatsApp, saving the contact or sharing.`,
       phone: "01700000000", whatsapp: "01700000000", email: `hello@${company.toLowerCase().replace(/[^a-z]/g, "")}.example`,
       website: "https://example.com/", address: "House 12, Road 5\nDhanmondi, Dhaka 1205", google_maps_url: "https://maps.google.com/?q=Dhanmondi+Dhaka",
+      visibility_settings: { dock: true },
     },
     social_links: [
       { platform: "facebook", url: "https://facebook.com/example" }, { platform: "instagram", url: "https://instagram.com/example" },
@@ -104,4 +112,4 @@ server.on("request", (req, res) => {
 console.log(`\nCardCraft NFC demo running at ${ORIGIN}  (in-memory data; nothing is saved)\n`);
 console.log(`  Admin:     ${ORIGIN}/admin  → any email, password "demo-admin" → then ${ORIGIN}/admin/nfc`);
 console.log(`  Customer:  ${ORIGIN}/nfc/login  → demo.luxury / DemoPass2026 (asked to change it)`);
-for (const [i, [theme, name]] of samples.entries()) console.log(`  ${theme.padEnd(12)} ${ORIGIN}/p/${name.split(" ")[0].toLowerCase()}-demo${i + 1}`);
+for (const [i, [theme, name]] of samples.entries()) console.log(`  ${theme.padEnd(12)} ${ORIGIN}/p/${theme}-demo`);

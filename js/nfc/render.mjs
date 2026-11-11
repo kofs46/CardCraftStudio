@@ -13,12 +13,28 @@ export const THEMES = [
     fonts: "family=Space+Grotesk:wght@400;500;600;700" },
   { key: "purple", name: "Modern Purple Gradient", blurb: "App-style cards, colourful actions", color: "#6d28d9",
     fonts: "family=Plus+Jakarta+Sans:wght@400;500;600;700;800" },
+  { key: "executive", name: "Executive Black", blurb: "Editorial layout, platinum accents · CEOs, lawyers, consultants", color: "#0f0f10",
+    fonts: "family=DM+Serif+Display&family=Inter:wght@400;500;600" },
+  { key: "emerald", name: "Emerald Prestige", blurb: "Deep emerald & champagne gold · finance, real estate", color: "#04241c",
+    fonts: "family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600" },
+  { key: "rosegold", name: "Rose Gold Elegance", blurb: "Blush, rose gold, arch portrait · beauty, fashion, boutiques", color: "#fbf6f3",
+    fonts: "family=Marcellus&family=Jost:wght@400;500;600" },
+  { key: "medical", name: "Clinical Trust", blurb: "Calm teal, clear credentials · doctors, clinics, pharma", color: "#0f766e",
+    fonts: "family=Manrope:wght@400;500;600;700;800" },
+  { key: "carbon", name: "Carbon Tech", blurb: "Carbon weave, neon lime, code accents · tech & startups", color: "#0b0d10",
+    fonts: "family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@500" },
+  { key: "marble", name: "Marble Luxe", blurb: "White marble, Bodoni, gold lines · architects, premium brands", color: "#f7f6f3",
+    fonts: "family=Bodoni+Moda:wght@500;700&family=Inter:wght@400;500;600" },
+  { key: "sunset", name: "Creative Sunset", blurb: "Vivid gradient, glass cards · creators, photographers", color: "#c2185b",
+    fonts: "family=Outfit:wght@400;500;600;700" },
 ];
 export const THEME_KEYS = THEMES.map((t) => t.key);
 export const SOCIAL_PLATFORMS = ["facebook", "instagram", "linkedin", "youtube", "tiktok", "x", "telegram"];
 export const SOCIAL_NAMES = { facebook: "Facebook", instagram: "Instagram", linkedin: "LinkedIn", youtube: "YouTube", tiktok: "TikTok", x: "X", telegram: "Telegram" };
 export const LINK_ICONS = ["link", "portfolio", "document", "video", "shop", "calendar"];
-export const VISIBILITY_KEYS = ["phone", "whatsapp", "email", "website", "address", "map", "qr", "save_contact", "share"];
+export const VISIBILITY_KEYS = ["phone", "whatsapp", "email", "website", "address", "map", "qr", "save_contact", "share", "dock"];
+/** Defaults for profiles that never saved a setting. The sticky contact bar is opt-in for existing profiles. */
+export const VISIBILITY_DEFAULTS = { ...Object.fromEntries(VISIBILITY_KEYS.map((k) => [k, true])), dock: false };
 
 export const themeOf = (key) => THEMES.find((t) => t.key === key) || THEMES[1];
 export const fontHref = (key) =>
@@ -61,7 +77,7 @@ export const initials = (name) =>
  */
 export function toView(record, { mediaUrl = () => "", profileUrl = () => "" } = {}) {
   const p = record.profile || {};
-  const vis = { ...Object.fromEntries(VISIBILITY_KEYS.map((k) => [k, true])), ...(p.visibility_settings || {}) };
+  const vis = { ...VISIBILITY_DEFAULTS, ...(p.visibility_settings || {}) };
   const img = (urlKey, pathKey) => p[urlKey] ?? mediaUrl(p[pathKey]) ?? "";
   return {
     slug: p.public_slug || "",
@@ -88,7 +104,7 @@ export function toView(record, { mediaUrl = () => "", profileUrl = () => "" } = 
       .map((s) => ({ title: s.title, description: s.description || "", url: s.external_url || "", image: s.image_url ?? mediaUrl(s.image_path) ?? "" })),
     links: (record.custom_links || []).filter((l) => l.is_visible !== false && l.title && l.url)
       .map((l) => ({ title: l.title, url: l.url, icon: LINK_ICONS.includes(l.icon) ? l.icon : "link" })),
-    show: { qr: vis.qr, save_contact: vis.save_contact, share: vis.share },
+    show: { qr: vis.qr, save_contact: vis.save_contact, share: vis.share, dock: vis.dock },
   };
 }
 
@@ -186,6 +202,7 @@ ${view.address || map ? `<section class="nfcp-card nfcp-location"><h2 class="nfc
 ${view.show.qr ? `<section class="nfcp-card nfcp-qr"><h2 class="nfcp-h">Scan to Connect</h2>${qrSrc ? `<img class="nfcp-qr-img" src="${esc(qrSrc)}" alt="QR code for this profile" width="180" height="180" loading="lazy">` : `<div class="nfcp-qr-img nfcp-qr-placeholder">${icon("qr")}<small>QR code is generated after the profile is created</small></div>`}<div class="nfcp-qr-actions">${qrDownload ? `<a class="nfcp-btn nfcp-btn--outline" href="${esc(qrDownload)}" download="${esc(view.slug || "profile")}-qr.png" data-track="qr_download">${icon("download")}<span>Download QR</span></a>` : ""}${view.url ? `<button type="button" class="nfcp-btn nfcp-btn--outline" data-copy>${icon("copy")}<span>Copy Link</span></button>` : ""}</div></section>` : ""}
 </div>
 <footer class="nfcp-footer"><a href="${esc(home)}">Digital card by <strong>CardCraft Studio BD</strong></a></footer>
+${view.show.dock && (tel || wa || (view.show.save_contact && vcf)) ? `<nav class="nfcp-dock" aria-label="Contact shortcuts">${tel ? `<a href="${esc(tel)}" data-track="click_call">${icon("phone")}<span>Call</span></a>` : ""}${wa ? `<a href="${esc(wa)}" ${ext} data-track="click_whatsapp">${icon("whatsapp")}<span>WhatsApp</span></a>` : ""}${view.show.save_contact && vcf ? `<a class="is-primary" href="${esc(vcf)}" download="${esc(view.slug || "contact")}.vcf" data-track="save_contact">${icon("save")}<span>Save</span></a>` : ""}</nav>` : ""}
 <div class="nfcp-toast" role="status" aria-live="polite" hidden></div>
 </article>`;
 }

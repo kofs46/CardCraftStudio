@@ -211,10 +211,18 @@ fieldset:disabled, .nfc-field input:disabled, .nfc-field textarea:disabled { opa
 .nfc-social-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
 .nfc-social-row__ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #f1f5f9; color: var(--ink-2); }
 .nfc-social-row__ico .nfcp-svg { width: 20px; height: 20px; }
-.nfc-social-row input { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--line-2); border-radius: var(--radius-sm); font: inherit; }
-.nfc-social-row input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(20, 184, 166, .18); }
+.nfc-social-row__field { display: grid; gap: 5px; min-width: 0; }
+.nfc-social-row__field > label { font-size: .85rem; font-weight: 600; }
+.nfc-social-row input[data-k="url"] { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--line-2); border-radius: var(--radius-sm); font: inherit; }
+.nfc-social-row input[data-k="url"]:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(20, 184, 166, .18); }
+.nfc-social-qr { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.nfc-social-qr img { object-fit: contain; background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+.nfc-social-qr label:focus-within { outline: 3px solid #5eead4; outline-offset: 2px; }
 .nfc-brand--facebook { color: #1877f2 !important; } .nfc-brand--instagram { color: #e1306c !important; } .nfc-brand--linkedin { color: #0a66c2 !important; }
 .nfc-brand--youtube { color: #ff0000 !important; } .nfc-brand--telegram { color: #229ed9 !important; }
+.nfc-brand--viber { color: #7360f2; }
+.nfc-brand--wechat, .nfc-brand--whatsapp_business { color: #087b50; }
+.nfc-brand--bdjobs { color: #a81d43; }
 .nfc-list { display: grid; gap: 12px; }
 .nfc-list-item { padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #fbfdff; }
 .nfc-list-item .nfc-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 12px; }

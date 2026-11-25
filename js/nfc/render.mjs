@@ -1,6 +1,9 @@
 // Isomorphic NFC profile renderer — imported by the server (public /p/:id pages) and by the
 // browser (admin wizard + customer dashboard live preview), so preview and public page are identical.
 // Pure string templates. Every dynamic value passes through esc(); every href through a scheme allowlist.
+import { SOCIAL_NAMES, SOCIAL_PLATFORMS, waNumber } from "./social-links.mjs";
+
+export { SOCIAL_NAMES, SOCIAL_PLATFORMS, waNumber };
 
 export const THEMES = [
   { key: "luxury", name: "Luxury Black & Gold", blurb: "Black, metallic gold, elegant serif", color: "#0b0b0c",
@@ -29,8 +32,6 @@ export const THEMES = [
     fonts: "family=Outfit:wght@400;500;600;700" },
 ];
 export const THEME_KEYS = THEMES.map((t) => t.key);
-export const SOCIAL_PLATFORMS = ["facebook", "instagram", "linkedin", "youtube", "tiktok", "x", "telegram"];
-export const SOCIAL_NAMES = { facebook: "Facebook", instagram: "Instagram", linkedin: "LinkedIn", youtube: "YouTube", tiktok: "TikTok", x: "X", telegram: "Telegram" };
 export const LINK_ICONS = ["link", "portfolio", "document", "video", "shop", "calendar"];
 export const VISIBILITY_KEYS = ["phone", "whatsapp", "email", "website", "address", "map", "qr", "save_contact", "share", "dock"];
 /** Defaults for profiles that never saved a setting. The sticky contact bar is opt-in for existing profiles. */
@@ -56,13 +57,6 @@ export function safeHttp(url) {
 export const telHref = (phone) => {
   const v = String(phone || "").replace(/[^\d+]/g, "");
   return /^\+?\d{6,15}$/.test(v) ? "tel:" + v : "";
-};
-/** wa.me needs the international number without "+". Bangladeshi local numbers (01XXXXXXXXX) get 880. */
-export const waNumber = (phone) => {
-  let d = String(phone || "").replace(/\D/g, "");
-  if (d.startsWith("00")) d = d.slice(2);
-  if (/^01\d{9}$/.test(d)) d = "88" + d;
-  return /^\d{8,15}$/.test(d) ? d : "";
 };
 export const waHref = (phone) => (waNumber(phone) ? "https://wa.me/" + waNumber(phone) : "");
 export const mailHref = (email) =>
@@ -98,8 +92,13 @@ export function toView(record, { mediaUrl = () => "", profileUrl = () => "" } = 
     website: vis.website ? p.website || "" : "",
     address: vis.address ? p.address || "" : "",
     map: vis.map ? p.google_maps_url || "" : "",
-    socials: (record.social_links || []).filter((s) => s.is_visible !== false && s.url)
-      .map((s) => ({ platform: s.platform, label: s.label || SOCIAL_NAMES[s.platform] || s.platform, url: s.url })),
+    socials: (record.social_links || []).filter((s) => s.is_visible !== false && (s.url || s.identifier || s.qr_image_path || s.qr_image_url))
+      .map((s) => ({
+        platform: s.platform, label: s.label || SOCIAL_NAMES[s.platform] || s.platform, url: s.url,
+        ...(s.identifier ? { identifier: s.identifier } : {}),
+        ...(s.platform === "wechat" && (s.qr_image_path || s.qr_image_url)
+          ? { qr: s.qr_image_url ?? mediaUrl(s.qr_image_path) } : {}),
+      })),
     services: (record.services || []).filter((s) => s.is_visible !== false && s.title)
       .map((s) => ({ title: s.title, description: s.description || "", url: s.external_url || "", image: s.image_url ?? mediaUrl(s.image_path) ?? "" })),
     links: (record.custom_links || []).filter((l) => l.is_visible !== false && l.title && l.url)
@@ -127,6 +126,9 @@ const P = {
   tiktok: '<path d="M15 3v11.2a3.8 3.8 0 1 1-3.8-3.8"/><path d="M15 3c.4 2.7 2.3 4.6 5 4.8"/>',
   x: '<path d="M4 4l11.7 16H20L8.3 4z"/><path d="M20 4l-6.6 7.3M4 20l6.6-7.3"/>',
   telegram: '<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/>',
+  viber: '<path d="M21 11a8 8 0 0 1-8 8h-2l-4 3v-4a8 8 0 0 1 3-15h3a8 8 0 0 1 8 8Z"/><path d="m8 9 1-1 2 2-1 1a6 6 0 0 0 3 3l1-1 2 2-1 1a8 8 0 0 1-7-7Z"/>',
+  wechat: '<path d="M13 14a7 7 0 1 0-9.4-1.4L3 16l3.5-1.4a10 10 0 0 0 3 .4"/><path d="M21 18a5 5 0 1 0-2.4 2l2.4 1-.3-2.3Z"/><path d="M6.5 8h.01M11.5 8h.01M14 15h.01M18 15h.01"/>',
+  bdjobs: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M2 13h20m-12 0v2h4v-2"/>',
   link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
   portfolio: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
   document: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>',
@@ -136,10 +138,28 @@ const P = {
   qr: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>',
 };
 export const icon = (name, cls = "nfcp-svg") =>
-  `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${P[name] || P.link}</svg>`;
+  `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${P[name === "whatsapp_business" ? "whatsapp" : name] || P.link}</svg>`;
 
 const ext = 'target="_blank" rel="noopener noreferrer nofollow"';
 const lines = (text) => esc(text).replace(/\n/g, "<br>");
+
+function renderSocial(s, mode) {
+  const badge = `<span class="nfcp-ico">${icon(s.platform)}</span><span class="nfcp-social-label">${esc(s.label)}</span>`;
+  const attrs = `class="nfcp-social nfcp-social--${s.platform}" data-track="click_social" data-detail="${s.platform}"`;
+  if (s.href) return `<a ${attrs} href="${esc(s.href)}" ${ext}>${badge}</a>`;
+
+  const isWeChat = s.platform === "wechat";
+  const field = isWeChat ? "ID" : "number";
+  return `<details class="nfcp-social-contact">
+    <summary ${attrs}>${badge}</summary>
+    <div class="nfcp-social-contact__body">
+      ${s.identifier ? `<div class="nfcp-social-contact__id"><code>${esc(s.identifier)}</code>${mode === "public" ?
+        `<button type="button" class="nfcp-btn nfcp-btn--outline" data-copy-value="${esc(s.identifier)}" hidden>${icon("copy")} Copy ${field}</button>` : ""}</div>` : ""}
+      ${s.qr ? `<a href="${esc(s.qr)}" ${ext}><img src="${esc(s.qr)}" alt="WeChat contact QR code" width="200" height="200" loading="lazy"></a>` : ""}
+      <small>${isWeChat ? (s.qr ? "Open WeChat and scan this QR code." : "In WeChat, open Add Contacts and search this ID.") : "In Viber, open Add contact and enter this number."}</small>
+    </div>
+  </details>`;
+}
 
 /**
  * @param view   output of toView()
@@ -162,7 +182,9 @@ export function renderProfile(view, opts = {}) {
     mail && ["Email", view.email, mail, "email", "click_email", ""],
     web && ["Website", hostOf(web), web, "website", "click_website", ext],
   ].filter(Boolean);
-  const socials = view.socials.map((s) => ({ ...s, href: safeHttp(s.url) })).filter((s) => s.href && SOCIAL_PLATFORMS.includes(s.platform));
+  const socials = view.socials.filter((s) => SOCIAL_PLATFORMS.includes(s.platform))
+    .map((s) => ({ ...s, href: safeHttp(s.url), qr: safeHttp(s.qr) }))
+    .filter((s) => s.href || (s.platform === "wechat" && (s.identifier || s.qr)) || (s.platform === "viber" && s.identifier));
   const services = view.services.map((s) => ({ ...s, href: safeHttp(s.url), img: safeHttp(s.image) }));
   const links = view.links.map((l) => ({ ...l, href: safeHttp(l.url) })).filter((l) => l.href);
   const photo = safeHttp(view.photo), cover = safeHttp(view.cover), logo = safeHttp(view.logo);
@@ -192,8 +214,7 @@ ${view.show.save_contact || view.show.share ? `<div class="nfcp-cta">${view.show
 ${view.bio ? `<section class="nfcp-card nfcp-about"><h2 class="nfcp-h">About</h2><p class="nfcp-bio">${lines(view.bio)}</p></section>` : ""}
 ${contacts.length ? `<section class="nfcp-card"><h2 class="nfcp-h">Contact</h2><ul class="nfcp-rows">${contacts.map(([label, value, href, ic, track, attrs]) =>
     `<li><a class="nfcp-row" href="${esc(href)}" ${attrs} data-track="${track}"><span class="nfcp-row-ico">${icon(ic)}</span><span class="nfcp-row-text"><small>${label}</small><strong>${esc(value).replace(/([@.])/g, "$1<wbr>")}</strong></span><span class="nfcp-row-go">${icon("chevron")}</span></a></li>`).join("")}</ul></section>` : ""}
-${socials.length ? `<section class="nfcp-card"><h2 class="nfcp-h">Social Media</h2><div class="nfcp-socials">${socials.map((s) =>
-    `<a class="nfcp-social nfcp-social--${s.platform}" href="${esc(s.href)}" ${ext} data-track="click_social" data-detail="${s.platform}"><span class="nfcp-ico">${icon(s.platform)}</span><span class="nfcp-social-label">${esc(s.label)}</span></a>`).join("")}</div></section>` : ""}
+${socials.length ? `<section class="nfcp-card"><h2 class="nfcp-h">Social Media</h2><div class="nfcp-socials">${socials.map((s) => renderSocial(s, mode)).join("")}</div></section>` : ""}
 ${services.length ? `<section class="nfcp-card"><h2 class="nfcp-h">Services</h2><div class="nfcp-services">${services.map((s) =>
     `<div class="nfcp-service${s.img ? "" : " nfcp-service--noimg"}">${s.img ? `<img src="${esc(s.img)}" alt="" width="72" height="72" loading="lazy" decoding="async">` : ""}<div><h3>${esc(s.title)}</h3>${s.description ? `<p>${lines(s.description)}</p>` : ""}${s.href ? `<a class="nfcp-link-inline" href="${esc(s.href)}" ${ext} data-track="click_service">Learn more ${icon("chevron")}</a>` : ""}</div></div>`).join("")}</div></section>` : ""}
 ${links.length ? `<section class="nfcp-card"><h2 class="nfcp-h">Portfolio &amp; Links</h2><ul class="nfcp-rows">${links.map((l) =>

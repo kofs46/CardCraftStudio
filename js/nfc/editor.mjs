@@ -2,6 +2,7 @@
 // Preview renders with the same renderProfile() used for public pages, inside a shadow root.
 import { esc, icon, THEMES, SOCIAL_PLATFORMS, SOCIAL_NAMES, LINK_ICONS, VISIBILITY_KEYS, VISIBILITY_DEFAULTS, toView, renderProfile, fontHref } from "./render.mjs";
 import { processImage, toast } from "./common.mjs";
+import { parseSocialInput, socialHandleUrl, SOCIAL_INPUTS } from "./social-links.mjs";
 
 const SCALARS = ["full_name", "designation", "company_name", "business_category", "tagline", "biography",
   "phone", "whatsapp", "email", "website", "address", "google_maps_url", "theme_id"];
@@ -36,7 +37,9 @@ export function draftFromRecord(rec) {
   };
   d.social_links = SOCIAL_PLATFORMS.map((platform) => {
     const s = rec.social_links.find((x) => x.platform === platform);
-    return { platform, url: s?.url || "", is_visible: s ? s.is_visible !== false : true };
+    return { platform, url: s?.identifier || s?.url || "", is_visible: s?.is_visible !== false,
+      ...(s?.label ? { label: s.label } : {}),
+      ...(s?.qr_image_path ? { qr_image: img(s.qr_image_path, s.qr_image_url) } : {}) };
   });
   d.services = rec.services.map((s) => ({ title: s.title, description: s.description || "", external_url: s.external_url || "", is_visible: s.is_visible !== false, image: img(s.image_path, s.image_url) }));
   d.custom_links = rec.custom_links.map((l) => ({ title: l.title, url: l.url, icon: l.icon || "link", is_visible: l.is_visible !== false }));
@@ -45,7 +48,10 @@ export function draftFromRecord(rec) {
 export const cloneDraft = (d) => structuredClone(d);
 
 const imgRef = (img) => (!img ? null : img.receipt ? { receipt: img.receipt } : { path: img.path });
-const socialsOut = (d) => d.social_links.filter((s) => s.url.trim()).map((s) => ({ platform: s.platform, url: s.url.trim(), is_visible: s.is_visible }));
+const socialsOut = (d) => d.social_links.filter((s) => s.url.trim() || s.qr_image).map((s) => ({
+  platform: s.platform, url: s.url.trim(), is_visible: s.is_visible,
+  ...(s.label ? { label: s.label } : {}), ...(s.qr_image ? { qr_image: imgRef(s.qr_image) } : {}),
+}));
 const servicesOut = (d) => d.services.map((s) => ({ title: s.title, description: s.description, external_url: s.external_url, is_visible: s.is_visible, image: imgRef(s.image) }));
 const linksOut = (d) => d.custom_links.map((l) => ({ title: l.title, url: l.url, icon: l.icon, is_visible: l.is_visible }));
 
@@ -62,10 +68,7 @@ export function draftToPayload(d, base = null) {
 }
 export const isDirty = (d, base) => Object.keys(draftToPayload(d, base)).length > 0;
 
-// Mirror the server's link normalisation so the preview shows what will be saved.
-const HANDLE = { facebook: "https://facebook.com/", instagram: "https://instagram.com/", linkedin: "https://linkedin.com/in/", youtube: "https://youtube.com/@", tiktok: "https://www.tiktok.com/@", x: "https://x.com/", telegram: "https://t.me/" };
 const asUrl = (v) => { v = String(v || "").trim(); return !v ? "" : /^https?:\/\//i.test(v) ? v : /^[a-z][a-z0-9+.-]*:/i.test(v) && !/^[^:/]+\.[^:/]+:\d/.test(v) ? "" : "https://" + v; };
-const socialUrl = (platform, v) => { const raw = String(v || "").trim(); const h = /^@?([A-Za-z0-9_][A-Za-z0-9_.]{0,59})$/.exec(raw); return h && (raw.startsWith("@") || !raw.includes(".")) ? HANDLE[platform] + h[1] : asUrl(raw); };
 
 export function draftToView(d, { slug = d.public_slug } = {}) {
   return toView({
@@ -73,7 +76,11 @@ export function draftToView(d, { slug = d.public_slug } = {}) {
       ...d, public_slug: slug, website: asUrl(d.website), google_maps_url: asUrl(d.google_maps_url),
       profile_photo_url: d.images.profile_photo?.url || "", cover_image_url: d.images.cover_image?.url || "", company_logo_url: d.images.company_logo?.url || "",
     },
-    social_links: d.social_links.map((s) => ({ ...s, url: socialUrl(s.platform, s.url) })),
+    social_links: d.social_links.map((s) => {
+      const data = SOCIAL_INPUTS[s.platform] ? parseSocialInput(s.platform, s.url)
+        : { url: socialHandleUrl(s.platform, s.url.trim()) || asUrl(s.url) };
+      return { ...s, url: "", ...data, qr_image_url: s.qr_image?.url };
+    }),
     services: d.services.map((s) => ({ ...s, external_url: asUrl(s.external_url), image_url: s.image?.url || "" })),
     custom_links: d.custom_links.map((l) => ({ ...l, url: asUrl(l.url) })),
   }, { profileUrl: (s) => `${location.origin}/p/${s}` });
@@ -81,7 +88,7 @@ export function draftToView(d, { slug = d.public_slug } = {}) {
 
 export function completion(d) {
   const checks = [d.full_name, d.designation, d.company_name, d.tagline, d.biography, d.phone, d.whatsapp, d.email,
-    d.website, d.address, d.images.profile_photo, d.images.cover_image, d.social_links.some((s) => s.url), d.services.length || d.custom_links.length];
+    d.website, d.address, d.images.profile_photo, d.images.cover_image, d.social_links.some((s) => s.url || s.qr_image), d.services.length || d.custom_links.length];
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }
 
@@ -121,6 +128,25 @@ function field(label, key, value, o = {}) {
 }
 const toggle = (label, attr, checked) =>
   `<label class="nfc-switch"><input type="checkbox" ${attr} ${checked ? "checked" : ""}><span class="nfc-switch__track" aria-hidden="true"></span><span>${esc(label)}</span></label>`;
+
+function socialRow(s, i) {
+  const input = SOCIAL_INPUTS[s.platform];
+  const name = SOCIAL_NAMES[s.platform];
+  const id = `s-${s.platform}`;
+  const qr = s.platform === "wechat" ? `<div class="nfc-social-qr">
+    ${s.qr_image?.url ? `<img src="${esc(s.qr_image.url)}" alt="WeChat QR preview" width="48" height="48">` : ""}
+    <label class="nfc-btn nfc-btn--sm nfc-btn--ghost"><input class="nfc-sr" type="file" accept="image/png,image/jpeg,image/webp" data-social-qr="${i}">${s.qr_image ? "Replace WeChat QR" : "Upload WeChat QR (optional)"}</label>
+    ${s.qr_image ? `<button type="button" class="nfc-link-btn" data-social-qr-remove="${i}">Remove QR</button>` : ""}</div>` : "";
+  return `<div class="nfc-social-row">
+    <span class="nfc-social-row__ico nfc-brand--${s.platform}">${icon(s.platform)}</span>
+    <div class="nfc-social-row__field">
+      <label${input ? "" : ' class="nfc-sr"'} for="${id}">${input?.label || `${name} link`}</label>
+      <input id="${id}" data-list="social_links" data-i="${i}" data-k="url" value="${esc(s.url)}" placeholder="${esc(input?.placeholder || `${name} link or @username`)}" maxlength="${s.platform === "wechat" ? 32 : 500}" autocomplete="off">
+      ${input?.hint ? `<small class="nfc-hint">${esc(input.hint)}</small>` : ""}${qr}
+    </div>${toggle("Visible", `data-list="social_links" data-i="${i}" data-k="is_visible" aria-label="Show ${name} on public profile"`, s.is_visible)}
+  </div>`;
+}
+
 const CATEGORIES = ["Business Services", "Real Estate", "Retail & E-commerce", "Restaurant & Food", "Health & Fitness", "Medical & Healthcare", "Education", "Technology", "Design & Creative", "Fashion & Beauty", "Logistics", "Travel & Tourism", "Finance & Insurance", "Legal", "Construction", "Photography", "Freelancer"];
 
 const SECTIONS = {
@@ -159,11 +185,7 @@ const SECTIONS = {
       ${img ? `<button type="button" class="nfc-btn nfc-btn--sm nfc-btn--text" data-img-remove="${k}">Remove</button>` : ""}</div></div></div>`;
   }).join("")}</div><p class="nfc-hint">Images are resized and compressed on this device before upload (max 2 MB). They become public only after you save.</p>`,
 
-  socials: (d) => `<div class="nfc-socials-edit">${d.social_links.map((s, i) => `<div class="nfc-social-row">
-    <span class="nfc-social-row__ico nfc-brand--${s.platform}">${icon(s.platform)}</span>
-    <label class="nfc-sr" for="s-${s.platform}">${SOCIAL_NAMES[s.platform]} link</label>
-    <input id="s-${s.platform}" data-list="social_links" data-i="${i}" data-k="url" value="${esc(s.url)}" placeholder="${SOCIAL_NAMES[s.platform]} link or @username" maxlength="500" autocomplete="off">
-    ${toggle("Visible", `data-list="social_links" data-i="${i}" data-k="is_visible"`, s.is_visible)}</div>`).join("")}</div>`,
+  socials: (d) => `<div class="nfc-socials-edit">${d.social_links.map(socialRow).join("")}</div>`,
 
   links: (d) => `<div class="nfc-list">${d.custom_links.map((l, i) => `<div class="nfc-list-item">
     <div class="nfc-grid">
@@ -244,11 +266,11 @@ export function bindEditor(root, ctx) {
       root.querySelectorAll(".nfc-theme-card").forEach((c) => c.classList.toggle("is-selected", c.querySelector("input").checked));
       return changed();
     }
-    const kind = t.dataset.img ? t.dataset.img : t.dataset.svcImg !== undefined ? "service" : null;
+    const kind = t.dataset.img || (t.dataset.svcImg !== undefined ? "service" : t.dataset.socialQr !== undefined ? "social_qr" : null);
     if (!kind || !t.files?.[0]) return;
     const file = t.files[0];
     t.value = "";
-    const tile = t.closest(".nfc-image-tile, .nfc-service-edit");
+    const tile = t.closest(".nfc-image-tile, .nfc-service-edit, .nfc-social-qr");
     tile?.classList.add("is-busy");
     try {
       const dataUrl = await processImage(file, kind);
@@ -256,6 +278,7 @@ export function bindEditor(root, ctx) {
       const result = await ctx.upload(kind, dataUrl);
       const image = { receipt: result.receipt, url: result.url };
       if (kind === "service") { ctx.draft.services[t.dataset.svcImg].image = image; rerender("services"); }
+      else if (kind === "social_qr") { ctx.draft.social_links[t.dataset.socialQr].qr_image = image; rerender("socials"); }
       else { ctx.draft.images[kind] = image; rerender("images"); }
       toast("Image ready — save to publish it");
       changed();
@@ -270,6 +293,7 @@ export function bindEditor(root, ctx) {
     if (!b) return;
     if (b.dataset.imgRemove) { ctx.draft.images[b.dataset.imgRemove] = null; rerender("images"); return changed(); }
     if (b.dataset.svcImgRemove !== undefined) { ctx.draft.services[b.dataset.svcImgRemove].image = null; rerender("services"); return changed(); }
+    if (b.dataset.socialQrRemove !== undefined) { ctx.draft.social_links[b.dataset.socialQrRemove].qr_image = null; rerender("socials"); return changed(); }
     if (b.hasAttribute("data-copy-phone")) { ctx.draft.whatsapp = ctx.draft.phone; rerender("contact"); return changed(); }
     if (b.dataset.add) {
       const list = b.dataset.add;
@@ -297,6 +321,9 @@ export function validateDraft(d) {
   if (d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email.trim())) problems.push("Email address looks invalid.");
   for (const [k, label] of [["phone", "Phone"], ["whatsapp", "WhatsApp"]])
     if (d[k] && d[k].replace(/\D/g, "").length < 6) problems.push(`${label} number looks too short.`);
+  for (const s of d.social_links) {
+    if (SOCIAL_INPUTS[s.platform] && !parseSocialInput(s.platform, s.url)) problems.push(SOCIAL_INPUTS[s.platform].error);
+  }
   if (d.services.some((s) => !s.title.trim())) problems.push("Every service needs a title.");
   if (d.custom_links.some((l) => !l.title.trim() || !l.url.trim())) problems.push("Every link needs a title and a web address.");
   return problems;

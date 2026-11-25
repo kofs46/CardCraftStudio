@@ -117,6 +117,7 @@ export const IMAGE_SPECS = {
   cover_image: { label: "Cover image", w: 1200, h: 500, crop: true },
   company_logo: { label: "Company logo", max: 512, crop: false, alpha: true },
   service: { label: "Service image", w: 600, h: 600, crop: true },
+  social_qr: { label: "WeChat QR code", max: 1200, crop: false, lossless: true },
 };
 const MAX_UPLOAD = 1.9 * 1024 * 1024;
 
@@ -207,6 +208,11 @@ export async function processImage(file, kind) {
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(bitmap, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
   bitmap.close?.();
+  if (spec.lossless) {
+    const blob = await toBlob(canvas, "image/png");
+    if (blob && blob.size <= MAX_UPLOAD) return toDataUrl(blob);
+    throw new Error("Choose a smaller WeChat QR image.");
+  }
   for (const quality of [0.86, 0.78, 0.68, 0.56]) {
     let blob = await toBlob(canvas, "image/webp", quality);
     if (!blob || blob.type !== "image/webp") blob = await toBlob(canvas, spec.alpha ? "image/png" : "image/jpeg", quality);

@@ -106,6 +106,18 @@ body.nfcp-page--embed { background: transparent; }
 }
 .nfcp-social:active { transform: scale(.96); }
 .nfcp-social-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nfcp-social--whatsapp_business .nfcp-social-label { white-space: normal; text-align: center; }
+.nfcp-social-contact { min-width: 0; }
+.nfcp-social-contact[open] { grid-column: 1 / -1; }
+.nfcp-social-contact summary { cursor: pointer; list-style: none; }
+.nfcp-social-contact summary::-webkit-details-marker { display: none; }
+.nfcp-social-contact__body {
+  display: grid; justify-items: center; gap: 10px; padding: 12px; text-align: center; color: var(--text-soft);
+}
+.nfcp-social-contact__id { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; }
+.nfcp-social-contact__id code { overflow-wrap: anywhere; color: var(--text); }
+.nfcp-social-contact__body img { display: block; width: min(200px, 100%); height: auto; background: #fff; padding: 8px; border-radius: 10px; }
+.nfcp-social-contact__body [hidden] { display: none; }
 
 .nfcp-services { display: grid; gap: 14px; }
 .nfcp-service { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: start; }

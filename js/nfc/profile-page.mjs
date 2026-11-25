@@ -26,24 +26,29 @@ function track(event, detail) {
   } catch { /* analytics must never break the page */ }
 }
 
-async function copyLink() {
+async function copyText(text, message) {
   try {
-    await navigator.clipboard.writeText(url);
-    toast("Link copied");
+    await navigator.clipboard.writeText(text);
+    toast(message);
   } catch {
-    window.prompt("Copy this link:", url);
+    window.prompt("Copy this text", text);
   }
 }
+
+const copyLink = () => copyText(url, "Link copied");
 
 if (card) {
   // Counted as a "profile view" — it may come from an NFC tap, a QR scan or a shared link.
   track("view");
+  card.querySelectorAll("[data-copy-value]").forEach((button) => { button.hidden = false; });
   card.addEventListener("click", async (event) => {
     const share = event.target.closest("[data-share]");
     const copy = event.target.closest("[data-copy]");
+    const copyValue = event.target.closest("[data-copy-value]");
     const tracked = event.target.closest("[data-track]");
     if (tracked) track(tracked.dataset.track, tracked.dataset.detail);
     if (copy) return copyLink();
+    if (copyValue) return copyText(copyValue.dataset.copyValue, "Copied");
     if (!share) return;
     track("share");
     const data = { title: card.dataset.name || document.title, text: `${card.dataset.name} — digital business card`, url };

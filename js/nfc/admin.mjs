@@ -288,7 +288,7 @@ function wizardBody() {
 
 const checklist = (d) => [
   [d.full_name, "Name"], [d.images.profile_photo, "Profile photo"], [d.phone || d.whatsapp || d.email, "At least one contact method"],
-  [d.tagline || d.biography, "Tagline or biography"], [d.social_links.some((s) => s.url), "Social media"], [d.images.cover_image, "Cover image"],
+  [d.tagline || d.biography, "Tagline or biography"], [d.social_links.some((s) => s.url || s.qr_image), "Social media"], [d.images.cover_image, "Cover image"],
 ];
 
 function bindCredentials(form) {
@@ -324,8 +324,8 @@ async function stepProblem(step) {
   const w = wizard, d = w.draft;
   const problems = validateDraft(d);
   if (step === 0) return problems.find((p) => /Full name/.test(p)) || "";
-  if (step === 1) return problems.find((p) => /Email|Phone|WhatsApp/.test(p)) || "";
-  if (step === 2) return problems.find((p) => /service|link/i.test(p)) || "";
+  if (step === 1) return problems.find((p) => /^(Email address|Phone number|WhatsApp number)/.test(p)) || "";
+  if (step === 2) return problems.find((p) => /Viber|WeChat|Bdjobs|WhatsApp Business|service|link/i.test(p)) || "";
   if (step === 5 || step === 7) {
     if (!/^[a-z0-9][a-z0-9._-]{2,31}$/i.test(w.user_id.trim())) return "Enter a valid User ID (3–32 letters, numbers, dot, dash or underscore).";
     const pwProblem = passwordProblem(w.password, w.user_id);

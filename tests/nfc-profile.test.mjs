@@ -1,7 +1,8 @@
 // Profiles: admin creation, uniqueness, permanent URLs, editing, themes, visibility, escaping.
 import test, { before } from "node:test";
 import assert from "node:assert/strict";
-import { createApp } from "./helpers/nfc-app.mjs";
+import { createApp, tinyPng } from "./helpers/nfc-app.mjs";
+import { draftFromRecord, draftToPayload, draftToView, emptyDraft, sectionHtml } from "../js/nfc/editor.mjs";
 
 let app;
 before(async () => { app = await createApp(); });
@@ -83,6 +84,83 @@ test("collections save atomically through PATCH and the dedicated PUT endpoints"
   const page = await app.request("GET", `/p/${cu.slug}`);
   assert.match(page.text, /Portfolio/);
   assert.match(page.text, /instagram\.com\/acme\.bd/);
+});
+
+test("admin and customer can save the new social contacts with the same public profile URL", async () => {
+  const uploaded = await app.admin("POST", "uploads", { body: { kind: "social_qr", data: await tinyPng() } });
+  assert.equal(uploaded.status, 200);
+  const cu = await app.createCustomer({ social_links: [
+    { platform: "instagram", url: "@acme.bd", label: "Studio Instagram" },
+    { platform: "viber", url: "০১৭১২৩৪৫৬৭৮" },
+    { platform: "wechat", qr_image: { receipt: uploaded.body.receipt } },
+    { platform: "bdjobs", url: "www.bdjobs.com/" },
+    { platform: "whatsapp_business", url: "wa.me/message/ACMESAMPLE" },
+  ] });
+  const publicPath = "/p/" + cu.slug;
+  const first = await app.request("GET", publicPath);
+  assert.match(first.text, /Studio Instagram/);
+  assert.match(first.text, /data-copy-value="\+8801712345678"/);
+  assert.ok(first.text.includes(uploaded.body.url));
+  assert.match(first.text, /href="https:\/\/www\.bdjobs\.com\/"/);
+  assert.match(first.text, /href="https:\/\/wa\.me\/message\/ACMESAMPLE"/);
+  assert.match(first.text, /data-track="click_whatsapp"/, "the original WhatsApp button is still present");
+
+  const client = await app.activeClient(cu);
+  const rec = (await client.req("GET", "/api/nfc/me/profile")).body;
+  const draft = draftFromRecord(rec);
+  const wechat = draft.social_links.find((s) => s.platform === "wechat");
+  assert.equal(wechat.qr_image.url, uploaded.body.url);
+  wechat.url = "studio_acme";
+  const viber = draft.social_links.find((s) => s.platform === "viber");
+  viber.url = "https://viber.me/8801712345678?draft=Hello";
+  const business = draft.social_links.find((s) => s.platform === "whatsapp_business");
+  business.url = "01712345678";
+  const preview = draftToView(draft, { slug: "" });
+  assert.equal(preview.socials.find((s) => s.platform === "whatsapp_business").url, "https://wa.me/8801712345678");
+  const saved = await client.req("PATCH", "/api/nfc/me/profile", { body: draftToPayload(draft, draftFromRecord(rec)) });
+  assert.equal(saved.status, 200);
+  assert.equal(saved.body.profile.public_slug, cu.slug);
+  assert.equal(saved.body.social_links.find((s) => s.platform === "wechat").identifier, "studio_acme");
+  const after = (await app.request("GET", publicPath)).text;
+  assert.match(after, /data-copy-value="studio_acme"/);
+  assert.match(after, /href="https:\/\/viber\.me\/8801712345678\?draft=Hello"/);
+  assert.match(after, /href="https:\/\/wa\.me\/8801712345678"/);
+  assert.match(after, /Studio Instagram/);
+
+  wechat.is_visible = false;
+  const hidden = await client.req("PUT", "/api/nfc/me/social-links", { body: draftToPayload(draft) });
+  assert.equal(hidden.status, 200);
+  const page = (await app.request("GET", publicPath)).text;
+  const json = (await app.request("GET", "/api/nfc/public/" + cu.slug)).body.profile;
+  assert.ok(!page.includes("studio_acme") && !page.includes(uploaded.body.url));
+  assert.ok(!json.socials.some((s) => s.platform === "wechat"));
+  const qrPath = uploaded.body.url.split("/nfc-profile-media/")[1];
+  assert.ok(app.state.storage.has(qrPath), "turning off visibility keeps the stored QR");
+
+  wechat.is_visible = true;
+  wechat.qr_image = null;
+  const removed = await client.req("PUT", "/api/nfc/me/social-links", { body: draftToPayload(draft) });
+  assert.equal(removed.status, 200);
+  assert.ok(!app.state.storage.has(qrPath), "the QR is deleted when removed");
+});
+
+test("social fields are present in the shared editor and invalid contact targets are rejected on save", async () => {
+  const form = sectionHtml("socials", emptyDraft());
+  for (const field of ["Viber number", "WeChat ID", "Upload WeChat QR", "Bdjobs or public CV link", "WhatsApp Business number"])
+    assert.ok(form.includes(field), field);
+
+  const cu = await app.createCustomer({ social_links: [{ platform: "bdjobs", url: "https://example.com/resume.pdf" }] });
+  const client = await app.activeClient(cu);
+  for (const [platform, url] of [
+    ["viber", "https://viber.me.example.com/8801712345678"],
+    ["wechat", "https://example.com/invalid-id"],
+    ["bdjobs", "javascript:alert(1)"],
+    ["whatsapp_business", "https://wa.me@other.example/8801712345678"],
+  ]) {
+    const result = await client.req("PUT", "/api/nfc/me/social-links", { body: [{ platform, url }] });
+    assert.equal(result.status, 400, platform);
+  }
+  assert.match((await app.request("GET", "/p/" + cu.slug)).text, /href="https:\/\/example\.com\/resume\.pdf"/);
 });
 
 test("old slugs and the immutable id redirect permanently; issued slugs are never reassigned", async () => {

@@ -2,6 +2,7 @@
 import { randomInt } from "node:crypto";
 import { ApiError } from "../supabase.mjs";
 import { THEME_KEYS, SOCIAL_PLATFORMS, LINK_ICONS, VISIBILITY_KEYS } from "../../js/nfc/render.mjs";
+import { parseSocialInput, socialHandleUrl, SOCIAL_INPUTS } from "../../js/nfc/social-links.mjs";
 
 export { THEME_KEYS, SOCIAL_PLATFORMS, LINK_ICONS, VISIBILITY_KEYS };
 export const CARD_STATUSES = ["profile_created", "ready_for_programming", "programmed", "tested", "dispatched", "delivered"];
@@ -148,10 +149,6 @@ export function cleanFields(body, allowed, { requireName = false } = {}) {
   return out;
 }
 
-const HANDLE_BASE = {
-  facebook: "https://facebook.com/", instagram: "https://instagram.com/", linkedin: "https://linkedin.com/in/",
-  youtube: "https://youtube.com/@", tiktok: "https://www.tiktok.com/@", x: "https://x.com/", telegram: "https://t.me/",
-};
 const list = (value, label, max) => {
   if (value === undefined || value === null) return [];
   if (!Array.isArray(value)) throw new ApiError(`Invalid ${label}.`);
@@ -166,16 +163,23 @@ export function cleanSocialLinks(value) {
   const seen = new Set();
   return list(value, "social links", 14).flatMap((item) => {
     if (!SOCIAL_PLATFORMS.includes(item.platform)) throw new ApiError("Unknown social platform.");
-    const raw = typeof item.url === "string" ? item.url.trim() : "";
-    if (!raw) return [];
-    const handle = /^@?([A-Za-z0-9_][A-Za-z0-9_.]{0,59})$/.exec(raw);
-    const url = handle && (raw.startsWith("@") || !raw.includes("."))
-      ? HANDLE_BASE[item.platform] + handle[1]
-      : cleanUrl(raw, item.platform[0].toUpperCase() + item.platform.slice(1));
-    const key = item.platform + url;
+    let raw = typeof item.url === "string" ? item.url.trim() : "";
+    const input = SOCIAL_INPUTS[item.platform];
+    const qr = item.qr_image;
+    if (qr && item.platform !== "wechat") throw new ApiError("Only WeChat supports a contact QR image.");
+    if (input) {
+      if (item.url != null && typeof item.url !== "string") throw new ApiError(input.error);
+      if (!raw && typeof item.identifier === "string") raw = item.identifier.trim();
+    }
+    const target = input ? parseSocialInput(item.platform, raw)
+      : { url: socialHandleUrl(item.platform, raw) || cleanUrl(raw, item.platform[0].toUpperCase() + item.platform.slice(1)) };
+    if (!target) throw new ApiError(input.error);
+    if (!target.url && !target.identifier && !qr) return [];
+    const key = JSON.stringify([item.platform, target.url, target.identifier]);
     if (seen.has(key)) return [];
     seen.add(key);
-    return [{ platform: item.platform, label: cleanText(item.label, { max: 60, label: "Social label" }), url, is_visible: item.is_visible !== false }];
+    return [{ platform: item.platform, label: cleanText(item.label, { max: 60, label: "Social label" }),
+      ...target, ...(qr ? { qr_image: qr } : {}), is_visible: item.is_visible !== false }];
   });
 }
 

@@ -20,8 +20,9 @@ The main admin sidebar has a new **NFC কার্ড ম্যানেজম�
    - It only **adds** `nfc_*` tables, functions and the `nfc-profile-media` storage bucket. It does not read, alter or delete any existing `shop_*` table, order or file.
    - It is safe to run again; existing NFC data is kept.
 3. Then run `supabase/migrations/20261112000000_nfc_more_themes.sql` the same way. It adds the seven extra premium themes. **Run it before deploying code that offers those themes**; otherwise saving one of them fails.
-4. Check: **Table Editor** shows `nfc_customers`, `nfc_profiles`, and so on, and `nfc_themes` has 12 rows. **Storage** shows the public bucket `nfc-profile-media` (2 MB, PNG/JPEG/WebP only).
-5. Do **not** add any policies to the NFC tables or to `nfc-profile-media`. Browsers never access them directly; only the server (with the service-role key) does.
+4. Run `supabase/migrations/20261125152314_nfc_more_contact_platforms.sql` before deploying the new Viber, WeChat, Bdjobs and WhatsApp Business options. On a live project with NFC and the extra themes already installed, run only this new migration. Existing links and profile URLs are kept.
+5. Check: **Table Editor** shows `nfc_customers`, `nfc_profiles`, and so on, and `nfc_themes` has 12 rows. **Storage** shows the public bucket `nfc-profile-media` (2 MB, PNG/JPEG/WebP only).
+6. Do **not** add any policies to the NFC tables or to `nfc-profile-media`. Browsers never access them directly; only the server (with the service-role key) does.
 
 > Run this against your real project only when you are ready. The migration is additive, but take a database backup first if your plan offers one.
 
@@ -97,6 +98,8 @@ Open `http://127.0.0.1:5199`. Data lives only in memory and disappears when you 
 7. Send the customer their login details privately. **Copy Customer Login Details** gives you a ready-to-send message.
 
 Later edits by you or the customer appear on the same URL immediately. The card never needs rewriting.
+
+Under **Social Media**, add a Viber number or business chat link, a WeChat ID or contact QR image, a public Bdjobs or CV link, and a WhatsApp Business number or short link. A Viber number can be copied into Viber's contact search. WhatsApp Business opens a chat using its own number or link. The individual **Visible** switches control which options appear on the public profile.
 
 ### Forgot password (customer asks on WhatsApp)
 

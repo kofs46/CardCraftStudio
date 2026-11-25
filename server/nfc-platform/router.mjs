@@ -68,6 +68,7 @@ function decorate(data) {
       cover_image_url: mediaUrl(p.cover_image_path),
       company_logo_url: mediaUrl(p.company_logo_path),
     },
+    social_links: data.social_links.map((s) => s.qr_image_path ? { ...s, qr_image_url: mediaUrl(s.qr_image_path) } : s),
     services: data.services.map((s) => ({ ...s, image_url: mediaUrl(s.image_path) })),
     profile_url: profileUrl(p.public_slug),
     login_url: nfcConfig().origin + "/nfc/login",
@@ -105,6 +106,13 @@ const SAVE_ERRORS = {
   not_found: ["Customer not found.", 404],
 };
 
+function resolveSocialLinks(input, current, owner) {
+  const paths = current.map((link) => link.qr_image_path).filter(Boolean);
+  return v.cleanSocialLinks(input).map(({ qr_image, ...link }) => ({
+    ...link, ...(qr_image ? { qr_image_path: resolveImage(qr_image, paths, owner) } : {}),
+  }));
+}
+
 async function saveProfile({ customerId, body, actor, actorId, owner, allowed }) {
   if (!body || typeof body !== "object" || Array.isArray(body)) throw new ApiError("Invalid request.");
   const current = await loadRecord(customerId);
@@ -114,7 +122,7 @@ async function saveProfile({ customerId, body, actor, actorId, owner, allowed })
     if (resolved !== undefined) fields[column] = resolved;
   }
   const p = { customer_id: customerId, actor_type: actor, actor_id: actorId, fields };
-  if ("social_links" in body) p.social_links = v.cleanSocialLinks(body.social_links);
+  if ("social_links" in body) p.social_links = resolveSocialLinks(body.social_links, current.social_links, owner);
   if ("custom_links" in body) p.custom_links = v.cleanCustomLinks(body.custom_links);
   if ("services" in body) {
     const paths = current.services.map((s) => s.image_path).filter(Boolean);
@@ -342,7 +350,7 @@ on("POST", "admin", /^customers$/, async ({ res, body, user }) => {
   }
   const payload = {
     customer: { user_id: userId, password_hash: await hashPassword(body.password) },
-    social_links: v.cleanSocialLinks(body.social_links),
+    social_links: resolveSocialLinks(body.social_links, [], "admin"),
     custom_links: v.cleanCustomLinks(body.custom_links),
     services: v.cleanServices(body.services).map(({ image, ...s }) => ({ ...s, image_path: resolveImage(image, [], "admin") ?? null })),
     card_reference: body.card_reference ? v.cleanText(body.card_reference, { max: 60, label: "Card reference" }) : "",

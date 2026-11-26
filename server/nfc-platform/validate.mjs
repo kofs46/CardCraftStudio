@@ -18,10 +18,14 @@ const TEXT_FIELDS = {
   tagline: { max: 160, label: "Tagline" },
   biography: { max: 2000, label: "Biography", multiline: true },
   address: { max: 300, label: "Address", multiline: true },
+  permanent_address: { max: 300, label: "Permanent address", multiline: true },
 };
 export const CUSTOMER_FIELDS = [...Object.keys(TEXT_FIELDS), "phone", "whatsapp", "email", "website", "google_maps_url", "theme_id", "visibility_settings"];
 export const ADMIN_FIELDS = [...CUSTOMER_FIELDS, "editing_enabled", "public_slug"];
-export const IMAGE_FIELDS = { profile_photo: "profile_photo_path", cover_image: "cover_image_path", company_logo: "company_logo_path" };
+export const IMAGE_FIELDS = {
+  profile_photo: "profile_photo_path", cover_image: "cover_image_path", company_logo: "company_logo_path",
+  visiting_card_front: "visiting_card_front_path", visiting_card_back: "visiting_card_back_path",
+};
 
 const BIDI = /[‪-‮⁦-⁩‎‏]/g;
 
@@ -121,7 +125,8 @@ export function cleanVisibility(value) {
   if (value === undefined || value === null) return {};
   if (typeof value !== "object" || Array.isArray(value)) throw new ApiError("Invalid visibility settings.");
   const out = {};
-  for (const key of VISIBILITY_KEYS) if (key in value) out[key] = value[key] !== false;
+  for (const key of VISIBILITY_KEYS) if (key in value)
+    out[key] = key === "permanent_address" ? value[key] === true : value[key] !== false;
   return out;
 }
 

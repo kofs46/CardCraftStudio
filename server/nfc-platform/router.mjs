@@ -64,9 +64,7 @@ function decorate(data) {
     ...data,
     profile: {
       ...p,
-      profile_photo_url: mediaUrl(p.profile_photo_path),
-      cover_image_url: mediaUrl(p.cover_image_path),
-      company_logo_url: mediaUrl(p.company_logo_path),
+      ...Object.fromEntries(Object.entries(v.IMAGE_FIELDS).map(([key, path]) => [key + "_url", mediaUrl(p[path])])),
     },
     social_links: data.social_links.map((s) => s.qr_image_path ? { ...s, qr_image_url: mediaUrl(s.qr_image_path) } : s),
     services: data.services.map((s) => ({ ...s, image_url: mediaUrl(s.image_path) })),

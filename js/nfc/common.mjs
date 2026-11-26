@@ -118,6 +118,8 @@ export const IMAGE_SPECS = {
   company_logo: { label: "Company logo", max: 512, crop: false, alpha: true },
   service: { label: "Service image", w: 600, h: 600, crop: true },
   social_qr: { label: "WeChat QR code", max: 1200, crop: false, lossless: true },
+  visiting_card_front: { max: 1600, crop: false, alpha: true },
+  visiting_card_back: { max: 1600, crop: false, alpha: true },
 };
 const MAX_UPLOAD = 1.9 * 1024 * 1024;
 

@@ -156,11 +156,78 @@ test("social fields are present in the shared editor and invalid contact targets
     ["wechat", "https://example.com/invalid-id"],
     ["bdjobs", "javascript:alert(1)"],
     ["whatsapp_business", "https://wa.me@other.example/8801712345678"],
+    ["imo", "https://imo.im/"],
   ]) {
     const result = await client.req("PUT", "/api/nfc/me/social-links", { body: [{ platform, url }] });
     assert.equal(result.status, 400, platform);
   }
   assert.match((await app.request("GET", "/p/" + cu.slug)).text, /href="https:\/\/example\.com\/resume\.pdf"/);
+});
+
+test("imo, permanent address and both visiting-card sides save and render through the profile editors", async () => {
+  const front = await app.admin("POST", "uploads", { body: { data: await tinyPng() } });
+  const back = await app.admin("POST", "uploads", { body: { data: await tinyPng() } });
+  assert.equal(front.status, 200);
+  assert.equal(back.status, 200);
+  const village = "পূর্বপাড়া".normalize("NFC");
+  const permanent = village + "\nRoad <10>";
+  const cu = await app.createCustomer({
+    address: "Office, Dhaka",
+    permanent_address: permanent,
+    social_links: [{ platform: "imo", url: "০১৭১২৩৪৫৬৭৮" }],
+    visiting_card_front: { receipt: front.body.receipt },
+    visiting_card_back: { receipt: back.body.receipt },
+  });
+  const pagePath = "/p/" + cu.slug;
+  const publicApi = "/api/nfc/public/" + cu.slug;
+  const first = (await app.request("GET", pagePath)).text;
+  assert.match(first, /data-detail="imo"/);
+  assert.match(first, /data-copy-value="\+8801712345678"/);
+  assert.match(first, /Office, Dhaka/);
+  assert.ok(!first.includes(village));
+  for (const [side, image] of [["front", front], ["back", back]]) {
+    assert.ok(first.includes(image.body.url));
+    assert.ok(first.includes("Open visiting card " + side + " at full size"));
+  }
+
+  const client = await app.activeClient(cu);
+  const base = draftFromRecord((await client.req("GET", "/api/nfc/me/profile")).body);
+  assert.equal(base.permanent_address, permanent);
+  assert.equal(base.images.visiting_card_front.url, front.body.url);
+  assert.equal(base.images.visiting_card_back.url, back.body.url);
+  assert.match(sectionHtml("contact", base), /Show permanent address on the public profile/);
+  assert.match(sectionHtml("images", base), /Replace visiting card back/);
+  assert.match(sectionHtml("socials", base), /id="s-imo" type="tel"/);
+  const draft = structuredClone(base);
+  draft.visibility_settings.permanent_address = true;
+  const imo = draft.social_links.find((s) => s.platform === "imo");
+  imo.url = "+44 7700 900123";
+  const preview = draftToView(draft, { slug: "" });
+  assert.equal(preview.permanent_address, permanent);
+  assert.equal(preview.visiting_card.front, front.body.url);
+  assert.equal(preview.socials.find((s) => s.platform === "imo").identifier, "+447700900123");
+  const saved = await client.req("PATCH", "/api/nfc/me/profile", { body: draftToPayload(draft, base) });
+  assert.equal(saved.status, 200);
+  assert.equal(saved.body.profile.public_slug, cu.slug);
+  const page = (await app.request("GET", pagePath)).text;
+  assert.ok(page.includes("Permanent address</strong>" + village + "<br>Road &lt;10&gt;"));
+  assert.match(page, /data-copy-value="\+447700900123"/);
+  assert.deepEqual((await app.request("GET", publicApi)).body.profile.visiting_card, {
+    front: front.body.url, back: back.body.url,
+  });
+
+  const hidden = await app.admin("PATCH", "customers/" + cu.id, { body: {
+    visibility_settings: { visiting_card: false, permanent_address: "false" },
+    social_links: [{ platform: "imo", url: imo.url, is_visible: false }],
+  } });
+  assert.equal(hidden.status, 200);
+  const hiddenPage = (await app.request("GET", pagePath)).text;
+  const hiddenJson = (await app.request("GET", publicApi)).text;
+  for (const text of [hiddenPage, hiddenJson]) {
+    assert.ok(!text.includes(village) && !text.includes("+447700900123"));
+    assert.ok(!text.includes(front.body.url) && !text.includes(back.body.url));
+  }
+  assert.ok(app.state.storage.has(back.body.url.split("/nfc-profile-media/")[1]));
 });
 
 test("old slugs and the immutable id redirect permanently; issued slugs are never reassigned", async () => {

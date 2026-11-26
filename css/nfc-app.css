@@ -204,6 +204,10 @@ fieldset:disabled, .nfc-field input:disabled, .nfc-field textarea:disabled { opa
 .nfc-image-tile--company_logo .nfc-image-tile__preview img { object-fit: contain; padding: 4px; }
 .nfc-image-tile__actions { display: flex; gap: 6px; margin-top: 8px; }
 .nfc-image-tile__actions label { cursor: pointer; }
+.nfc-image-tile__actions label:focus-within { outline: 3px solid #5eead4; outline-offset: 2px; }
+.nfc-visiting-card-uploads .nfc-image-tile__preview { width: 84px; height: 56px; border-radius: 8px; }
+.nfc-visiting-card-uploads .nfc-image-tile__preview img { object-fit: contain; }
+.nfc-visiting-card-uploads > .nfc-switch { margin-top: 12px; }
 .is-busy { position: relative; pointer-events: none; opacity: .6; }
 .is-busy::after { content: "Uploading…"; position: absolute; inset: 0; display: grid; place-items: center; font-weight: 600; font-size: .85rem; color: var(--brand); background: rgba(255, 255, 255, .6); border-radius: inherit; }
 
@@ -223,6 +227,7 @@ fieldset:disabled, .nfc-field input:disabled, .nfc-field textarea:disabled { opa
 .nfc-brand--viber { color: #7360f2; }
 .nfc-brand--wechat, .nfc-brand--whatsapp_business { color: #087b50; }
 .nfc-brand--bdjobs { color: #a81d43; }
+.nfc-brand--imo { color: #1763ad; }
 .nfc-list { display: grid; gap: 12px; }
 .nfc-list-item { padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #fbfdff; }
 .nfc-list-item .nfc-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 12px; }

@@ -119,6 +119,12 @@ body.nfcp-page--embed { background: transparent; }
 .nfcp-social-contact__body img { display: block; width: min(200px, 100%); height: auto; background: #fff; padding: 8px; border-radius: 10px; }
 .nfcp-social-contact__body [hidden] { display: none; }
 
+.nfcp-card-images { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 12px; }
+.nfcp-card-images figure { margin: 0; text-align: center; min-width: 0; }
+.nfcp-card-images a { display: block; cursor: zoom-in; }
+.nfcp-card-images img { display: block; width: 100%; height: auto; border: 1px solid var(--card-border); border-radius: 10px; }
+.nfcp-card-images figcaption { margin-top: 6px; color: var(--text-soft); font-size: .8rem; }
+
 .nfcp-services { display: grid; gap: 14px; }
 .nfcp-service { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: start; }
 .nfcp-service--noimg { grid-template-columns: 1fr; }
@@ -131,6 +137,9 @@ body.nfcp-page--embed { background: transparent; }
 .nfcp-address { display: flex; gap: 10px; margin: 0 0 14px; line-height: 1.55; color: var(--text-soft); }
 .nfcp-inline-ico { width: 18px; height: 18px; margin-top: 3px; color: var(--accent-strong); }
 .nfcp-location .nfcp-btn--outline { width: 100%; }
+.nfcp-address--permanent { margin-bottom: 0; }
+.nfcp-address--permanent:not(:first-of-type), .nfcp-location > a + .nfcp-address--permanent { margin-top: 14px; }
+.nfcp-address--permanent strong { display: block; color: var(--text); }
 
 .nfcp-qr { text-align: center; }
 .nfcp-qr-img { display: block; width: 180px; height: 180px; margin: 0 auto 14px; padding: 10px; border-radius: 16px; background: #fff; }

@@ -33,9 +33,8 @@ export const THEMES = [
 ];
 export const THEME_KEYS = THEMES.map((t) => t.key);
 export const LINK_ICONS = ["link", "portfolio", "document", "video", "shop", "calendar"];
-export const VISIBILITY_KEYS = ["phone", "whatsapp", "email", "website", "address", "map", "qr", "save_contact", "share", "dock"];
-/** Defaults for profiles that never saved a setting. The sticky contact bar is opt-in for existing profiles. */
-export const VISIBILITY_DEFAULTS = { ...Object.fromEntries(VISIBILITY_KEYS.map((k) => [k, true])), dock: false };
+export const VISIBILITY_KEYS = ["phone", "whatsapp", "email", "website", "address", "permanent_address", "map", "visiting_card", "qr", "save_contact", "share", "dock"];
+export const VISIBILITY_DEFAULTS = { ...Object.fromEntries(VISIBILITY_KEYS.map((k) => [k, true])), permanent_address: false, dock: false };
 
 export const themeOf = (key) => THEMES.find((t) => t.key === key) || THEMES[1];
 export const fontHref = (key) =>
@@ -72,7 +71,7 @@ export const initials = (name) =>
 export function toView(record, { mediaUrl = () => "", profileUrl = () => "" } = {}) {
   const p = record.profile || {};
   const vis = { ...VISIBILITY_DEFAULTS, ...(p.visibility_settings || {}) };
-  const img = (urlKey, pathKey) => p[urlKey] ?? mediaUrl(p[pathKey]) ?? "";
+  const img = (key) => p[key + "_url"] ?? mediaUrl(p[key + "_path"]) ?? "";
   return {
     slug: p.public_slug || "",
     url: p.public_slug ? profileUrl(p.public_slug) : "",
@@ -83,15 +82,17 @@ export function toView(record, { mediaUrl = () => "", profileUrl = () => "" } = 
     category: p.business_category || "",
     bio: p.biography || "",
     tagline: p.tagline || "",
-    photo: img("profile_photo_url", "profile_photo_path"),
-    cover: img("cover_image_url", "cover_image_path"),
-    logo: img("company_logo_url", "company_logo_path"),
+    photo: img("profile_photo"),
+    cover: img("cover_image"),
+    logo: img("company_logo"),
     phone: vis.phone ? p.phone || "" : "",
     whatsapp: vis.whatsapp ? p.whatsapp || "" : "",
     email: vis.email ? p.email || "" : "",
     website: vis.website ? p.website || "" : "",
     address: vis.address ? p.address || "" : "",
+    permanent_address: vis.permanent_address === true ? p.permanent_address || "" : "",
     map: vis.map ? p.google_maps_url || "" : "",
+    visiting_card: vis.visiting_card ? { front: img("visiting_card_front"), back: img("visiting_card_back") } : {},
     socials: (record.social_links || []).filter((s) => s.is_visible !== false && (s.url || s.identifier || s.qr_image_path || s.qr_image_url))
       .map((s) => ({
         platform: s.platform, label: s.label || SOCIAL_NAMES[s.platform] || s.platform, url: s.url,
@@ -127,6 +128,7 @@ const P = {
   x: '<path d="M4 4l11.7 16H20L8.3 4z"/><path d="M20 4l-6.6 7.3M4 20l6.6-7.3"/>',
   telegram: '<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/>',
   viber: '<path d="M21 11a8 8 0 0 1-8 8h-2l-4 3v-4a8 8 0 0 1 3-15h3a8 8 0 0 1 8 8Z"/><path d="m8 9 1-1 2 2-1 1a6 6 0 0 0 3 3l1-1 2 2-1 1a8 8 0 0 1-7-7Z"/>',
+  imo: '<path d="M21 11.5a9 9 0 0 1-9 9 9 9 0 0 1-4-.9l-5 1.4 1.4-4.8A9 9 0 1 1 21 11.5Z"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/>',
   wechat: '<path d="M13 14a7 7 0 1 0-9.4-1.4L3 16l3.5-1.4a10 10 0 0 0 3 .4"/><path d="M21 18a5 5 0 1 0-2.4 2l2.4 1-.3-2.3Z"/><path d="M6.5 8h.01M11.5 8h.01M14 15h.01M18 15h.01"/>',
   bdjobs: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M2 13h20m-12 0v2h4v-2"/>',
   link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
@@ -150,15 +152,27 @@ function renderSocial(s, mode) {
 
   const isWeChat = s.platform === "wechat";
   const field = isWeChat ? "ID" : "number";
+  const help = isWeChat
+    ? (s.qr ? "Open WeChat and scan this QR code." : "In WeChat, open Add Contacts and search this ID.")
+    : (s.platform === "imo" ? "In imo, tap + → Add Friends and search this number." : "In Viber, open Add contact and enter this number.");
   return `<details class="nfcp-social-contact">
     <summary ${attrs}>${badge}</summary>
     <div class="nfcp-social-contact__body">
       ${s.identifier ? `<div class="nfcp-social-contact__id"><code>${esc(s.identifier)}</code>${mode === "public" ?
         `<button type="button" class="nfcp-btn nfcp-btn--outline" data-copy-value="${esc(s.identifier)}" hidden>${icon("copy")} Copy ${field}</button>` : ""}</div>` : ""}
       ${s.qr ? `<a href="${esc(s.qr)}" ${ext}><img src="${esc(s.qr)}" alt="WeChat contact QR code" width="200" height="200" loading="lazy"></a>` : ""}
-      <small>${isWeChat ? (s.qr ? "Open WeChat and scan this QR code." : "In WeChat, open Add Contacts and search this ID.") : "In Viber, open Add contact and enter this number."}</small>
+      <small>${help}</small>
     </div>
   </details>`;
+}
+
+function renderVisitingCard(card, mode) {
+  const sides = [["Front", safeHttp(card?.front)], ["Back", safeHttp(card?.back)]].filter(([, href]) => href);
+  if (!sides.length) return "";
+  return `<section class="nfcp-card"><h2 class="nfcp-h">Visiting Card</h2><div class="nfcp-card-images">${sides.map(([side, href]) => {
+    const image = `<img src="${esc(href)}" alt="Visiting card ${side.toLowerCase()}" loading="lazy" decoding="async">`;
+    return `<figure>${mode === "public" ? `<a href="${esc(href)}" ${ext} aria-label="Open visiting card ${side.toLowerCase()} at full size">${image}</a>` : image}<figcaption>${side}</figcaption></figure>`;
+  }).join("")}</div></section>`;
 }
 
 /**
@@ -184,7 +198,7 @@ export function renderProfile(view, opts = {}) {
   ].filter(Boolean);
   const socials = view.socials.filter((s) => SOCIAL_PLATFORMS.includes(s.platform))
     .map((s) => ({ ...s, href: safeHttp(s.url), qr: safeHttp(s.qr) }))
-    .filter((s) => s.href || (s.platform === "wechat" && (s.identifier || s.qr)) || (s.platform === "viber" && s.identifier));
+    .filter((s) => s.href || (s.platform === "wechat" && (s.identifier || s.qr)) || (["viber", "imo"].includes(s.platform) && s.identifier));
   const services = view.services.map((s) => ({ ...s, href: safeHttp(s.url), img: safeHttp(s.image) }));
   const links = view.links.map((l) => ({ ...l, href: safeHttp(l.url) })).filter((l) => l.href);
   const photo = safeHttp(view.photo), cover = safeHttp(view.cover), logo = safeHttp(view.logo);
@@ -214,12 +228,17 @@ ${view.show.save_contact || view.show.share ? `<div class="nfcp-cta">${view.show
 ${view.bio ? `<section class="nfcp-card nfcp-about"><h2 class="nfcp-h">About</h2><p class="nfcp-bio">${lines(view.bio)}</p></section>` : ""}
 ${contacts.length ? `<section class="nfcp-card"><h2 class="nfcp-h">Contact</h2><ul class="nfcp-rows">${contacts.map(([label, value, href, ic, track, attrs]) =>
     `<li><a class="nfcp-row" href="${esc(href)}" ${attrs} data-track="${track}"><span class="nfcp-row-ico">${icon(ic)}</span><span class="nfcp-row-text"><small>${label}</small><strong>${esc(value).replace(/([@.])/g, "$1<wbr>")}</strong></span><span class="nfcp-row-go">${icon("chevron")}</span></a></li>`).join("")}</ul></section>` : ""}
+${renderVisitingCard(view.visiting_card, mode)}
 ${socials.length ? `<section class="nfcp-card"><h2 class="nfcp-h">Social Media</h2><div class="nfcp-socials">${socials.map((s) => renderSocial(s, mode)).join("")}</div></section>` : ""}
 ${services.length ? `<section class="nfcp-card"><h2 class="nfcp-h">Services</h2><div class="nfcp-services">${services.map((s) =>
     `<div class="nfcp-service${s.img ? "" : " nfcp-service--noimg"}">${s.img ? `<img src="${esc(s.img)}" alt="" width="72" height="72" loading="lazy" decoding="async">` : ""}<div><h3>${esc(s.title)}</h3>${s.description ? `<p>${lines(s.description)}</p>` : ""}${s.href ? `<a class="nfcp-link-inline" href="${esc(s.href)}" ${ext} data-track="click_service">Learn more ${icon("chevron")}</a>` : ""}</div></div>`).join("")}</div></section>` : ""}
 ${links.length ? `<section class="nfcp-card"><h2 class="nfcp-h">Portfolio &amp; Links</h2><ul class="nfcp-rows">${links.map((l) =>
     `<li><a class="nfcp-row" href="${esc(l.href)}" ${ext} data-track="click_link"><span class="nfcp-row-ico">${icon(l.icon)}</span><span class="nfcp-row-text"><strong>${esc(l.title)}</strong><small class="nfcp-row-sub">${esc(hostOf(l.href))}</small></span><span class="nfcp-row-go">${icon("chevron")}</span></a></li>`).join("")}</ul></section>` : ""}
-${view.address || map ? `<section class="nfcp-card nfcp-location"><h2 class="nfcp-h">Location</h2>${view.address ? `<p class="nfcp-address">${icon("map", "nfcp-svg nfcp-inline-ico")}<span>${lines(view.address)}</span></p>` : ""}${map ? `<a class="nfcp-btn nfcp-btn--outline" href="${esc(map)}" ${ext} data-track="click_map">${icon("map")}<span>Open in Google Maps</span></a>` : ""}</section>` : ""}
+${view.address || view.permanent_address || map ? `<section class="nfcp-card nfcp-location"><h2 class="nfcp-h">Location</h2>
+  ${view.address ? `<p class="nfcp-address">${icon("map", "nfcp-svg nfcp-inline-ico")}<span>${lines(view.address)}</span></p>` : ""}
+  ${map ? `<a class="nfcp-btn nfcp-btn--outline" href="${esc(map)}" ${ext} data-track="click_map">${icon("map")}<span>Open in Google Maps</span></a>` : ""}
+  ${view.permanent_address ? `<p class="nfcp-address nfcp-address--permanent">${icon("map", "nfcp-svg nfcp-inline-ico")}<span><strong>Permanent address</strong>${lines(view.permanent_address)}</span></p>` : ""}
+</section>` : ""}
 ${view.show.qr ? `<section class="nfcp-card nfcp-qr"><h2 class="nfcp-h">Scan to Connect</h2>${qrSrc ? `<img class="nfcp-qr-img" src="${esc(qrSrc)}" alt="QR code for this profile" width="180" height="180" loading="lazy">` : `<div class="nfcp-qr-img nfcp-qr-placeholder">${icon("qr")}<small>QR code is generated after the profile is created</small></div>`}<div class="nfcp-qr-actions">${qrDownload ? `<a class="nfcp-btn nfcp-btn--outline" href="${esc(qrDownload)}" download="${esc(view.slug || "profile")}-qr.png" data-track="qr_download">${icon("download")}<span>Download QR</span></a>` : ""}${view.url ? `<button type="button" class="nfcp-btn nfcp-btn--outline" data-copy>${icon("copy")}<span>Copy Link</span></button>` : ""}</div></section>` : ""}
 </div>
 <footer class="nfcp-footer"><a href="${esc(home)}">Digital card by <strong>CardCraft Studio BD</strong></a></footer>

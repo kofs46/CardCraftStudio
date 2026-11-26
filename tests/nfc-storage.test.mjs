@@ -94,3 +94,26 @@ test("deleting a customer removes their media", async () => {
   await app.admin("DELETE", `customers/${d.id}`, { body: { confirm_user_id: d.userId } });
   assert.ok(app.state.deleted.includes(img.body.url.split("/nfc-profile-media/")[1]));
 });
+
+test("visiting-card images enforce ownership and are cleaned up when replaced, removed or deleted", async () => {
+  const customer = await app.createCustomer();
+  const client = await app.activeClient(customer);
+  const uploadCard = async () => (await client.req("POST", "/api/nfc/me/upload", { body: { data: await tinyPng() } })).body;
+  const pathFrom = (image) => image.url.split("/nfc-profile-media/")[1];
+  const save = (body) => client.req("PATCH", "/api/nfc/me/profile", { body });
+  const front = await uploadCard(), back = await uploadCard();
+  const foreignImage = (await upload(await tinyPng())).body;
+  assert.equal((await save({ visiting_card_front: { receipt: foreignImage.receipt } })).status, 400);
+  assert.equal((await save({ visiting_card_front: { receipt: front.receipt }, visiting_card_back: { receipt: back.receipt } })).status, 200);
+  const replacement = await uploadCard();
+  const resave = await save({ visiting_card_front: { receipt: replacement.receipt }, visiting_card_back: { path: pathFrom(back) } });
+  assert.equal(resave.status, 200);
+  assert.equal(resave.body.profile.visiting_card_back_url, back.url);
+  assert.ok(app.state.deleted.includes(pathFrom(front)));
+  assert.equal((await save({ visiting_card_front: null })).status, 200);
+  assert.ok(app.state.deleted.includes(pathFrom(replacement)));
+  const page = (await app.request("GET", "/p/" + customer.slug)).text;
+  assert.ok(page.includes(back.url) && !page.includes(replacement.url));
+  assert.equal((await app.admin("DELETE", "customers/" + customer.id, { body: { confirm_user_id: customer.userId } })).status, 200);
+  assert.ok(app.state.deleted.includes(pathFrom(back)));
+});

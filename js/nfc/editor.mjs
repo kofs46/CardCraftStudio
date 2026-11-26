@@ -1,12 +1,21 @@
 // Shared profile editor (admin wizard, admin edit, customer dashboard) + live preview.
 // Preview renders with the same renderProfile() used for public pages, inside a shadow root.
-import { esc, icon, THEMES, SOCIAL_PLATFORMS, SOCIAL_NAMES, LINK_ICONS, VISIBILITY_KEYS, VISIBILITY_DEFAULTS, toView, renderProfile, fontHref } from "./render.mjs";
+import { esc, icon, THEMES, SOCIAL_PLATFORMS, SOCIAL_NAMES, LINK_ICONS, VISIBILITY_DEFAULTS, toView, renderProfile, fontHref } from "./render.mjs";
 import { processImage, toast } from "./common.mjs";
 import { parseSocialInput, socialHandleUrl, SOCIAL_INPUTS } from "./social-links.mjs";
 
 const SCALARS = ["full_name", "designation", "company_name", "business_category", "tagline", "biography",
-  "phone", "whatsapp", "email", "website", "address", "google_maps_url", "theme_id"];
-const IMAGE_KEYS = ["profile_photo", "cover_image", "company_logo"];
+  "phone", "whatsapp", "email", "website", "address", "permanent_address", "google_maps_url", "theme_id"];
+const BRAND_IMAGES = {
+  profile_photo: ["Profile photo", "Square crop, 640×640", "save"],
+  cover_image: ["Cover image", "Wide crop, 1200×500", "portfolio"],
+  company_logo: ["Company logo", "Transparent PNG works best", "shop"],
+};
+const VISITING_CARD_IMAGES = {
+  visiting_card_front: ["Visiting card front", "PNG, JPEG or WebP", "document"],
+  visiting_card_back: ["Visiting card back", "PNG, JPEG or WebP", "document"],
+};
+const IMAGE_KEYS = [...Object.keys(BRAND_IMAGES), ...Object.keys(VISITING_CARD_IMAGES)];
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 // ------------------------------------------------------------------ draft model
@@ -15,8 +24,8 @@ export function emptyDraft() {
     ...Object.fromEntries(SCALARS.map((k) => [k, ""])),
     theme_id: "luxury",
     public_slug: "",
-    visibility_settings: Object.fromEntries(VISIBILITY_KEYS.map((k) => [k, true])), // new profiles: everything on, incl. sticky bar
-    images: { profile_photo: null, cover_image: null, company_logo: null },
+    visibility_settings: { ...VISIBILITY_DEFAULTS, dock: true },
+    images: Object.fromEntries(IMAGE_KEYS.map((k) => [k, null])),
     social_links: SOCIAL_PLATFORMS.map((platform) => ({ platform, url: "", is_visible: true })),
     services: [],
     custom_links: [],
@@ -30,11 +39,7 @@ export function draftFromRecord(rec) {
   d.public_slug = p.public_slug || "";
   d.visibility_settings = { ...VISIBILITY_DEFAULTS, ...(p.visibility_settings || {}) };
   const img = (path, url) => (path ? { path, url } : null);
-  d.images = {
-    profile_photo: img(p.profile_photo_path, p.profile_photo_url),
-    cover_image: img(p.cover_image_path, p.cover_image_url),
-    company_logo: img(p.company_logo_path, p.company_logo_url),
-  };
+  d.images = Object.fromEntries(IMAGE_KEYS.map((k) => [k, img(p[k + "_path"], p[k + "_url"])]));
   d.social_links = SOCIAL_PLATFORMS.map((platform) => {
     const s = rec.social_links.find((x) => x.platform === platform);
     return { platform, url: s?.identifier || s?.url || "", is_visible: s?.is_visible !== false,
@@ -74,7 +79,7 @@ export function draftToView(d, { slug = d.public_slug } = {}) {
   return toView({
     profile: {
       ...d, public_slug: slug, website: asUrl(d.website), google_maps_url: asUrl(d.google_maps_url),
-      profile_photo_url: d.images.profile_photo?.url || "", cover_image_url: d.images.cover_image?.url || "", company_logo_url: d.images.company_logo?.url || "",
+      ...Object.fromEntries(IMAGE_KEYS.map((k) => [k + "_url", d.images[k]?.url || ""])),
     },
     social_links: d.social_links.map((s) => {
       const data = SOCIAL_INPUTS[s.platform] ? parseSocialInput(s.platform, s.url)
@@ -141,10 +146,20 @@ function socialRow(s, i) {
     <span class="nfc-social-row__ico nfc-brand--${s.platform}">${icon(s.platform)}</span>
     <div class="nfc-social-row__field">
       <label${input ? "" : ' class="nfc-sr"'} for="${id}">${input?.label || `${name} link`}</label>
-      <input id="${id}" data-list="social_links" data-i="${i}" data-k="url" value="${esc(s.url)}" placeholder="${esc(input?.placeholder || `${name} link or @username`)}" maxlength="${s.platform === "wechat" ? 32 : 500}" autocomplete="off">
+      <input id="${id}" type="${input?.type || "text"}" data-list="social_links" data-i="${i}" data-k="url" value="${esc(s.url)}" placeholder="${esc(input?.placeholder || `${name} link or @username`)}" maxlength="${input?.max ?? (s.platform === "wechat" ? 32 : 500)}" autocomplete="off">
       ${input?.hint ? `<small class="nfc-hint">${esc(input.hint)}</small>` : ""}${qr}
     </div>${toggle("Visible", `data-list="social_links" data-i="${i}" data-k="is_visible" aria-label="Show ${name} on public profile"`, s.is_visible)}
   </div>`;
+}
+
+function imageTiles(tiles, images) {
+  return `<div class="nfc-images">${Object.entries(tiles).map(([key, [label, hint, glyph]]) => {
+    const img = images[key];
+    return `<div class="nfc-image-tile nfc-image-tile--${key}"><div class="nfc-image-tile__preview">${img?.url ? `<img src="${esc(img.url)}" alt="${label} preview">` : `<span>${icon(glyph)}</span>`}</div>
+      <div><strong>${label}</strong><small>${hint}</small><div class="nfc-image-tile__actions">
+      <label class="nfc-btn nfc-btn--sm nfc-btn--ghost"><input class="nfc-sr" type="file" accept="image/png,image/jpeg,image/webp" data-img="${key}" aria-label="${img ? "Replace" : "Upload"} ${label.toLowerCase()}">${img ? "Replace" : "Upload"}</label>
+      ${img ? `<button type="button" class="nfc-btn nfc-btn--sm nfc-btn--text" data-img-remove="${key}" aria-label="Remove ${label.toLowerCase()}">Remove</button>` : ""}</div></div></div>`;
+  }).join("")}</div>`;
 }
 
 const CATEGORIES = ["Business Services", "Real Estate", "Retail & E-commerce", "Restaurant & Food", "Health & Fitness", "Medical & Healthcare", "Education", "Technology", "Design & Creative", "Fashion & Beauty", "Logistics", "Travel & Tourism", "Finance & Insurance", "Legal", "Construction", "Photography", "Freelancer"];
@@ -168,6 +183,8 @@ const SECTIONS = {
     ${field("Website", "website", d.website, { type: "url", inputmode: "url", max: 500, placeholder: "https://", extra: vis("website") })}
     ${field("Business address", "address", d.address, { multiline: true, rows: 2, max: 300, wide: true, extra: vis("address") })}
     ${field("Google Maps link", "google_maps_url", d.google_maps_url, { type: "url", inputmode: "url", max: 500, wide: true, placeholder: "https://maps.app.goo.gl/…", hint: "In Google Maps: Share → Copy link.", extra: vis("map") })}
+    ${field("Permanent address", "permanent_address", d.permanent_address, { multiline: true, rows: 2, max: 300, wide: true,
+      extra: toggle("Show permanent address on the public profile", 'data-vis="permanent_address"', d.visibility_settings.permanent_address === true) })}
     </div><fieldset class="nfc-fieldset"><legend>Profile features</legend><div class="nfc-switches">
     ${toggle("QR code section", 'data-vis="qr"', d.visibility_settings.qr !== false)}
     ${toggle("Save Contact button", 'data-vis="save_contact"', d.visibility_settings.save_contact !== false)}
@@ -175,15 +192,11 @@ const SECTIONS = {
     ${toggle("Sticky contact bar (Call · WhatsApp · Save stay visible while scrolling)", 'data-vis="dock"', d.visibility_settings.dock === true)}</div></fieldset>`;
   },
 
-  images: (d) => `<div class="nfc-images">${["profile_photo", "cover_image", "company_logo"].map((k) => {
-    const label = { profile_photo: "Profile photo", cover_image: "Cover image", company_logo: "Company logo" }[k];
-    const hint = { profile_photo: "Square crop, 640×640", cover_image: "Wide crop, 1200×500", company_logo: "Transparent PNG works best" }[k];
-    const img = d.images[k];
-    return `<div class="nfc-image-tile nfc-image-tile--${k}"><div class="nfc-image-tile__preview">${img?.url ? `<img src="${esc(img.url)}" alt="${label} preview">` : `<span>${icon(k === "company_logo" ? "shop" : k === "cover_image" ? "portfolio" : "save")}</span>`}</div>
-      <div><strong>${label}</strong><small>${hint}</small><div class="nfc-image-tile__actions">
-      <label class="nfc-btn nfc-btn--sm nfc-btn--ghost"><input type="file" accept="image/png,image/jpeg,image/webp" data-img="${k}" hidden>${img ? "Replace" : "Upload"}</label>
-      ${img ? `<button type="button" class="nfc-btn nfc-btn--sm nfc-btn--text" data-img-remove="${k}">Remove</button>` : ""}</div></div></div>`;
-  }).join("")}</div><p class="nfc-hint">Images are resized and compressed on this device before upload (max 2 MB). They become public only after you save.</p>`,
+  images: (d) => `${imageTiles(BRAND_IMAGES, d.images)}
+    <fieldset class="nfc-fieldset nfc-visiting-card-uploads"><legend>Visiting card</legend>
+      ${imageTiles(VISITING_CARD_IMAGES, d.images)}
+      ${toggle("Show visiting card on the public profile", 'data-vis="visiting_card"', d.visibility_settings.visiting_card !== false)}
+    </fieldset><p class="nfc-hint">Images are resized and compressed on this device before upload (max 2 MB). Save to show them on your profile.</p>`,
 
   socials: (d) => `<div class="nfc-socials-edit">${d.social_links.map(socialRow).join("")}</div>`,
 

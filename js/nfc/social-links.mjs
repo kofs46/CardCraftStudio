@@ -1,7 +1,7 @@
 export const SOCIAL_NAMES = {
   facebook: "Facebook", instagram: "Instagram", linkedin: "LinkedIn", youtube: "YouTube", tiktok: "TikTok", x: "X", telegram: "Telegram",
   viber: "Viber", wechat: "WeChat", bdjobs: "Bdjobs", whatsapp_business: "WhatsApp Business",
-  imo: "imo",
+  imo: "imo", brilliant: "Brilliant Number",
 };
 export const SOCIAL_PLATFORMS = Object.keys(SOCIAL_NAMES);
 
@@ -31,6 +31,13 @@ export const SOCIAL_INPUTS = {
     label: "imo number",
     placeholder: "e.g. 01XXXXXXXXX or +8801XXXXXXXXX",
     error: "imo number must be a valid Bangladeshi mobile number or a number with its country code.",
+    type: "tel",
+    max: 30,
+  },
+  brilliant: {
+    label: "Brilliant Number",
+    placeholder: "e.g. 01XXXXXXXXX or +8801XXXXXXXXX",
+    error: "Brilliant Number must be a valid phone number with country code.",
     type: "tel",
     max: 30,
   },
@@ -79,9 +86,9 @@ export function parseSocialInput(platform, value) {
   if (platform === "wechat") {
     return /^[a-z0-9][a-z0-9_-]{0,31}$/i.test(raw) ? { url: "", identifier: raw } : null;
   }
-  if (platform === "imo") {
+  if (platform === "imo" || platform === "brilliant") {
     const number = internationalNumber(raw);
-    return number && raw.length <= SOCIAL_INPUTS.imo.max ? { url: "", identifier: "+" + number } : null;
+    return number && raw.length <= SOCIAL_INPUTS[platform].max ? { url: "", identifier: "+" + number } : null;
   }
 
   if (platform === "viber" || platform === "whatsapp_business") {

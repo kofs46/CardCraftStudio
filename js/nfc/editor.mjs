@@ -253,10 +253,14 @@ function updateCounters(root) {
  */
 export function bindEditor(root, ctx) {
   const rerender = (name) => {
-    const el = root.querySelector(`[data-section="${name}"]`);
+    // The data model calls this collection "custom_links", while its editor
+    // section is named "links". Resolve that alias before looking up the DOM
+    // section and its renderer.
+    const section = name === "custom_links" ? "links" : name;
+    const el = root.querySelector(`[data-section="${section}"]`);
     if (!el) return;
-    el.innerHTML = SECTIONS[name](ctx.draft);
-    if (name === "theme") renderMinis(root, ctx.draft);
+    el.innerHTML = SECTIONS[section](ctx.draft);
+    if (section === "theme") renderMinis(root, ctx.draft);
     updateCounters(root);
   };
   const changed = () => { updateCounters(root); ctx.onChange?.(); };
@@ -312,7 +316,8 @@ export function bindEditor(root, ctx) {
       const list = b.dataset.add;
       ctx.draft[list].push(list === "services" ? { title: "", description: "", external_url: "", is_visible: true, image: null } : { title: "", url: "", icon: "portfolio", is_visible: true });
       rerender(list);
-      root.querySelector(`[data-section="${list}"] .nfc-list-item:last-of-type input`)?.focus();
+      const section = list === "custom_links" ? "links" : list;
+      root.querySelector(`[data-section="${section}"] .nfc-list-item:last-child input`)?.focus();
       return changed();
     }
     if (b.dataset.move) {

@@ -200,15 +200,15 @@ const SECTIONS = {
 
   socials: (d) => `<div class="nfc-socials-edit">${d.social_links.map(socialRow).join("")}</div>`,
 
-  links: (d) => `<div class="nfc-list">${d.custom_links.map((l, i) => `<div class="nfc-list-item">
+  links: (d) => `<p class="nfc-hint">Add your portfolio website, project showcase, CV or other useful links. Each visible link appears in the Portfolio &amp; Links section of the public NFC profile.</p><div class="nfc-list">${d.custom_links.map((l, i) => `<div class="nfc-list-item">
     <div class="nfc-grid">
       <div class="nfc-field"><label>Title</label><input data-list="custom_links" data-i="${i}" data-k="title" value="${esc(l.title)}" maxlength="80" placeholder="e.g. Portfolio"></div>
       <div class="nfc-field"><label>Link</label><input data-list="custom_links" data-i="${i}" data-k="url" value="${esc(l.url)}" maxlength="500" placeholder="https://" inputmode="url"></div>
       <div class="nfc-field"><label>Icon</label><select data-list="custom_links" data-i="${i}" data-k="icon">${LINK_ICONS.map((ic) => `<option value="${ic}" ${ic === l.icon ? "selected" : ""}>${ic[0].toUpperCase() + ic.slice(1)}</option>`).join("")}</select></div>
     </div>${itemTools("custom_links", i, d.custom_links.length, l.is_visible)}</div>`).join("") || '<p class="nfc-empty">No portfolio or custom links yet.</p>'}
-    ${d.custom_links.length < 12 ? '<button type="button" class="nfc-btn nfc-btn--ghost nfc-btn--sm" data-add="custom_links">+ Add link</button>' : ""}</div>`,
+    ${d.custom_links.length < 12 ? '<button type="button" class="nfc-btn nfc-btn--ghost nfc-btn--sm" data-add="custom_links">+ Add portfolio / custom link</button>' : ""}</div>`,
 
-  services: (d) => `<div class="nfc-list">${d.services.map((s, i) => `<div class="nfc-list-item">
+  services: (d) => `<p class="nfc-hint">Show customers what your business offers. Add a service title, description, optional image and a link for details or booking. You can add up to 12 services.</p><div class="nfc-list">${d.services.map((s, i) => `<div class="nfc-list-item">
     <div class="nfc-service-edit"><div class="nfc-service-edit__img">${s.image?.url ? `<img src="${esc(s.image.url)}" alt="">` : icon("portfolio")}
       <label class="nfc-link-btn"><input type="file" accept="image/png,image/jpeg,image/webp" data-svc-img="${i}" hidden>${s.image ? "Change" : "Add image"}</label>
       ${s.image ? `<button type="button" class="nfc-link-btn" data-svc-img-remove="${i}">Remove</button>` : ""}</div>
@@ -217,7 +217,7 @@ const SECTIONS = {
       <div class="nfc-field"><label>Link (optional)</label><input data-list="services" data-i="${i}" data-k="external_url" value="${esc(s.external_url)}" maxlength="500" placeholder="https://" inputmode="url"></div>
       <div class="nfc-field nfc-field--wide"><label>Description</label><textarea data-list="services" data-i="${i}" data-k="description" maxlength="500" rows="2">${esc(s.description)}</textarea></div>
     </div></div>${itemTools("services", i, d.services.length, s.is_visible)}</div>`).join("") || '<p class="nfc-empty">No services yet.</p>'}
-    ${d.services.length < 12 ? '<button type="button" class="nfc-btn nfc-btn--ghost nfc-btn--sm" data-add="services">+ Add service</button>' : ""}</div>`,
+    ${d.services.length < 12 ? '<button type="button" class="nfc-btn nfc-btn--ghost nfc-btn--sm" data-add="services">+ Add business service</button>' : ""}</div>`,
 
   theme: (d) => `<div class="nfc-themes" role="radiogroup" aria-label="Profile design">${THEMES.map((t) => `<label class="nfc-theme-card${d.theme_id === t.key ? " is-selected" : ""}">
     <input type="radio" name="theme_id" value="${t.key}" ${d.theme_id === t.key ? "checked" : ""} class="nfc-sr">
@@ -310,7 +310,7 @@ export function bindEditor(root, ctx) {
     if (b.hasAttribute("data-copy-phone")) { ctx.draft.whatsapp = ctx.draft.phone; rerender("contact"); return changed(); }
     if (b.dataset.add) {
       const list = b.dataset.add;
-      ctx.draft[list].push(list === "services" ? { title: "", description: "", external_url: "", is_visible: true, image: null } : { title: "", url: "", icon: "link", is_visible: true });
+      ctx.draft[list].push(list === "services" ? { title: "", description: "", external_url: "", is_visible: true, image: null } : { title: "", url: "", icon: "portfolio", is_visible: true });
       rerender(list);
       root.querySelector(`[data-section="${list}"] .nfc-list-item:last-of-type input`)?.focus();
       return changed();

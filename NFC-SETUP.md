@@ -102,7 +102,7 @@ Later edits by you or the customer appear on the same URL immediately. The card 
 
 Under **Social Media**, add a Viber number or business chat link, a WeChat ID or contact QR image, a public Bdjobs or CV link, and a WhatsApp Business number or short link. A Viber number can be copied into Viber's contact search. WhatsApp Business opens a chat using its own number or link. The individual **Visible** switches control which options appear on the public profile.
 
-Add an **imo number** under **Social Media**. Visitors can copy the number and search for it in imo. **Permanent address** is in **Contact Information** and appears on the public profile only when its visibility switch is on. Under **Images & branding** (called **Photos & branding** in the customer dashboard), upload either or both sides of a **Visiting card**. Visitors can open each saved, visible side at full size.
+Add an **imo number** under **Social Media**. Visitors can copy the number and search for it in imo. Add a **Brilliant Number** in the same section; it appears as a phone contact and tapping it starts a call. **Permanent address** is in **Contact Information** and appears on the public profile only when its visibility switch is on. Under **Images & branding** (called **Photos & branding** in the customer dashboard), upload either or both sides of a **Visiting card**. Visitors can open each saved, visible side at full size.
 
 ### Forgot password (customer asks on WhatsApp)
 

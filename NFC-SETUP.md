@@ -23,8 +23,8 @@ The main admin sidebar has a new **NFC কার্ড ম্যানেজম�
 4. Run `supabase/migrations/20261125152314_nfc_more_contact_platforms.sql` for Viber, WeChat, Bdjobs and WhatsApp Business.
 5. Run `supabase/migrations/20261126074113_nfc_imo_address_visiting_card.sql` for imo, Permanent Address and Visiting Card before deploying the corresponding code. On projects with the previous migrations in place, run only the new migration.
 6. Run `supabase/migrations/20261128000000_nfc_brilliant_number.sql` to enable Brilliant Number. On an already configured project, run only this new migration.
-6. Check: **Table Editor** shows `nfc_customers`, `nfc_profiles`, and so on, and `nfc_themes` has 12 rows. **Storage** shows the public bucket `nfc-profile-media` (2 MB, PNG/JPEG/WebP only).
-7. Do **not** add any policies to the NFC tables or to `nfc-profile-media`. Browsers never access them directly; only the server (with the service-role key) does.
+7. Check: **Table Editor** shows `nfc_customers`, `nfc_profiles`, and so on, and `nfc_themes` has 12 rows. **Storage** shows the public bucket `nfc-profile-media` (2 MB, PNG/JPEG/WebP only).
+8. Do **not** add any policies to the NFC tables or to `nfc-profile-media`. Browsers never access them directly; only the server (with the service-role key) does.
 
 > Run this against your real project only when you are ready. The migration is additive, but take a database backup first if your plan offers one.
 

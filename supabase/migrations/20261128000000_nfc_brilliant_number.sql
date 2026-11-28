@@ -14,7 +14,7 @@ alter table public.nfc_social_links
     (url = '' or (url ~ '^https?://' and length(url) <= 500))
     and (identifier = '' or (
       url = '' and (
-        (platform in ('viber', 'imo', 'brilliant') and identifier ~ '^\\+[1-9][0-9]{7,14}$')
+        (platform in ('viber', 'imo', 'brilliant') and identifier ~ '^\+[1-9][0-9]{7,14}$')
         or (platform = 'wechat' and identifier ~ '^[a-zA-Z0-9][a-zA-Z0-9_-]{0,31}$')
       )
     ))

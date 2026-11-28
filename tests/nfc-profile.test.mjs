@@ -168,7 +168,7 @@ test("Brilliant Number is validated, saved, and rendered as a tap-to-call contac
   const cu = await app.createCustomer({ social_links: [{ platform: "brilliant", url: "০১৭১২৩৪৫৬৭৮" }] });
   const first = (await app.request("GET", "/p/" + cu.slug)).text;
   assert.match(first, /Brilliant Number/);
-  assert.match(first, /href="tel:\\+8801712345678"/);
+  assert.match(first, /href="tel:\+8801712345678"/);
   const client = await app.activeClient(cu);
   const rec = (await client.req("GET", "/api/nfc/me/profile")).body;
   const draft = draftFromRecord(rec);
@@ -179,8 +179,8 @@ test("Brilliant Number is validated, saved, and rendered as a tap-to-call contac
   assert.equal(preview.socials.find((s) => s.platform === "brilliant").identifier, "+447700900123");
   const saved = await client.req("PATCH", "/api/nfc/me/profile", { body: draftToPayload(draft, draftFromRecord(rec)) });
   assert.equal(saved.status, 200);
-  assert.match((await app.request("GET", "/p/" + cu.slug)).text, /href="tel:\\+447700900123"/);
-  const bad = await client.req("PUT", "/api/nfc/me/social-links", { body: [{ platform: "brilliant", url: "not-a-number" }] });
+  assert.match((await app.request("GET", "/p/" + cu.slug)).text, /href="tel:\+447700900123"/);
+  const bad = await client.req("PUT", "/api/nfc/me/social-links", { body: { social_links: [{ platform: "brilliant", url: "not-a-number" }] } });
   assert.equal(bad.status, 400);
 });
 

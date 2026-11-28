@@ -164,6 +164,35 @@ test("social fields are present in the shared editor and invalid contact targets
   assert.match((await app.request("GET", "/p/" + cu.slug)).text, /href="https:\/\/example\.com\/resume\.pdf"/);
 });
 
+test("Brilliant Number is validated, saved, and rendered as a tap-to-call contact", async () => {
+  const cu = await app.createCustomer({ social_links: [{ platform: "brilliant", url: "০১৭১২৩৪৫৬৭৮" }] });
+  const first = (await app.request("GET", "/p/" + cu.slug)).text;
+  assert.match(first, /Brilliant Number/);
+  assert.match(first, /href="tel:\\+8801712345678"/);
+  const client = await app.activeClient(cu);
+  const rec = (await client.req("GET", "/api/nfc/me/profile")).body;
+  const draft = draftFromRecord(rec);
+  const brilliant = draft.social_links.find((s) => s.platform === "brilliant");
+  assert.equal(brilliant.url, "+8801712345678");
+  brilliant.url = "+447700900123";
+  const preview = draftToView(draft, { slug: "" });
+  assert.equal(preview.socials.find((s) => s.platform === "brilliant").identifier, "+447700900123");
+  const saved = await client.req("PATCH", "/api/nfc/me/profile", { body: draftToPayload(draft, draftFromRecord(rec)) });
+  assert.equal(saved.status, 200);
+  assert.match((await app.request("GET", "/p/" + cu.slug)).text, /href="tel:\\+447700900123"/);
+  const bad = await client.req("PUT", "/api/nfc/me/social-links", { body: [{ platform: "brilliant", url: "not-a-number" }] });
+  assert.equal(bad.status, 400);
+});
+
+test("portfolio and business services are clearly available in the shared editor", () => {
+  const links = sectionHtml("links", emptyDraft());
+  const services = sectionHtml("services", emptyDraft());
+  assert.match(links, /Add portfolio \/ custom link/);
+  assert.match(links, /portfolio website, project showcase/);
+  assert.match(services, /Add business service/);
+  assert.match(services, /service title, description, optional image/);
+});
+
 test("imo, permanent address and both visiting-card sides save and render through the profile editors", async () => {
   const front = await app.admin("POST", "uploads", { body: { data: await tinyPng() } });
   const back = await app.admin("POST", "uploads", { body: { data: await tinyPng() } });

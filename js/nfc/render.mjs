@@ -140,7 +140,7 @@ const P = {
   qr: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>',
 };
 export const icon = (name, cls = "nfcp-svg") =>
-  `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${P[name === "whatsapp_business" ? "whatsapp" : name] || P.link}</svg>`;
+  `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${P[name === "whatsapp_business" ? "whatsapp" : name === "brilliant" ? "phone" : name] || P.link}</svg>`;
 
 const ext = 'target="_blank" rel="noopener noreferrer nofollow"';
 const lines = (text) => esc(text).replace(/\n/g, "<br>");
@@ -149,6 +149,10 @@ function renderSocial(s, mode) {
   const badge = `<span class="nfcp-ico">${icon(s.platform)}</span><span class="nfcp-social-label">${esc(s.label)}</span>`;
   const attrs = `class="nfcp-social nfcp-social--${s.platform}" data-track="click_social" data-detail="${s.platform}"`;
   if (s.href) return `<a ${attrs} href="${esc(s.href)}" ${ext}>${badge}</a>`;
+  if (s.platform === "brilliant" && s.identifier) {
+    const call = telHref(s.identifier);
+    return call ? `<a ${attrs} href="${esc(call)}">${badge}<small class="nfcp-social-number">${esc(s.identifier)}</small></a>` : "";
+  }
 
   const isWeChat = s.platform === "wechat";
   const field = isWeChat ? "ID" : "number";
@@ -198,7 +202,7 @@ export function renderProfile(view, opts = {}) {
   ].filter(Boolean);
   const socials = view.socials.filter((s) => SOCIAL_PLATFORMS.includes(s.platform))
     .map((s) => ({ ...s, href: safeHttp(s.url), qr: safeHttp(s.qr) }))
-    .filter((s) => s.href || (s.platform === "wechat" && (s.identifier || s.qr)) || (["viber", "imo"].includes(s.platform) && s.identifier));
+    .filter((s) => s.href || (s.platform === "wechat" && (s.identifier || s.qr)) || (["viber", "imo", "brilliant"].includes(s.platform) && s.identifier));
   const services = view.services.map((s) => ({ ...s, href: safeHttp(s.url), img: safeHttp(s.image) }));
   const links = view.links.map((l) => ({ ...l, href: safeHttp(l.url) })).filter((l) => l.href);
   const photo = safeHttp(view.photo), cover = safeHttp(view.cover), logo = safeHttp(view.logo);
